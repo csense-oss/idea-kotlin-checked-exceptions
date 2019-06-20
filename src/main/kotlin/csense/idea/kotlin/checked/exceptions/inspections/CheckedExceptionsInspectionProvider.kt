@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions
+package csense.idea.kotlin.checked.exceptions.inspections
 
 import com.intellij.codeInspection.InspectionToolProvider
 

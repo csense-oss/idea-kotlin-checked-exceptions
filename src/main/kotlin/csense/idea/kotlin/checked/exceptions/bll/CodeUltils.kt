@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions
+package csense.idea.kotlin.checked.exceptions.bll
 
 import com.intellij.psi.*
 import org.jetbrains.kotlin.idea.references.*
