@@ -26,40 +26,34 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                               isOnTheFly: Boolean): KtVisitorVoid {
 
         return callExpressionVisitor { namedFunction: KtCallExpression ->
-            //usefull in debugging.
+            //useful in debugging.
             //val callCode = namedFunction.text
-            val functionResolved = namedFunction.resolveMainReference()
-                    ?: return@callExpressionVisitor
-            //Does it throw ?
-            if (functionResolved.throwsIfFunction() == true) {
-                //is there any try catch and if not, is the container marked as throws ? if not then its an error.
-                if (namedFunction.isNotWrappedInTryCatch()
-                        && !namedFunction.isContainingFunctionMarkedAsThrows()
-                        && !namedFunction.isContainedInFunctionCatching()
-                ) {
-
-                    holder.registerProblem(
-                            namedFunction,
-                            "This call throws, so you should handle it with try catch. or declare that this method throws.",
-                            Settings.checkedExceptionSeverity,
-                            *createQuickFixes(namedFunction)
-                    )
-                }
+            val functionResolved = namedFunction.resolveMainReference() ?: return@callExpressionVisitor
+            //Does it throw ? (if not just break)
+            val throwsTypes = functionResolved.throwsTypesIfFunction() ?: return@callExpressionVisitor
+            //is there any try catch and if not, is the container marked as throws ? if not then its an error.
+            if (namedFunction.isNotWrappedInTryCatch()
+                    && !namedFunction.isContainingFunctionMarkedAsThrows()
+                    && !namedFunction.isContainedInFunctionCatching()
+            ) {
+                holder.registerProblem(
+                        namedFunction,
+                        "This call throws, so you should handle it with try catch, or declare that this method throws.\n${throwsTypes.joinToString(", ")}",
+                        Settings.checkedExceptionSeverity,
+                        *createQuickFixes(namedFunction, throwsTypes)
+                )
             }
         }
     }
 
-    private fun createQuickFixes(namedFunction: KtCallExpression): Array<LocalQuickFix> {
+    private fun createQuickFixes(namedFunction: KtCallExpression, exceptionTypes: List<String>): Array<LocalQuickFix> {
         return arrayOf(
-                WrapInTryCatchQuickFix(namedFunction),
-                DeclareFunctionAsThrowsQuickFix(namedFunction)
+                WrapInTryCatchQuickFix(namedFunction, exceptionTypes),
+                DeclareFunctionAsThrowsQuickFix(namedFunction, exceptionTypes)
         )
     }
-
 
     override fun isEnabledByDefault(): Boolean {
         return true
     }
-
-
 }

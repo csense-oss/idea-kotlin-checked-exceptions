@@ -7,7 +7,9 @@ import com.intellij.psi.util.*
 import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
-class DeclareFunctionAsThrowsQuickFix(namedFunction: KtCallExpression) : LocalQuickFixOnPsiElement(namedFunction) {
+class DeclareFunctionAsThrowsQuickFix(
+        namedFunction: KtCallExpression,
+        private val exceptionTypes: List<String>) : LocalQuickFixOnPsiElement(namedFunction) {
 
     override fun getText(): String {
         return "Mark function as throws."
@@ -15,15 +17,16 @@ class DeclareFunctionAsThrowsQuickFix(namedFunction: KtCallExpression) : LocalQu
 
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {
         val function = startElement.parentOfType(KtFunction::class) ?: return
+        val exceptionType = exceptionTypes.singleOrNull()
         project.executeWriteCommand(text) {
-            function.addAnnotationEntry(createThrowsAnnotation(function, null))
+            function.addAnnotationEntry(createThrowsAnnotation(function, exceptionType))
         }
     }
 
-    fun createThrowsAnnotation(caller: KtFunction, exceptionType: String?): KtAnnotationEntry {
+    private fun createThrowsAnnotation(caller: KtFunction, exceptionType: String?): KtAnnotationEntry {
         val text =
                 if (exceptionType != null) {
-                    "@Throws($exceptionType::class.java)"
+                    "@Throws($exceptionType::class)"
                 } else {
                     "@Throws"
                 }

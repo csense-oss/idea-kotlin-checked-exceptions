@@ -18,14 +18,14 @@ class ThrowsLineMarkerProvider : RelatedItemLineMarkerProvider() {
         }
         val asMethod = element as? KtCallExpression ?: return
         val method = asMethod.resolveMainReference() ?: return
-        if (method.throwsIfFunction() == true) {
-            val builder =
-                    NavigationGutterIconBuilder
-                            .create(IconLoader.getIcon("/icons/throws.png"))
-                            .setTargets(asMethod)
-                            .setTooltipText("This expression is declared throws")
-            result.add(builder.createLineMarkerInfo(element))
-        }
+        val throwsTypes = method.throwsTypesIfFunction() ?: return
+        val throwsTypesText = throwsTypes.joinToString(", ")
+        val builder =
+                NavigationGutterIconBuilder
+                        .create(IconLoader.getIcon("/icons/throws.png"))
+                        .setTargets(asMethod)
+                        .setTooltipText("This expression is declared throws of type\n$throwsTypesText")
+        result.add(builder.createLineMarkerInfo(element))
     }
 
 }

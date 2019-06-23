@@ -7,7 +7,9 @@ import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
 
-class WrapInTryCatchQuickFix(namedFunction: KtCallExpression) : LocalQuickFixOnPsiElement(namedFunction) {
+class WrapInTryCatchQuickFix(
+        namedFunction: KtCallExpression,
+        private val exceptionTypes: List<String>) : LocalQuickFixOnPsiElement(namedFunction) {
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {
         project.executeWriteCommand(text) {
 
@@ -16,15 +18,17 @@ class WrapInTryCatchQuickFix(namedFunction: KtCallExpression) : LocalQuickFixOnP
                 is KtProperty -> startElement
                 else -> startElement
             }
-            val newElement = createTryCatchWithElement(elementToUse)
+
+            val exceptionType = exceptionTypes.singleOrNull() ?: "Exception"
+            val newElement = createTryCatchWithElement(elementToUse, exceptionType)
             elementToUse.replace(newElement)
         }
     }
 
 
-    private fun createTryCatchWithElement(element: PsiElement): KtTryExpression {
+    private fun createTryCatchWithElement(element: PsiElement, exceptionType: String): KtTryExpression {
         val tryExpression = KtPsiFactory(element)
-                .createExpression("try{\n}\ncatch(e:Exception){ TODO(\"Add error handling here\")}") as KtTryExpression
+                .createExpression("try{\n}\ncatch(e:$exceptionType){ TODO(\"Add error handling here\")}") as KtTryExpression
         tryExpression.tryBlock.addAfter(element, tryExpression.tryBlock.lBrace)
         return tryExpression
     }

@@ -1,18 +1,44 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
 import com.intellij.psi.*
+import csense.kotlin.extensions.*
 import org.jetbrains.kotlin.idea.references.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
 
 
 fun PsiElement.throwsIfFunction(): Boolean? {
-    return when (this) {
-        is KtNamedFunction -> throwsDeclared()
-        is PsiMethod -> throwsExceptions()
+    return throwsTypesIfFunction().isNotNullOrEmpty()
+}
+
+fun PsiElement.throwsTypesIfFunction(): List<String>? {
+    val result = when (this) {
+        is KtNamedFunction -> throwsTypes()
+        is PsiMethod -> computeThrowsTypes()
         else -> null
     }
+    return result.isNotNullOrEmpty().map(result, null)
 }
+
+
+fun PsiMethod.computeThrowsTypes(): List<String> {
+    return throwsTypes.map { it.name }
+}
+
+fun KtNamedFunction.throwsTypes(): List<String> {
+    val throwsAnnotation = annotationEntries.firstOrNull() {
+        it.shortName?.asString() == "Throws"
+    } ?: return listOf()
+    return if (throwsAnnotation.children.size <= 1) {
+        listOf("Exception")
+    } else {
+        //we have params at index 1
+        val eachThrowType = throwsAnnotation.children[1].children
+        val asText = eachThrowType.map { it.firstChild.firstChild.text }
+        asText
+    }
+}
+
 
 fun KtAnnotated.throwsDeclared(): Boolean = annotationEntries.any {
     it.shortName?.asString() == "Throws"

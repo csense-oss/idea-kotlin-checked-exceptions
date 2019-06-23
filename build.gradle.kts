@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    compile("csense.kotlin:csense-kotlin-jvm:0.0.17")
+    compile("csense.kotlin:csense-kotlin-jvm:0.0.18")
 //    runtime("org.jetbrains.kotlin:kotlin-compiler-embeddable")
 //    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.2'
 //    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.2.2'
