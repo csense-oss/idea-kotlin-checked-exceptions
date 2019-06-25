@@ -4,27 +4,26 @@ import com.intellij.codeInsight.daemon.*
 import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
-import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*
 
+/**
+ * Highlights "throws" expressions, which is to say, where you throw exceptions.
+ *
+ */
 
-class ThrowsLineMarkerProvider : RelatedItemLineMarkerProvider() {
-
-
+class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(element: PsiElement, result: MutableCollection<in RelatedItemLineMarkerInfo<PsiElement>>) {
-        if (!Settings.shouldHighlightCheckedExceptions) {
+        if (!Settings.shouldHighlightThrowsExceptions) {
             return
         }
-        val asMethod = element as? KtCallExpression ?: return
-        val method = asMethod.resolveMainReference() ?: return
-        val throwsTypes = method.throwsTypesIfFunction() ?: return
-        val throwsTypesText = throwsTypes.joinToString(", ")
+        val asMethod = element as? KtThrowExpression ?: return
+
         val builder =
                 NavigationGutterIconBuilder
-                        .create(IconLoader.getIcon("/icons/throws.png"))
+                        .create(IconLoader.getIcon("/icons/exception.png"))
                         .setTargets(asMethod)
-                        .setTooltipText("This expression is declared throws of type\n$throwsTypesText")
+                        .setTooltipText("You are throwing an exception")
         result.add(builder.createLineMarkerInfo(element))
     }
 

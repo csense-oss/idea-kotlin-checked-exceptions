@@ -19,7 +19,10 @@
                 implementation="csense.idea.kotlin.checked.exceptions.inspections.CheckedExceptionsInspectionProvider"/>
         <codeInsight.lineMarkerProvider
                 language="kotlin"
-                implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.ThrowsLineMarkerProvider"/>
+                implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.CheckedExceptionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider
+                language="kotlin"
+                implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.ThrowsExceptionLineMarkerProvider"/>
 
         <applicationConfigurable groupId="tools" displayName="Csense - Kotlin Checked exceptions"
                                  id="csenseKotlinCheckedExceptionsSettingsPage"

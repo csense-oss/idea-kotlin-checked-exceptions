@@ -2,9 +2,12 @@ package csense.idea.kotlin.checked.exceptions.bll
 
 import com.intellij.psi.*
 import csense.kotlin.extensions.*
+import org.eclipse.jdt.internal.compiler.ast.*
+import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.*
 import org.jetbrains.kotlin.idea.references.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
+import org.jetbrains.kotlin.resolve.calls.resolvedCallUtil.*
 
 
 fun PsiElement.throwsIfFunction(): Boolean? {
@@ -87,12 +90,17 @@ fun KtElement.isContainingFunctionMarkedAsThrows(): Boolean {
 fun KtElement.isContainedInFunctionCatching(): Boolean {
     var current: PsiElement = this
     while (true) {
-        if (current is KtLambdaExpression && current.parent?.parent is KtCallExpression) {
-            val parent = current.parent?.parent as KtCallExpression
+        if (current is KtLambdaExpression &&
+                (current.parent?.parent is KtCallExpression ||
+                        current.parent?.parent?.parent is KtCallExpression)) {
+            val parent = current.parent?.parent as? KtCallExpression
+                    ?: current.parent?.parent?.parent as KtCallExpression
             val main = parent.resolveMainReference() as? KtFunction
-            //we currently only support 1 parameter.
-            if (main != null && main.valueParameters.size == 1) {
-                val nameToFindInCode = main.valueParameters.first().name
+
+            val index = current.resolveParameterIndex()
+            val mainName = main?.text
+            if (main != null && index != null) {
+                val nameToFindInCode = main.valueParameters[index].name
                 if (nameToFindInCode != null) {
                     main.findInvocationOfName(nameToFindInCode)?.isWrappedInTryCatch()?.let {
                         return it
@@ -101,6 +109,16 @@ fun KtElement.isContainedInFunctionCatching(): Boolean {
             }
         }
         current = current.parent ?: return false
+    }
+}
+
+fun KtLambdaExpression.resolveParameterIndex(): Int? {
+    val callExp =
+            parent?.parent as? KtCallExpression
+                    ?: parent?.parent?.parent as? KtCallExpression
+                    ?: return null
+    return callExp.getParameterInfos().indexOfFirst {
+        (it.typeInfo as?  TypeInfo.ByExpression)?.expression === this
     }
 }
 

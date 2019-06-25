@@ -28,4 +28,11 @@ object Settings {
         get() = backend.getBoolean(shouldHighlightCheckedExceptionsName, true)
         set(value) = backend.setValue(shouldHighlightCheckedExceptionsName, value, true)
 
+    private const val shouldHighlightThrowsExceptionsName = settingsPrefixed + "shouldHighlightThrowsExceptions"
+
+
+    var shouldHighlightThrowsExceptions: Boolean
+        get() = backend.getBoolean(shouldHighlightThrowsExceptionsName, true)
+        set(value) = backend.setValue(shouldHighlightThrowsExceptionsName, value, true)
+
 }
