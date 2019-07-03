@@ -6,24 +6,27 @@ import java.nio.file.*
 //TODO sync ?
 object IgnoreStorage {
 
-    private var haveReadFile: Boolean = false
+    private var lastFileModifiedTime: Long? = null
 
     private val current: MutableList<IgnoreEntry> = mutableListOf()
     //sync with the file ".ignore.throws" if this feature is enabled. (default it is).
 
     private fun read(project: Project): List<IgnoreEntry> {
-        val rootPath = project.basePath ?: return listOf()
-        return Files.readAllLines(Paths.get(rootPath, ".ignore.throws")).parseOrIgnore()
+        val path = resolvePath(project) ?: return listOf()
+        return Files.readAllLines(path).parseOrIgnore()
     }
 
     fun addEntry(project: Project, entry: IgnoreEntry) {
         ensureHaveReadFile(project)
-
+        //TODO do not double add ?
+        current.add(entry)
+        saveFile(project)
     }
 
     fun removeEntry(project: Project, entry: IgnoreEntry) {
         ensureHaveReadFile(project)
-
+        current.remove(entry)
+        saveFile(project)
     }
 
     fun getEntries(project: Project): List<IgnoreEntry> {
@@ -32,10 +35,32 @@ object IgnoreStorage {
     }
 
     private fun ensureHaveReadFile(project: Project) {
-        if (!haveReadFile) {
-            haveReadFile = true
+        val last = getLastAccessed(project)
+        if (last != lastFileModifiedTime) {
             current.addAll(read(project))
         }
+    }
+
+    private fun getLastAccessed(project: Project): Long? {
+        val path = resolvePath(project) ?: return null
+        return if (Files.exists(path)) {
+            Files.getLastModifiedTime(path).toMillis()
+        } else {
+            null
+        }
+    }
+
+    private fun saveFile(project: Project) {
+        val path = resolvePath(project) ?: return
+        Files.write(path, current.map {
+            "${it.fullName} ${it.parameterName}"
+        })
+        lastFileModifiedTime = getLastAccessed(project)
+    }
+
+    private fun resolvePath(project: Project): Path? {
+        val rootPath = project.basePath ?: return null
+        return Paths.get(rootPath, ".ignore.throws")
     }
 }
 
