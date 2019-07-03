@@ -37,7 +37,9 @@ object IgnoreStorage {
     private fun ensureHaveReadFile(project: Project) {
         val last = getLastAccessed(project)
         if (last != lastFileModifiedTime) {
+            current.clear()
             current.addAll(read(project))
+            lastFileModifiedTime = last
         }
     }
 
