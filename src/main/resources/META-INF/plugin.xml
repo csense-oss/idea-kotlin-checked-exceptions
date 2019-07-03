@@ -13,10 +13,11 @@
     <depends>com.intellij.modules.lang</depends>
     <depends>org.jetbrains.kotlin</depends>
 
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <inspectionToolProvider
-                implementation="csense.idea.kotlin.checked.exceptions.inspections.CheckedExceptionsInspectionProvider"/>
+                implementation="csense.idea.kotlin.checked.exceptions.inspections.InspectionsProvider"/>
         <codeInsight.lineMarkerProvider
                 language="kotlin"
                 implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.CheckedExceptionLineMarkerProvider"/>
@@ -27,6 +28,10 @@
         <applicationConfigurable groupId="tools" displayName="Csense - Kotlin Checked exceptions"
                                  id="csenseKotlinCheckedExceptionsSettingsPage"
                                  instance="csense.idea.kotlin.checked.exceptions.settings.SettingsPage"/>
+
+
+        <annotator language="kotlin"
+                   implementationClass="csense.idea.kotlin.checked.exceptions.annotator.ThrowsAnnotator"/>
     </extensions>
 
     <project-components>

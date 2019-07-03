@@ -35,7 +35,7 @@ class WrapInTryCatchQuickFix(
 
 
     override fun getFamilyName(): String {
-        return "csense kotlin checked exceptions"
+        return "csense kotlin checked exceptions- wrap in try catch quick fix"
     }
 
     override fun getText(): String {

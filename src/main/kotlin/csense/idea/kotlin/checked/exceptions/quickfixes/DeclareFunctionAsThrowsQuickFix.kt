@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
 class DeclareFunctionAsThrowsQuickFix(
-        namedFunction: KtCallExpression,
+        namedFunction: PsiElement,
         private val exceptionTypes: List<String>) : LocalQuickFixOnPsiElement(namedFunction) {
 
     override fun getText(): String {
@@ -35,7 +35,7 @@ class DeclareFunctionAsThrowsQuickFix(
     }
 
     override fun getFamilyName(): String {
-        return "csense kotlin checked exceptions"
+        return "csense kotlin checked exceptions - declares func throws"
     }
 
 }
