@@ -40,24 +40,32 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                               isOnTheFly: Boolean): KtVisitorVoid {
 
         return callExpressionVisitor { namedFunction: KtCallExpression ->
-            //useful in debugging.
-            //val callCode = namedFunction.text
             val functionResolved = namedFunction.resolveMainReference() ?: return@callExpressionVisitor
             //Does it throw ? (if not just break)
             val throwsTypes = functionResolved.throwsTypesIfFunction() ?: return@callExpressionVisitor
             //is there any try catch and if not, is the container marked as throws ? if not then its an error.
+            val lambdaContext = namedFunction.getPotentialContainingLambda()
             if (namedFunction.isNotWrappedInTryCatch()
                     && !namedFunction.isContainingFunctionMarkedAsThrows()
-                    && !namedFunction.isContainedInFunctionCatchingOrIgnored(ignoreInMemory)
+                    && (lambdaContext?.isNotContainedInFunctionCatchingOrIgnored(ignoreInMemory) != false)
             ) {
                 holder.registerProblem(
                         namedFunction,
                         "This call throws, so you should handle it with try catch, or declare that this method throws.\n${throwsTypes.joinToString(", ")}",
                         Settings.checkedExceptionSeverity,
-                        *createQuickFixes(namedFunction, throwsTypes)
+                        *(createQuickFixes(namedFunction, throwsTypes)
+                                + getIgnoreQuickFixes(lambdaContext))
                 )
             }
         }
+    }
+
+    private fun getIgnoreQuickFixes(lambdaContext: LambdaParameterData?): List<LocalQuickFix> {
+        if (lambdaContext == null || ignoreInMemory.isArgumentMarkedAsIgnore(lambdaContext.main, lambdaContext.parameterName)) {
+            return listOf()
+        }
+        //we either have it ignored or no lambda, or "not", thus we can add it.
+        return listOf(AddLambdaToIgnoreQuickFix(lambdaContext.main, lambdaContext.parameterName))
     }
 
     private fun createQuickFixes(namedFunction: KtCallExpression, exceptionTypes: List<String>): Array<LocalQuickFix> {
