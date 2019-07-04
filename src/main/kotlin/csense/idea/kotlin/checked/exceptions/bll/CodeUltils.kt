@@ -3,6 +3,7 @@ package csense.idea.kotlin.checked.exceptions.bll
 import com.intellij.psi.*
 import com.intellij.psi.util.*
 import csense.kotlin.extensions.*
+import csense.kotlin.extensions.collections.*
 import org.jetbrains.kotlin.idea.debugger.sequence.psi.*
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.*
 import org.jetbrains.kotlin.idea.references.*
@@ -91,31 +92,6 @@ fun KtElement.isContainingFunctionMarkedAsThrows(): Boolean {
 
     }
 }
-//
-//fun KtElement.isContainedInFunctionCatching(): Boolean {
-//    var current: PsiElement = this
-//    while (true) {
-//        if (current is KtLambdaExpression &&
-//                (current.parent?.parent is KtCallExpression ||
-//                        current.parent?.parent?.parent is KtCallExpression)) {
-//            val parent = current.parent?.parent as? KtCallExpression
-//                    ?: current.parent?.parent?.parent as KtCallExpression
-//            val main = parent.resolveMainReference() as? KtFunction
-//
-//            val index = current.resolveParameterIndex()
-//            if (main != null && index != null && index >= 0) {
-//                val nameToFindInCode = main.valueParameters[index].name
-//                if (nameToFindInCode != null) {
-//                    main.findInvocationOfName(nameToFindInCode)?.isWrappedInTryCatch()?.let {
-//                        return it
-//                    }
-//                }
-//            }
-//        }
-//        current = current.parent ?: return false
-//    }
-//}
-
 fun KtLambdaExpression.resolveParameterIndex(): Int? {
     val callExp =
             parent?.parent as? KtCallExpression

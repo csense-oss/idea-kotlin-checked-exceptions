@@ -3,6 +3,7 @@ package csense.idea.kotlin.checked.exceptions.quickfixes
 import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
+import com.intellij.util.*
 import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
@@ -21,7 +22,11 @@ class WrapInTryCatchQuickFix(
 
             val exceptionType = exceptionTypes.singleOrNull() ?: "Exception"
             val newElement = createTryCatchWithElement(elementToUse, exceptionType)
-            elementToUse.replace(newElement)
+            try {
+                elementToUse.replace(newElement)
+            } catch (e: IncorrectOperationException) {
+                TODO("Add error handling here")
+            }
         }
     }
 

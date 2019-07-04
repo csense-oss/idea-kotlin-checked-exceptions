@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.kotlin.extensions.*
 import org.jetbrains.kotlin.psi.*
 
 class DeclareFunctionAsThrowsIntentionAction(
@@ -20,13 +21,13 @@ class DeclareFunctionAsThrowsIntentionAction(
 
     override fun isAvailable(project: Project, editor: Editor?, file: PsiFile?): Boolean = true
 
-    override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
+    override fun invoke(project: Project, editor: Editor?, file: PsiFile?) = tryAndLog {
         WriteCommandAction.writeCommandAction(project).run<Throwable> {
             throwsExp.findFunctionScope()?.let {
                 it.addAnnotationEntry(createThrowsAnnotation(it, throwType))
             }
         }
-    }
+    } ?: Unit
 
 
     private fun createThrowsAnnotation(caller: KtFunction, exceptionType: String?): KtAnnotationEntry {
