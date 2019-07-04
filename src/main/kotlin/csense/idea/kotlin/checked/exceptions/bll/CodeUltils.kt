@@ -44,6 +44,8 @@ fun KtNamedFunction.throwsTypes(): List<String> {
     }
 }
 
+fun KtElement.getContainingFunctionOrPropertyAccessor(): KtModifierListOwner? =
+        getParentOfType<KtNamedFunction>(true) ?: getParentOfType<KtPropertyAccessor>(true)
 
 fun KtAnnotated.throwsDeclared(): Boolean = annotationEntries.any {
     it.shortName?.asString() == "Throws"
@@ -67,7 +69,7 @@ fun KtCallExpression.resolveMainReference(): PsiElement? {
 fun PsiElement.isWrappedInTryCatch(): Boolean {
     var current: PsiElement = this
     while (true) {
-        if (current is KtProperty || current is KtFunction) {
+        if (current is KtProperty || current is KtNamedFunction) {
             return false
         }
         if (current is KtTryExpression) {
@@ -86,12 +88,13 @@ fun KtElement.isContainingFunctionMarkedAsThrows(): Boolean {
     while (true) {
         when (current) {
             is KtPropertyAccessor -> return current.throwsDeclared()
-            is KtFunction -> return current.throwsDeclared()
+            is KtNamedFunction -> return current.throwsDeclared()
             else -> current = current.parent ?: return false
         }
 
     }
 }
+
 fun KtLambdaExpression.resolveParameterIndex(): Int? {
     val callExp =
             parent?.parent as? KtCallExpression
@@ -113,7 +116,7 @@ fun KtFunction.findInvocationOfName(name: String): KtCallExpression? {
  * Tries to resolve the function we are in.
  * @receiver KtExpression
  */
-fun KtExpression.findFunctionScope(): KtFunction? = parentOfType(KtFunction::class)
+fun KtExpression.findFunctionScope(): KtNamedFunction? = getParentOfType(true)
 
 /**
  * Tries to resolve the type of a throws expression in kotlin.

@@ -4,8 +4,11 @@ import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.psi.util.*
+import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.kotlin.extensions.*
 import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.*
 import java.lang.Exception
 
 class DeclareFunctionAsThrowsQuickFix(
@@ -16,28 +19,15 @@ class DeclareFunctionAsThrowsQuickFix(
         return "Mark function as throws."
     }
 
-    override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {
-        try {
-            val function = startElement.parentOfType(KtFunction::class) ?: return
-            val exceptionType = exceptionTypes.singleOrNull()
-            project.executeWriteCommand(text) {
-                function.addAnnotationEntry(createThrowsAnnotation(function, exceptionType))
-            }
-        } catch (e: Exception) {
-            //this can throw for some reason... :/
+    override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) = tryAndLog {
+        val ktElement = startElement as? KtElement ?: return
+        val parent: KtModifierListOwner = ktElement.getContainingFunctionOrPropertyAccessor() ?: return
+        val exceptionType = exceptionTypes.singleOrNull()
+        project.executeWriteCommand(text) {
+            parent.addAnnotationEntry(ThrowsAnnotationBll.createThrowsAnnotation(parent, exceptionType))
         }
-    }
+    } ?: Unit
 
-    private fun createThrowsAnnotation(caller: KtFunction, exceptionType: String?): KtAnnotationEntry {
-        val text =
-                if (exceptionType != null) {
-                    "@Throws($exceptionType::class)"
-                } else {
-                    "@Throws"
-                }
-        return KtPsiFactory(caller).createAnnotationEntry(text)
-
-    }
 
     override fun getFamilyName(): String {
         return "csense kotlin checked exceptions - declares func throws"

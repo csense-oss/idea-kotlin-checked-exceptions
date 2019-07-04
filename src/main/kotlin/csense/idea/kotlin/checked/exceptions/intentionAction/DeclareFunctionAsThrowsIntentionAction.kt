@@ -23,21 +23,9 @@ class DeclareFunctionAsThrowsIntentionAction(
 
     override fun invoke(project: Project, editor: Editor?, file: PsiFile?) = tryAndLog {
         WriteCommandAction.writeCommandAction(project).run<Throwable> {
-            throwsExp.findFunctionScope()?.let {
-                it.addAnnotationEntry(createThrowsAnnotation(it, throwType))
+            throwsExp.getContainingFunctionOrPropertyAccessor()?.let {
+                it.addAnnotationEntry(ThrowsAnnotationBll.createThrowsAnnotation(it, throwType))
             }
         }
     } ?: Unit
-
-
-    private fun createThrowsAnnotation(caller: KtFunction, exceptionType: String?): KtAnnotationEntry {
-        val text =
-                if (exceptionType != null) {
-                    "@Throws($exceptionType::class)"
-                } else {
-                    "@Throws"
-                }
-        return KtPsiFactory(caller).createAnnotationEntry(text)
-
-    }
 }

@@ -15,7 +15,6 @@ fun KtElement.isContainedInFunctionCatchingOrIgnored(ignoreInMemory: IgnoreInMem
             currentElement = potential.lambdaExpression.parent as? KtElement ?: return false
         }
     }
-    println("ejected due to max depth reached.")
     return false
 }
 
@@ -40,7 +39,7 @@ fun KtElement.getPotentialContainingLambda(): LambdaParameterData? {
                         current.parent?.parent?.parent is KtCallExpression)) {
             val parent = current.parent?.parent as? KtCallExpression
                     ?: current.parent?.parent?.parent as KtCallExpression
-            val main = parent.resolveMainReference() as? KtFunction
+            val main = parent.resolveMainReference() as? KtNamedFunction
 
             val index = current.resolveParameterIndex()
             if (main != null && index != null && index >= 0) {

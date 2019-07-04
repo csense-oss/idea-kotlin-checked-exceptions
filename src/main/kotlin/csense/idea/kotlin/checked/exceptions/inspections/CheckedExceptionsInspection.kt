@@ -64,7 +64,6 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                     )
                 }
             }
-            println("took $time ms to compute")
         }
     }
 
