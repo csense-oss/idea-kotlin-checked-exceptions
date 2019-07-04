@@ -4,9 +4,19 @@ import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import org.jetbrains.kotlin.psi.*
 
-fun KtElement.isContainedInFunctionCatchingOrIgnored(ignoreInMemory: IgnoreInMemory): Boolean {
-    val potential = getPotentialContainingLambda() ?: return false
-    return potential.isContainedInFunctionCatchingOrIgnored(ignoreInMemory)
+fun KtElement.isContainedInFunctionCatchingOrIgnored(ignoreInMemory: IgnoreInMemory, maxDepth: Int): Boolean {
+    var currentElement = this
+    //if we reach max depth, just eject.
+    for (i in 0 until maxDepth) {
+        val potential = currentElement.getPotentialContainingLambda() ?: return false
+        if (potential.isContainedInFunctionCatchingOrIgnored(ignoreInMemory)) {
+            return true
+        } else {
+            currentElement = potential.lambdaExpression.parent as? KtElement ?: return false
+        }
+    }
+    println("ejected due to max depth reached.")
+    return false
 }
 
 fun LambdaParameterData.isContainedInFunctionCatchingOrIgnored(ignoreInMemory: IgnoreInMemory): Boolean {

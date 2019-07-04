@@ -6,6 +6,7 @@ import csense.kotlin.extensions.*;
 
 object Settings {
 
+
     private const val settingsPrefixed = "CsenseCheckedExceptionKotlin"
 
     private val backend by lazy {
@@ -35,4 +36,9 @@ object Settings {
         get() = backend.getBoolean(shouldHighlightThrowsExceptionsName, true)
         set(value) = backend.setValue(shouldHighlightThrowsExceptionsName, value, true)
 
+
+    private const val maxDepthName = settingsPrefixed + "maxDepthName"
+    var maxDepth: Int
+        get() = backend.getInt(maxDepthName, 10)
+        set(value) = backend.setValue(maxDepthName, maxOf(value, 1), 10)
 }

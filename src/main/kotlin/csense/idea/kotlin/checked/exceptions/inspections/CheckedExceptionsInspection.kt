@@ -8,12 +8,17 @@ import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.idea.inspections.*
 import org.jetbrains.kotlin.psi.*
+import kotlin.system.*
 
 
 class CheckedExceptionsInspection : AbstractKotlinInspection() {
 
     private val ignoreInMemory by lazy {
         IgnoreInMemory()
+    }
+
+    private fun getMaxDepth(): Int {
+        return Settings.maxDepth
     }
 
     override fun getDisplayName(): String {
@@ -40,23 +45,26 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                               isOnTheFly: Boolean): KtVisitorVoid {
 
         return callExpressionVisitor { namedFunction: KtCallExpression ->
-            val functionResolved = namedFunction.resolveMainReference() ?: return@callExpressionVisitor
-            //Does it throw ? (if not just break)
-            val throwsTypes = functionResolved.throwsTypesIfFunction() ?: return@callExpressionVisitor
-            //is there any try catch and if not, is the container marked as throws ? if not then its an error.
-            val lambdaContext = namedFunction.getPotentialContainingLambda()
-            if (namedFunction.isNotWrappedInTryCatch()
-                    && !namedFunction.isContainingFunctionMarkedAsThrows()
-                    && (lambdaContext?.isNotContainedInFunctionCatchingOrIgnored(ignoreInMemory) != false)
-            ) {
-                holder.registerProblem(
-                        namedFunction,
-                        "This call throws, so you should handle it with try catch, or declare that this method throws.\n${throwsTypes.joinToString(", ")}",
-                        Settings.checkedExceptionSeverity,
-                        *(createQuickFixes(namedFunction, throwsTypes)
-                                + getIgnoreQuickFixes(lambdaContext))
-                )
+            val time = measureTimeMillis {
+                val functionResolved = namedFunction.resolveMainReference() ?: return@callExpressionVisitor
+                //Does it throw ? (if not just break)
+                val throwsTypes = functionResolved.throwsTypesIfFunction() ?: return@callExpressionVisitor
+                //is there any try catch and if not, is the container marked as throws ? if not then its an error.
+                val lambdaContext = namedFunction.getPotentialContainingLambda()
+                if (namedFunction.isNotWrappedInTryCatch()
+                        && !namedFunction.isContainingFunctionMarkedAsThrows()
+                        && !namedFunction.isContainedInFunctionCatchingOrIgnored(ignoreInMemory, getMaxDepth())
+                ) {
+                    holder.registerProblem(
+                            namedFunction,
+                            "This call throws, so you should handle it with try catch, or declare that this method throws.\n${throwsTypes.joinToString(", ")}",
+                            Settings.checkedExceptionSeverity,
+                            *(createQuickFixes(namedFunction, throwsTypes)
+                                    + getIgnoreQuickFixes(lambdaContext))
+                    )
+                }
             }
+            println("took $time ms to compute")
         }
     }
 

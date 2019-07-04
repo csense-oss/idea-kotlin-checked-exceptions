@@ -4,15 +4,24 @@ import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import csense.idea.kotlin.checked.exceptions.settings.Settings;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.text.ParseException;
 
 public class SettingsPaneUi {
+    @NotNull
     public JComboBox<ProblemHighlightType> checkedExceptionsSeverity;
+    @NotNull
     public JCheckBox highlightGutterCheckBox;
+    @NotNull
     public JPanel root;
+    @NotNull
+    public JSpinner maxDepthSpinner;
 
 
     public SettingsPaneUi() {
@@ -36,14 +45,24 @@ public class SettingsPaneUi {
                 didChange = true;
             }
         });
+        maxDepthSpinner.addChangeListener(e -> didChange = true);
+        maxDepthSpinner.setModel(new SpinnerNumberModel(Settings.INSTANCE.getMaxDepth(), 1, 100, 1));
     }
 
 
     public boolean didChange = false;
 
     public void store() {
+        try {
+            maxDepthSpinner.commitEdit();
+        } catch (java.text.ParseException e) {
+            //... so bad.
+        }
+        int maxDepthValue = (Integer) maxDepthSpinner.getValue();
         Settings.INSTANCE.setCheckedExceptionSeverity((ProblemHighlightType) checkedExceptionsSeverity.getSelectedItem());
         Settings.INSTANCE.setShouldHighlightCheckedExceptions(highlightGutterCheckBox.isSelected());
+        Settings.INSTANCE.setMaxDepth(maxDepthValue);
+        didChange = false;
     }
 
     {
@@ -82,6 +101,5 @@ public class SettingsPaneUi {
     public JComponent $$$getRootComponent$$$() {
         return root;
     }
-
 
 }

@@ -58,7 +58,11 @@ fun KtCallExpression.resolveMainReference(): PsiElement? {
     return calleeExpression?.mainReference?.resolve()
 }
 
-
+/**
+ * Examins the current scope (until a function or property is reached) for a try catch
+ * @receiver PsiElement
+ * @return Boolean
+ */
 fun PsiElement.isWrappedInTryCatch(): Boolean {
     var current: PsiElement = this
     while (true) {
