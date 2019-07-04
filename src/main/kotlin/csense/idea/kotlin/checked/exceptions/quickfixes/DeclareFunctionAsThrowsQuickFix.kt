@@ -6,6 +6,7 @@ import com.intellij.psi.*
 import com.intellij.psi.util.*
 import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
+import java.lang.Exception
 
 class DeclareFunctionAsThrowsQuickFix(
         namedFunction: PsiElement,
@@ -16,10 +17,14 @@ class DeclareFunctionAsThrowsQuickFix(
     }
 
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {
-        val function = startElement.parentOfType(KtFunction::class) ?: return
-        val exceptionType = exceptionTypes.singleOrNull()
-        project.executeWriteCommand(text) {
-            function.addAnnotationEntry(createThrowsAnnotation(function, exceptionType))
+        try {
+            val function = startElement.parentOfType(KtFunction::class) ?: return
+            val exceptionType = exceptionTypes.singleOrNull()
+            project.executeWriteCommand(text) {
+                function.addAnnotationEntry(createThrowsAnnotation(function, exceptionType))
+            }
+        } catch (e: Exception) {
+            //this can throw for some reason... :/
         }
     }
 
