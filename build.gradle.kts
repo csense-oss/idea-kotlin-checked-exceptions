@@ -1,12 +1,12 @@
 plugins {
     id("org.jetbrains.intellij") version "0.4.9"
-    kotlin("jvm") version "1.3.40"
+    kotlin("jvm") version "1.3.41"
     java
     id("org.owasp.dependencycheck") version "5.1.0"
 }
 
 group = "csense-idea"
-version = "0.7"
+version = "0.8"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
