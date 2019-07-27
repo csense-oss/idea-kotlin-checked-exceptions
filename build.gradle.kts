@@ -19,15 +19,12 @@ repositories {
 }
 
 dependencies {
-    compile("csense.kotlin:csense-kotlin-jvm:0.0.19")
-//    runtime("org.jetbrains.kotlin:kotlin-compiler-embeddable")
-//    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.2'
-//    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.2.2'
+    compile("csense.kotlin:csense-kotlin-jvm:0.0.20")
 }
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
-        Fixed issue with quickfix and mark function as throws.
+        Improved performance by caching throwing / non throwing methods. 
       """)
 }
 

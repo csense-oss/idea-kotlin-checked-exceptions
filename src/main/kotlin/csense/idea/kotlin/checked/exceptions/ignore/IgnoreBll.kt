@@ -4,12 +4,16 @@ import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import org.jetbrains.kotlin.psi.*
 
-fun KtElement.isContainedInFunctionCatchingOrIgnored(ignoreInMemory: IgnoreInMemory, maxDepth: Int): Boolean {
+fun KtElement.isContainedInLambdaCatchingOrIgnoredRecursive(
+        ignoreInMemory: IgnoreInMemory,
+        maxDepth: Int,
+        throwsTypes: List<String>
+): Boolean {
     var currentElement = this
     //if we reach max depth, just eject.
     for (i in 0 until maxDepth) {
         val potential = currentElement.getPotentialContainingLambda() ?: return false
-        if (potential.isContainedInFunctionCatchingOrIgnored(ignoreInMemory)) {
+        if (potential.isContainedInLambdaCatchingOrIgnored(ignoreInMemory, throwsTypes)) {
             return true
         } else {
             currentElement = potential.lambdaExpression.parent as? KtElement ?: return false
@@ -18,17 +22,16 @@ fun KtElement.isContainedInFunctionCatchingOrIgnored(ignoreInMemory: IgnoreInMem
     return false
 }
 
-fun LambdaParameterData.isContainedInFunctionCatchingOrIgnored(ignoreInMemory: IgnoreInMemory): Boolean {
+fun LambdaParameterData.isContainedInLambdaCatchingOrIgnored(
+        ignoreInMemory: IgnoreInMemory,
+        throwsTypes: List<String>
+): Boolean {
     if (ignoreInMemory.isArgumentMarkedAsIgnore(main, parameterName)) {
         return true
     }
-    return main.findInvocationOfName(parameterName)?.isWrappedInTryCatch()?.let {
-        return it
+    return main.findInvocationOfName(parameterName)?.findParentTryCatch()?.let {
+        return it.catchesAll(throwsTypes)
     } ?: return false
-}
-
-fun LambdaParameterData.isNotContainedInFunctionCatchingOrIgnored(ignoreInMemory: IgnoreInMemory): Boolean {
-    return !isContainedInFunctionCatchingOrIgnored(ignoreInMemory)
 }
 
 fun KtElement.getPotentialContainingLambda(): LambdaParameterData? {

@@ -5,6 +5,7 @@ import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.idea.kotlin.checked.exceptions.cache.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*
 
@@ -18,9 +19,12 @@ class CheckedExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
         if (!Settings.shouldHighlightCheckedExceptions) {
             return
         }
+
         val asMethod = element as? KtCallExpression ?: return
-        val method = asMethod.resolveMainReference() ?: return
-        val throwsTypes = method.throwsTypesIfFunction() ?: return
+        val throwsTypes = SharedMethodThrowingCache.throwsTypes(asMethod)
+        if (throwsTypes.isEmpty()) {
+            return
+        }
         val throwsTypesText = throwsTypes.joinToString(", ")
         val builder =
                 NavigationGutterIconBuilder

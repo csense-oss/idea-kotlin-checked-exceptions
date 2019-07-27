@@ -1,15 +1,15 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
 import com.intellij.psi.*
-import com.intellij.psi.util.*
 import csense.kotlin.extensions.*
 import csense.kotlin.extensions.collections.*
 import org.jetbrains.kotlin.idea.debugger.sequence.psi.*
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.*
+import org.jetbrains.kotlin.idea.refactoring.fqName.*
 import org.jetbrains.kotlin.idea.references.*
-import org.jetbrains.kotlin.js.descriptorUtils.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
+import org.jetbrains.kotlin.types.*
 
 
 fun PsiElement.throwsIfFunction(): Boolean? {
@@ -39,10 +39,12 @@ fun KtNamedFunction.throwsTypes(): List<String> {
     } else {
         //we have params at index 1
         val eachThrowType = throwsAnnotation.children[1].children
-        val asText = eachThrowType.map { it.firstChild.firstChild.text }
+        val asText = eachThrowType.map { it.firstChild.firstChild.text } // to get type use
+        //(it.firstChild as? KTExpression)?.resolveType()
         asText
     }
 }
+
 
 fun KtElement.getContainingFunctionOrPropertyAccessor(): KtModifierListOwner? =
         getParentOfType<KtNamedFunction>(true) ?: getParentOfType<KtPropertyAccessor>(true)
@@ -62,25 +64,27 @@ fun KtCallExpression.resolveMainReference(): PsiElement? {
 }
 
 /**
- * Examins the current scope (until a function or property is reached) for a try catch
+ * Examines the current scope (until a function or property is reached) for a try catch
  * @receiver PsiElement
  * @return Boolean
  */
-fun PsiElement.isWrappedInTryCatch(): Boolean {
+fun PsiElement.isWrappedInTryCatch(): Boolean = findParentTryCatch() != null
+
+fun PsiElement.isNotWrappedInTryCatch(): Boolean {
+    return !isWrappedInTryCatch()
+}
+
+fun PsiElement.findParentTryCatch(): KtTryExpression? {
     var current: PsiElement = this
     while (true) {
         if (current is KtProperty || current is KtNamedFunction) {
-            return false
+            return null
         }
         if (current is KtTryExpression) {
-            return true
+            return current
         }
-        current = current.parent ?: return false
+        current = current.parent ?: return null
     }
-}
-
-fun KtElement.isNotWrappedInTryCatch(): Boolean {
-    return !isWrappedInTryCatch()
 }
 
 fun KtElement.isContainingFunctionMarkedAsThrows(): Boolean {
@@ -101,7 +105,7 @@ fun KtLambdaExpression.resolveParameterIndex(): Int? {
                     ?: parent?.parent?.parent as? KtCallExpression
                     ?: return null
     return callExp.getParameterInfos().indexOfFirst {
-        (it.typeInfo as?  TypeInfo.ByExpression)?.expression === this
+        (it.typeInfo as? TypeInfo.ByExpression)?.expression === this
     }
 }
 
@@ -131,3 +135,25 @@ fun KtThrowExpression.tryAndResolveThrowType(): String? {
         null
     }
 }
+
+fun KtTryExpression.notCatchesAll(throws: List<String>): Boolean {
+    return !catchesAll(throws)
+}
+
+fun KtTryExpression.catchesAll(throws: List<String>): Boolean {
+    return throws.all {
+        catchClauses.catches(it)
+    }
+}
+
+fun List<KtCatchClause>.catches(fullyQualifiedType: String): Boolean = this.any {
+//    val fqType = it.catchParameter?.resolveFullyQualifiedType() ?: return false
+    return true
+//    val type = it.catchParameter?.resolveType() ?: return false
+//    return type.toString() == fullyQualifiedType
+}
+
+
+//fun KtParameter.resolveFullyQualifiedType(): KotlinType {
+//    return (this as KtExpression).resolveType()
+//}

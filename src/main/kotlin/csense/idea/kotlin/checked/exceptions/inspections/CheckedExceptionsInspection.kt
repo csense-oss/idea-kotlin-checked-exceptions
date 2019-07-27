@@ -3,19 +3,18 @@ package csense.idea.kotlin.checked.exceptions.inspections
 import com.intellij.codeInsight.daemon.*
 import com.intellij.codeInspection.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.idea.kotlin.checked.exceptions.cache.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.idea.inspections.*
+import org.jetbrains.kotlin.idea.refactoring.fqName.*
 import org.jetbrains.kotlin.psi.*
-import kotlin.system.*
 
 
 class CheckedExceptionsInspection : AbstractKotlinInspection() {
 
-    private val ignoreInMemory by lazy {
-        IgnoreInMemory()
-    }
+    private val ignoreInMemory = IgnoreInMemory()
 
     private fun getMaxDepth(): Int {
         return Settings.maxDepth
@@ -43,28 +42,51 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
 
     override fun buildVisitor(holder: ProblemsHolder,
                               isOnTheFly: Boolean): KtVisitorVoid {
-
         return callExpressionVisitor { namedFunction: KtCallExpression ->
-            val time = measureTimeMillis {
-                val functionResolved = namedFunction.resolveMainReference() ?: return@callExpressionVisitor
-                //Does it throw ? (if not just break)
-                val throwsTypes = functionResolved.throwsTypesIfFunction() ?: return@callExpressionVisitor
-                //is there any try catch and if not, is the container marked as throws ? if not then its an error.
-                val lambdaContext = namedFunction.getPotentialContainingLambda()
-                if (namedFunction.isNotWrappedInTryCatch()
-                        && !namedFunction.isContainingFunctionMarkedAsThrows()
-                        && !namedFunction.isContainedInFunctionCatchingOrIgnored(ignoreInMemory, getMaxDepth())
-                ) {
-                    holder.registerProblem(
-                            namedFunction,
-                            "This call throws, so you should handle it with try catch, or declare that this method throws.\n${throwsTypes.joinToString(", ")}",
-                            Settings.checkedExceptionSeverity,
-                            *(createQuickFixes(namedFunction, throwsTypes)
-                                    + getIgnoreQuickFixes(lambdaContext))
-                    )
-                }
+            val lastModified = namedFunction.getModificationStamp()
+            val fullName = namedFunction.getKotlinFqName()?.toString() ?: ""
+
+            val throwsCached = SharedMethodThrowingCache.throwsTypes(
+                    namedFunction,
+                    fullName,
+                    lastModified)
+            //Does it throw ? (if not just break)
+            if (throwsCached.isEmpty()) {//break if empty as it does not throw.
+                return@callExpressionVisitor
+            }
+            //is there any try catch and if not, is the container marked as throws ? if not then its an error.
+            //The following code is VERY expensive.
+            val lambdaContext = namedFunction.getPotentialContainingLambda()
+            val tryCatchExpression = namedFunction.findParentTryCatch()
+            if (tryCatchExpression == null || tryCatchExpression.notCatchesAll(throwsCached)
+                    && !namedFunction.isContainingFunctionMarkedAsThrows()
+                    && (lambdaContext != null &&
+                            !namedFunction.isContainedInLambdaCatchingOrIgnoredRecursive(
+                                    ignoreInMemory,
+                                    getMaxDepth(),
+                                    throwsCached))
+            ) {
+                //it throws, we want to cache that.
+                registerProblems(holder, namedFunction, throwsCached, lambdaContext)
             }
         }
+    }
+
+
+    private fun registerProblems(
+            holder: ProblemsHolder,
+            namedFunction: KtCallExpression,
+            throwsTypes: List<String>,
+            lambdaParameterData: LambdaParameterData?
+    ) {
+        holder.registerProblem(
+                namedFunction,
+                "This call throws, so you should handle it with try catch, or declare that this method throws.\n" +
+                        throwsTypes.joinToString(", "),
+                Settings.checkedExceptionSeverity,
+                *(createQuickFixes(namedFunction, throwsTypes)
+                        + getIgnoreQuickFixes(lambdaParameterData))
+        )
     }
 
     private fun getIgnoreQuickFixes(lambdaContext: LambdaParameterData?): List<LocalQuickFix> {
@@ -85,4 +107,7 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
     override fun isEnabledByDefault(): Boolean {
         return true
     }
+
 }
+
+
