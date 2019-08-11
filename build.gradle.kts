@@ -11,7 +11,7 @@ version = "0.8"
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
     setPlugins("kotlin")
-    version = "2018.3.1"
+    version = "2018.2"
 }
 
 repositories {

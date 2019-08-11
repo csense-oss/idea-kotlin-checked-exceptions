@@ -20,10 +20,10 @@ class ThrowsAnnotator : Annotator {
             }
         }
 
-        val throwType = throwsExp.tryAndResolveThrowType() ?: "Exception"
+        val throwType = throwsExp.tryAndResolveThrowTypeOrDefault()
         holder.createWarningAnnotation(
                 range,
-                "Throws expression").registerFix(DeclareFunctionAsThrowsIntentionAction(throwsExp, throwType))
+                "Throws \"$throwType\"").registerFix(DeclareFunctionAsThrowsIntentionAction(throwsExp, throwType))
     }
 
 }

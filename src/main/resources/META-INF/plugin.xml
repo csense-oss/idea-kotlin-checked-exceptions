@@ -13,7 +13,7 @@
 
     <depends>com.intellij.modules.lang</depends>
     <depends>org.jetbrains.kotlin</depends>
-
+    <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
@@ -47,5 +47,5 @@
         <!-- Add your actions here -->
     </actions>
 
-    <idea-version since-build="181"/>
+    <idea-version since-build="182"/>
 </idea-plugin>

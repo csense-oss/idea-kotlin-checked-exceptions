@@ -4,6 +4,7 @@ import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.util.*
+import csense.idea.kotlin.checked.exceptions.bll.*
 import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
@@ -20,7 +21,7 @@ class WrapInTryCatchQuickFix(
                 else -> startElement
             }
 
-            val exceptionType = exceptionTypes.singleOrNull() ?: "Exception"
+            val exceptionType = throwType
             val newElement = createTryCatchWithElement(elementToUse, exceptionType)
             try {
                 elementToUse.replace(newElement)
@@ -44,6 +45,10 @@ class WrapInTryCatchQuickFix(
     }
 
     override fun getText(): String {
-        return "wrap in try catch"
+        return "wrap in try catch (\"$throwType\")"
     }
+
+    private val throwType: String =
+            exceptionTypes.singleOrNull() ?: kotlinMainExceptionFqName
+
 }

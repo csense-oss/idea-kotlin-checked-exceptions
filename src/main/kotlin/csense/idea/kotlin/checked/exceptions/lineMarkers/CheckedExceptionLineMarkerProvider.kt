@@ -30,7 +30,7 @@ class CheckedExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
                 NavigationGutterIconBuilder
                         .create(IconLoader.getIcon("/icons/throws.png"))
                         .setTargets(asMethod)
-                        .setTooltipText("This expression is declared throws of type\n$throwsTypesText")
+                        .setTooltipText("This expression is declared to throw the following type(s):\n$throwsTypesText")
         result.add(builder.createLineMarkerInfo(element))
     }
 

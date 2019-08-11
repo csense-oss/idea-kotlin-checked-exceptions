@@ -17,7 +17,7 @@ class DeclareFunctionAsThrowsIntentionAction(
             "Csense checked exceptions - intention action"
 
     override fun getText(): String =
-            "Mark function as throws"
+            "Mark function as throws \"$throwType\""
 
     override fun isAvailable(project: Project, editor: Editor?, file: PsiFile?): Boolean = true
 

@@ -4,6 +4,7 @@ import com.intellij.codeInsight.daemon.*
 import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
+import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*
 
@@ -19,11 +20,12 @@ class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
         }
         val asMethod = element as? KtThrowExpression ?: return
 
+        val type = asMethod.tryAndResolveThrowTypeOrDefault()
         val builder =
                 NavigationGutterIconBuilder
                         .create(IconLoader.getIcon("/icons/exception.png"))
                         .setTargets(asMethod)
-                        .setTooltipText("You are throwing an exception")
+                        .setTooltipText("You are throwing an exception of type \"$type\"")
         result.add(builder.createLineMarkerInfo(element))
     }
 
