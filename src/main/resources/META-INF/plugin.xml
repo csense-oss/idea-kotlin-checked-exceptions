@@ -33,6 +33,8 @@
 
         <annotator language="kotlin"
                    implementationClass="csense.idea.kotlin.checked.exceptions.annotator.ThrowsAnnotator"/>
+        <annotator language="kotlin"
+                   implementationClass="csense.idea.kotlin.checked.exceptions.annotator.ThrowsFunctionAnnotator"/>
     </extensions>
 
     <project-components>
