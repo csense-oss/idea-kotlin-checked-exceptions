@@ -6,9 +6,9 @@ import kotlin.also
 import kotlin.collections.HashMap
 
 //TODO csense-datastructures ?
-class SimpleLRUCache<Key, Value>(private val cacheSize: Int) {
+class SimpleLRUCache<Key, Value>(private var cacheSize: Int) {
 
-    //TODO consider linked hashmap, potentially own edition where we can query the order since this is a "borring" replica of that.
+    //TODO consider linked hashmap, potentially own edition where we can query the order since this is a "boring" replica of that.
     private val map = HashMap<Key, Value>(cacheSize)
 
     private val order = LinkedList<Key>()
@@ -89,5 +89,24 @@ class SimpleLRUCache<Key, Value>(private val cacheSize: Int) {
     fun remove(key: Key) {
         map.remove(key)
         order.remove(key)
+    }
+
+    /**
+     * Allows you to change the size of this LRU cache
+     * @param newSize Int the new size to use.
+     */
+    fun setCacheSize(newSize: Int) {
+        cacheSize = newSize
+    }
+
+    fun getOrPut(key: Key, value: () -> Value): Value {
+        val haveKey = get(key)
+        return if (haveKey != null) {
+            haveKey
+        } else {
+            val computedValue = value()
+            put(key, computedValue)
+            computedValue
+        }
     }
 }

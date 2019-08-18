@@ -1,12 +1,12 @@
 plugins {
-    id("org.jetbrains.intellij") version "0.4.9"
+    id("org.jetbrains.intellij") version "0.4.10"
     kotlin("jvm") version "1.3.41"
     java
     id("org.owasp.dependencycheck") version "5.1.0"
 }
 
 group = "csense-idea"
-version = "0.8"
+version = "0.9"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -24,7 +24,10 @@ dependencies {
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
-        Improved performance by caching throwing / non throwing methods. 
+        <ul>
+            <li>Mark Functions returning nothing</li>
+            <li>Attempt at resolving types.</li>
+        </ul>
       """)
 }
 
