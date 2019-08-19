@@ -2,12 +2,14 @@ package csense.idea.kotlin.checked.exceptions.ignore
 
 import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import org.jetbrains.kotlin.name.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.uast.*
 
 fun KtElement.isContainedInLambdaCatchingOrIgnoredRecursive(
         ignoreInMemory: IgnoreInMemory,
         maxDepth: Int,
-        throwsTypes: List<String>
+        throwsTypes: List<UClass>
 ): Boolean {
     var currentElement = this
     //if we reach max depth, just eject.
@@ -24,7 +26,7 @@ fun KtElement.isContainedInLambdaCatchingOrIgnoredRecursive(
 
 fun LambdaParameterData.isContainedInLambdaCatchingOrIgnored(
         ignoreInMemory: IgnoreInMemory,
-        throwsTypes: List<String>
+        throwsTypes: List<UClass>
 ): Boolean {
     if (ignoreInMemory.isArgumentMarkedAsIgnore(main, parameterName)) {
         return true

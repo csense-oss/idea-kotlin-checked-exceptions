@@ -1,6 +1,5 @@
 package csense.idea.kotlin.checked.exceptions.inspections
 
-import com.intellij.codeInsight.daemon.*
 import com.intellij.codeInspection.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.cache.*
@@ -10,6 +9,7 @@ import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.idea.inspections.*
 import org.jetbrains.kotlin.idea.refactoring.fqName.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.uast.*
 
 
 class CheckedExceptionsInspection : AbstractKotlinInspection() {
@@ -37,7 +37,7 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
     }
 
     override fun getGroupDisplayName(): String {
-        return GroupNames.ERROR_HANDLING_GROUP_NAME
+        return Constants.groupName
     }
 
     override fun buildVisitor(holder: ProblemsHolder,
@@ -58,9 +58,11 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
             //The following code is VERY expensive.
             val lambdaContext = namedFunction.getPotentialContainingLambda()
             val tryCatchExpression = namedFunction.findParentTryCatch()
-            if (tryCatchExpression == null || tryCatchExpression.notCatchesAll(throwsCached)
+            val isAllCaught = tryCatchExpression != null && tryCatchExpression.catchesAll(throwsCached)
+
+            if (!isAllCaught
                     && !namedFunction.isContainingFunctionMarkedAsThrows()
-                    && (lambdaContext != null &&
+                    && (lambdaContext == null ||
                             !namedFunction.isContainedInLambdaCatchingOrIgnoredRecursive(
                                     ignoreInMemory,
                                     getMaxDepth(),
@@ -76,16 +78,17 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
     private fun registerProblems(
             holder: ProblemsHolder,
             namedFunction: KtCallExpression,
-            throwsTypes: List<String>,
+            throwsTypes: List<UClass>,
             lambdaParameterData: LambdaParameterData?
     ) {
         holder.registerProblem(
                 namedFunction,
-                "This call throws, so you should handle it with try catch, or declare that this method throws.\n" +
-                        throwsTypes.joinToString(", "),
+                "This call throws, so you should handle it with try catch, or declare that this method throws.\n It throws the following types:" +
+                        throwsTypes.joinToString(", ") { it.name ?: "" },
                 Settings.checkedExceptionSeverity,
-                *(createQuickFixes(namedFunction, throwsTypes)
-                        + getIgnoreQuickFixes(lambdaParameterData))
+                *(createQuickFixes(namedFunction, throwsTypes.map {
+                    it.name ?: ""
+                }) + getIgnoreQuickFixes(lambdaParameterData))
         )
     }
 
