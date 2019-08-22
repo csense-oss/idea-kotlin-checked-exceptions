@@ -1,0 +1,20 @@
+<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+ <title/>
+ <desc/>
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="402" width="402" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g id="Page-1" fill-rule="evenodd" fill="none">
+   <g id="icon-80-document-checked" fill="#929292">
+    <ellipse stroke="null" ry="4.877125" rx="4.877125" id="svg_6" cy="25.413987" cx="21.349716" stroke-opacity="null" stroke-width="null" fill="#00bf5f"/>
+    <path fill="#333333" id="document-checked" d="m15.794974,29.000001l-9.0244,0c-1.10649,0 -1.99742,-0.89871 -1.99742,-2.00733l0,-22.98534c0,-1.10899 0.89925,-2.00733 2.00853,-2.00733l9.99147,0l0,6.0019c0,1.11139 0.89808,1.9981 2.00592,1.9981l4.99408,0l0,9.49816c-0.76959,-0.32093 -1.6141,-0.49816 -2.5,-0.49816c-3.58985,0 -6.5,2.91015 -6.5,6.5c0,1.28864 0.375,2.4897 1.02182,3.5l0,0l0,0zm1.97818,-27l0,5.99707c0,0.5539 0.45098,1.00293 0.99078,1.00293l5.00922,0l-6,-7l0,0zm3.5,29c3.03757,0 5.5,-2.46243 5.5,-5.5c0,-3.03757 -2.46243,-5.5 -5.5,-5.5c-3.03757,0 -5.5,2.46243 -5.5,5.5c0,3.03757 2.46243,5.5 5.5,5.5l0,0zm-0.5,-2.75736l-2.35355,-2.35355l0.73223,-0.73224l1.62132,1.62132l3.12132,-3.12132l0.73223,0.73224l-3.85355,3.85355l0,0z"/>
+   </g>
+  </g>
+  <text stroke="#000" transform="matrix(0.8945250870540491,0,0,0.8945250870540491,0.3742264180538972,-0.008708300150332526) " xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="8" id="svg_1" y="9.460372" x="6.013126" stroke-opacity="null" stroke-width="0" fill="#ad0d0d">Try</text>
+  <text stroke="#000" transform="matrix(0.8945250870540491,0,0,0.8945250870540491,0.3742264180538972,-0.008708300150332526) " xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="8" id="svg_2" y="18.420569" x="4.956499" stroke-opacity="null" stroke-width="0" fill="#ad0d0d">Catch</text>
+ </g>
+</svg>

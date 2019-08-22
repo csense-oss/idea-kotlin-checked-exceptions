@@ -1,19 +1,14 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
 import com.intellij.psi.*
-import com.intellij.psi.search.*
 import csense.kotlin.extensions.*
 import csense.kotlin.extensions.collections.*
-import org.jetbrains.kotlin.asJava.builder.*
-import org.jetbrains.kotlin.asJava.classes.*
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.caches.resolve.*
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.*
 import org.jetbrains.kotlin.idea.refactoring.fqName.*
 import org.jetbrains.kotlin.idea.references.*
 import org.jetbrains.kotlin.js.resolve.diagnostics.*
-import org.jetbrains.kotlin.load.java.structure.*
-import org.jetbrains.kotlin.load.java.structure.impl.*
 import org.jetbrains.kotlin.name.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
@@ -21,12 +16,8 @@ import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.callUtil.*
 import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.*
-import org.jetbrains.kotlin.resolve.jvm.*
 import org.jetbrains.kotlin.resolve.lazy.*
-import org.jetbrains.kotlin.types.*
-import org.jetbrains.kotlin.types.typeUtil.*
 import org.jetbrains.uast.*
-import kotlin.reflect.jvm.internal.impl.load.java.structure.JavaClassifier
 
 fun PsiElement.throwsTypesIfFunction(): List<UClass>? {
     val result = when (this) {
@@ -44,7 +35,7 @@ fun PsiMethod.computeThrowsTypes(): List<UClass> {
     }
 }
 
-fun KtNamedFunction.findThrowsAnnotation(): KtAnnotationEntry? = annotationEntries.firstOrNull() {
+fun KtNamedFunction.findThrowsAnnotation(): KtAnnotationEntry? = annotationEntries.firstOrNull {
     it.shortName?.asString() == kotlinThrowsText
 }
 
@@ -166,10 +157,9 @@ fun KtTryExpression.notCatchesAll(throws: List<UClass>): Boolean {
 }
 
 fun KtTryExpression.catchesAll(throws: List<UClass>): Boolean {
-    val all = throws.all { clz: UClass ->
+    return throws.all { clz: UClass ->
         catchClauses.catches(clz)
     }
-    return all
 }
 
 fun List<KtCatchClause>.catches(inputClass: UClass): Boolean = this.any {
@@ -196,13 +186,12 @@ fun KtParameter.resolveFullyQualifiedName(): FqName? {
 
 
 fun ValueArgument.resolveClassLiterals(): List<KtClassLiteralExpression> {
-    val expressions = when (val argumentExpression = getArgumentExpression()) {
+    return when (val argumentExpression = getArgumentExpression()) {
         is KtClassLiteralExpression -> listOf(argumentExpression)
         is KtCollectionLiteralExpression -> argumentExpression.getInnerExpressions().filterIsInstance(KtClassLiteralExpression::class.java)
         is KtCallExpression -> argumentExpression.valueArguments.mapNotNull { it.getArgumentExpression() as? KtClassLiteralExpression }
         else -> emptyList()
     }
-    return expressions
 }
 
 

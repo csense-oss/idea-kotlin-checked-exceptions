@@ -5,6 +5,7 @@
         Csense oss
     </vendor>
 
+
     <description><![CDATA[
      A plugin that adds errors / hints / quickfix related to checked exceptions,<br/>
      so that if you are interacting with java & checked exceptions, you can get the same error handling.

@@ -7,11 +7,8 @@ import csense.idea.kotlin.checked.exceptions.settings.Settings;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.text.ParseException;
 
 public class SettingsPaneUi {
     @NotNull

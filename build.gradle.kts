@@ -1,6 +1,6 @@
 plugins {
     id("org.jetbrains.intellij") version "0.4.10"
-    kotlin("jvm") version "1.3.41"
+    kotlin("jvm") version "1.3.50"
     java
     id("org.owasp.dependencycheck") version "5.1.0"
 }
@@ -27,6 +27,7 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
         <ul>
             <li>Mark Functions returning nothing</li>
             <li>Attempt at resolving types.</li>
+            
         </ul>
       """)
 }
