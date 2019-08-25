@@ -1,9 +1,7 @@
 package csense.idea.kotlin.checked.exceptions.cache
 
 import csense.idea.kotlin.checked.exceptions.bll.*
-import csense.idea.kotlin.checked.exceptions.inspections.*
-import org.jetbrains.kotlin.idea.refactoring.fqName.*
-import org.jetbrains.kotlin.name.*
+import csense.kotlin.ds.cache.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.uast.*
 

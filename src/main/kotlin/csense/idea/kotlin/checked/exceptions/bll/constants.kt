@@ -7,5 +7,5 @@ val kotlinMainExceptionFq = FqName(kotlinMainExceptionFqName)
 const val kotlinThrowsText = "Throws"
 
 object Constants{
-    const val groupName = "csense kotlin checked exceptions"
+    const val groupName = "Csense kotlin checked exceptions"
 }

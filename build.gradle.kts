@@ -14,20 +14,24 @@ intellij {
     version = "2018.2"
 }
 
+
 repositories {
     jcenter()
+    //until ds is in jcenter
+    maven(url = "https://dl.bintray.com/csense-oss/csense-kotlin")
 }
 
 dependencies {
-    compile("csense.kotlin:csense-kotlin-jvm:0.0.20")
+    compile("csense.kotlin:csense-kotlin-jvm:0.0.21")
+    compile("csense.kotlin:csense-kotlin-ds-jvm:0.0.21")
 }
+
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
             <li>Mark Functions returning nothing</li>
             <li>Attempt at resolving types.</li>
-            
         </ul>
       """)
 }
