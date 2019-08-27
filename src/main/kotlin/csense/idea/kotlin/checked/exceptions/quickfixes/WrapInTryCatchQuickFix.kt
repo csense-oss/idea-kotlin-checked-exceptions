@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.psi.*
 
 class WrapInTryCatchQuickFix(
         namedFunction: KtCallExpression,
-        private val exceptionTypes: List<String>) : LocalQuickFixOnPsiElement(namedFunction) {
+        exceptionTypes: List<String>) : LocalQuickFixOnPsiElement(namedFunction) {
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {
         project.executeWriteCommand(text) {
 

@@ -17,8 +17,6 @@ intellij {
 
 repositories {
     jcenter()
-    //until ds is in jcenter
-    maven(url = "https://dl.bintray.com/csense-oss/csense-kotlin")
 }
 
 dependencies {
@@ -32,6 +30,7 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
         <ul>
             <li>Mark Functions returning nothing</li>
             <li>Attempt at resolving types.</li>
+            <li>Wrap in try catch should now respect the code, and not chop of things...</li>
         </ul>
       """)
 }
