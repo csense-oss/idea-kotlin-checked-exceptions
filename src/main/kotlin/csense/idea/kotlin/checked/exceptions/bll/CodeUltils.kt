@@ -1,6 +1,7 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.*
 import csense.kotlin.extensions.*
 import csense.kotlin.extensions.collections.*
 import org.jetbrains.kotlin.descriptors.*
@@ -15,9 +16,9 @@ import org.jetbrains.kotlin.psi.psiUtil.*
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.callUtil.*
 import org.jetbrains.kotlin.resolve.calls.model.*
-import org.jetbrains.kotlin.resolve.descriptorUtil.*
 import org.jetbrains.kotlin.resolve.lazy.*
 import org.jetbrains.uast.*
+import org.jetbrains.uast.kotlin.*
 
 fun PsiElement.throwsTypesIfFunction(): List<UClass>? {
     val result = when (this) {
@@ -47,7 +48,7 @@ fun KtNamedFunction.throwsTypes(): List<UClass> {
     } else {
         throwsAnnotation.valueArguments.map { value ->
             value.resolveClassLiterals().mapNotNull {
-                it.findPsi().toUElement(UClass::class.java)
+                it.findUClass()
             }
         }.flatten()
     }
@@ -61,7 +62,6 @@ fun KtAnnotated.throwsDeclared(): Boolean = annotationEntries.any {
     it.shortName?.asString() == kotlinThrowsText
 }
 
-fun PsiMethod.throwsExceptions(): Boolean = throwsTypes.isNotEmpty()
 /**
  * Resolves the original method.
  * @receiver KtCallExpression
@@ -136,7 +136,7 @@ fun KtExpression.findFunctionScope(): KtNamedFunction? = getParentOfType(true)
  * @return String?
  */
 fun KtThrowExpression.tryAndResolveThrowType(): String? = tryAndLog {
-    val thrownExpression = this.thrownExpression as KtCallExpression
+    val thrownExpression = this.thrownExpression as? KtCallExpression ?: return null
     val nameExpression = thrownExpression.calleeExpression as? KtNameReferenceExpression ?: return null
     val descriptor = nameExpression.resolveToCall()?.resultingDescriptor ?: return null
     val declarationDescriptor = descriptor.containingDeclaration
@@ -152,10 +152,6 @@ fun KtElement.resolveToCall(bodyResolveMode: BodyResolveMode = BodyResolveMode.P
 fun KtElement.analyze(bodyResolveMode: BodyResolveMode = BodyResolveMode.FULL): BindingContext =
         getResolutionFacade().analyze(this, bodyResolveMode)
 
-fun KtTryExpression.notCatchesAll(throws: List<UClass>): Boolean {
-    return !catchesAll(throws)
-}
-
 fun KtTryExpression.catchesAll(throws: List<UClass>): Boolean {
     return throws.all { clz: UClass ->
         catchClauses.catches(clz)
@@ -166,9 +162,14 @@ fun List<KtCatchClause>.catches(inputClass: UClass): Boolean = this.any {
     return it.catchParameter?.isSubtypeOf(inputClass) == true
 }
 
-private fun KtParameter.isSubtypeOf(superType: UClass): Boolean {
-    val caughtClass = resolveTypeClass() ?: return false
-    return caughtClass.isChildOf(superType, true)
+private fun KtParameter.isSubtypeOf(throwType: UClass): Boolean {
+    val caughtClass = resolveTypeClass()
+            ?: return false
+
+//    if (caughtClass.getKotlinFqName() == FqName("java.lang.Exception")) {
+//        return true
+//    }
+    return throwType.isChildOfSafe(caughtClass)
 }
 
 fun KtParameter.resolveTypeClass(): UClass? {
@@ -180,11 +181,6 @@ fun KtParameter.resolveTypeClass(): UClass? {
             ?.toUElement(UClass::class.java)
 }
 
-fun KtParameter.resolveFullyQualifiedName(): FqName? {
-    return (this.resolveToDescriptorIfAny() as? ValueDescriptor)?.type?.constructor?.declarationDescriptor?.fqNameSafe
-}
-
-
 fun ValueArgument.resolveClassLiterals(): List<KtClassLiteralExpression> {
     return when (val argumentExpression = getArgumentExpression()) {
         is KtClassLiteralExpression -> listOf(argumentExpression)
@@ -194,24 +190,19 @@ fun ValueArgument.resolveClassLiterals(): List<KtClassLiteralExpression> {
     }
 }
 
-
-fun KtClassLiteralExpression.typeFqName(): FqName? {
-    return receiverExpression?.getKotlinFqName()
+fun KtClassLiteralExpression.findUClass(): UClass? {
+    val uLiteral = toUElement() as? KotlinUClassLiteralExpression
+    return (uLiteral?.type as? PsiClassReferenceType)?.reference?.resolve()?.toUElement() as? UClass
 }
 
 
-fun FqName.isIn(cls: PsiClass): Boolean {
-    val name = asString()
-    var currentType: PsiClass = cls
-
-    while (true) {
-        if (currentType.getKotlinFqName()?.asString() == name) {
+fun UClass.isChildOfSafe(other: UClass): Boolean {
+    var currentClass: UClass? = this
+    while (currentClass != null) {
+        if (currentClass == other) {
             return true
         }
-        currentType = currentType.superClass ?: return false
+        currentClass = currentClass.superClass
     }
-}
-
-fun KtClassLiteralExpression.findPsi(): PsiElement? {
-    return receiverExpression?.resolveMainReferenceToDescriptors()?.firstOrNull()?.findPsi()
+    return false
 }

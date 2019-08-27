@@ -15,11 +15,8 @@ class WrapInTryCatchQuickFix(
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {
         project.executeWriteCommand(text) {
 
-            val elementToUse = when (startElement.parent) {
-                is KtDotQualifiedExpression -> startElement.parent
-                is KtProperty -> startElement
-                else -> startElement
-            }
+            val top = startElement.findParentAndChild<KtBlockExpression>() ?: return@executeWriteCommand
+            val elementToUse = top.second
 
             val exceptionType = throwType
             val newElement = createTryCatchWithElement(elementToUse, exceptionType)
@@ -51,4 +48,17 @@ class WrapInTryCatchQuickFix(
     private val throwType: String =
             exceptionTypes.singleOrNull() ?: kotlinMainExceptionFqName
 
+}
+
+inline fun <reified T : PsiElement> PsiElement.findParentAndChild(): Pair<T, PsiElement>? {
+    var currentElement: PsiElement? = this
+    var prev = this
+    while (currentElement != null) {
+        if (currentElement is T) {
+            return Pair(currentElement, prev)
+        }
+        prev = currentElement
+        currentElement = currentElement.parent
+    }
+    return null
 }

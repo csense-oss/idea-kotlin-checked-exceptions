@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "0.9"
+version = "0.9.1"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml

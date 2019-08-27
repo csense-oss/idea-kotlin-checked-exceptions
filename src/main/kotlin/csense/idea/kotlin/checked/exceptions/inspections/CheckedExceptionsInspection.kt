@@ -1,6 +1,7 @@
 package csense.idea.kotlin.checked.exceptions.inspections
 
 import com.intellij.codeInspection.*
+import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.cache.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
@@ -8,6 +9,8 @@ import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.idea.inspections.*
 import org.jetbrains.kotlin.idea.refactoring.fqName.*
+import org.jetbrains.kotlin.idea.references.*
+import org.jetbrains.kotlin.js.resolve.diagnostics.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.uast.*
 
@@ -43,13 +46,15 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
     override fun buildVisitor(holder: ProblemsHolder,
                               isOnTheFly: Boolean): KtVisitorVoid {
         return callExpressionVisitor { namedFunction: KtCallExpression ->
-            val lastModified = namedFunction.getModificationStamp()
-            val fullName = namedFunction.getKotlinFqName()?.toString() ?: ""
+
+            val realParent = if (namedFunction.parent is KtDotQualifiedExpression) {
+                namedFunction.parent
+            } else {
+                namedFunction
+            }
 
             val throwsCached = SharedMethodThrowingCache.throwsTypes(
-                    namedFunction,
-                    fullName,
-                    lastModified)
+                    namedFunction)
             //Does it throw ? (if not just break)
             if (throwsCached.isEmpty()) {//break if empty as it does not throw.
                 return@callExpressionVisitor
@@ -69,7 +74,7 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                                     throwsCached))
             ) {
                 //it throws, we want to cache that.
-                registerProblems(holder, namedFunction, throwsCached, lambdaContext)
+                registerProblems(holder, realParent, namedFunction, throwsCached, lambdaContext)
             }
         }
     }
@@ -77,12 +82,13 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
 
     private fun registerProblems(
             holder: ProblemsHolder,
+            realParent: PsiElement,
             namedFunction: KtCallExpression,
             throwsTypes: List<UClass>,
             lambdaParameterData: LambdaParameterData?
     ) {
         holder.registerProblem(
-                namedFunction,
+                realParent,
                 "This call throws, so you should handle it with try catch, or declare that this method throws.\n It throws the following types:" +
                         throwsTypes.joinToString(", ") { it.name ?: "" },
                 Settings.checkedExceptionSeverity,
