@@ -28,7 +28,6 @@ public class SettingsPaneUi {
         for (ProblemHighlightType type : types) {
             checkedExceptionsSeverity.addItem(type);
         }
-        checkedExceptionsSeverity.setSelectedItem(Settings.INSTANCE.getCheckedExceptionSeverity());
         highlightGutterCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightCheckedExceptions());
         checkedExceptionsSeverity.setAction(new AbstractAction() {
             @Override
@@ -56,7 +55,6 @@ public class SettingsPaneUi {
             //... so bad.
         }
         int maxDepthValue = (Integer) maxDepthSpinner.getValue();
-        Settings.INSTANCE.setCheckedExceptionSeverity((ProblemHighlightType) checkedExceptionsSeverity.getSelectedItem());
         Settings.INSTANCE.setShouldHighlightCheckedExceptions(highlightGutterCheckBox.isSelected());
         Settings.INSTANCE.setMaxDepth(maxDepthValue);
         didChange = false;

@@ -5,12 +5,11 @@ import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.cache.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
+import csense.idea.kotlin.checked.exceptions.intentionAction.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.settings.*
+import csense.kotlin.extensions.*
 import org.jetbrains.kotlin.idea.inspections.*
-import org.jetbrains.kotlin.idea.refactoring.fqName.*
-import org.jetbrains.kotlin.idea.references.*
-import org.jetbrains.kotlin.js.resolve.diagnostics.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.uast.*
 
@@ -64,9 +63,14 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
             val lambdaContext = namedFunction.getPotentialContainingLambda()
             val tryCatchExpression = namedFunction.findParentTryCatch()
             val isAllCaught = tryCatchExpression != null && tryCatchExpression.catchesAll(throwsCached)
+            val markedThrows = namedFunction.containingFunctionMarkedAsThrowTypes()
+            if (markedThrows.isNotEmpty()) {
+                //test type, and report if not correct.
+                if (!markedThrows.isAllThrowsHandledByTypes(markedThrows)) {
+                    registerAnnotationProblem(holder, realParent, namedFunction, throwsCached, markedThrows)
+                }
 
-            if (!isAllCaught
-                    && !namedFunction.isContainingFunctionMarkedAsThrows()
+            } else if (!isAllCaught
                     && (lambdaContext == null ||
                             !namedFunction.isContainedInLambdaCatchingOrIgnoredRecursive(
                                     ignoreInMemory,
@@ -91,10 +95,28 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                 realParent,
                 "This call throws, so you should handle it with try catch, or declare that this method throws.\n It throws the following types:" +
                         throwsTypes.joinToString(", ") { it.name ?: "" },
-                Settings.checkedExceptionSeverity,
                 *(createQuickFixes(namedFunction, throwsTypes.map {
                     it.name ?: ""
-                }) + getIgnoreQuickFixes(lambdaParameterData))
+                }, false) + getIgnoreQuickFixes(lambdaParameterData))
+        )
+    }
+
+    private fun registerAnnotationProblem(
+            holder: ProblemsHolder,
+            realParent: PsiElement,
+            namedFunction: KtCallExpression,
+            throwsTypes: List<UClass>,
+            markedTypes: List<UClass>
+
+    ) {
+        val throwsText = throwsTypes.joinToString(", ") { it.name ?: "" }
+        val markedText = markedTypes.joinToString(", ") { it.name ?: "" }
+        holder.registerProblem(
+                realParent,
+                "This throw type ($throwsText) is not in the annotated types: $markedText",
+                *(createQuickFixes(namedFunction, throwsTypes.map {
+                    it.name ?: ""
+                }, true))
         )
     }
 
@@ -106,10 +128,17 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
         return listOf(AddLambdaToIgnoreQuickFix(lambdaContext.main, lambdaContext.parameterName))
     }
 
-    private fun createQuickFixes(namedFunction: KtCallExpression, exceptionTypes: List<String>): Array<LocalQuickFix> {
+    private fun createQuickFixes(namedFunction: KtCallExpression,
+                                 exceptionTypes: List<String>,
+                                 haveThrowsAnnotation: Boolean): Array<LocalQuickFix> {
+        val delcare: LocalQuickFix = haveThrowsAnnotation.mapLazy({
+            AddFunctionThrowsQuickFix(namedFunction, exceptionTypes)
+        }, {
+            DeclareFunctionAsThrowsQuickFix(namedFunction, exceptionTypes)
+        })
         return arrayOf(
                 WrapInTryCatchQuickFix(namedFunction, exceptionTypes),
-                DeclareFunctionAsThrowsQuickFix(namedFunction, exceptionTypes)
+                delcare
         )
     }
 

@@ -2,6 +2,7 @@ package csense.idea.kotlin.checked.exceptions.bll
 
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.*
+import com.intellij.psi.util.*
 import csense.kotlin.extensions.*
 import csense.kotlin.extensions.collections.*
 import org.jetbrains.kotlin.descriptors.*
@@ -9,6 +10,7 @@ import org.jetbrains.kotlin.idea.caches.resolve.*
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.*
 import org.jetbrains.kotlin.idea.refactoring.fqName.*
 import org.jetbrains.kotlin.idea.references.*
+import org.jetbrains.kotlin.j2k.*
 import org.jetbrains.kotlin.js.resolve.diagnostics.*
 import org.jetbrains.kotlin.name.*
 import org.jetbrains.kotlin.psi.*
@@ -18,6 +20,7 @@ import org.jetbrains.kotlin.resolve.calls.callUtil.*
 import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.lazy.*
 import org.jetbrains.uast.*
+import org.jetbrains.uast.getContainingClass
 import org.jetbrains.uast.kotlin.*
 
 fun PsiElement.throwsTypesIfFunction(): List<UClass>? {
@@ -58,8 +61,25 @@ fun KtNamedFunction.throwsTypes(): List<UClass> {
 fun KtElement.getContainingFunctionOrPropertyAccessor(): KtModifierListOwner? =
         getParentOfType<KtNamedFunction>(true) ?: getParentOfType<KtPropertyAccessor>(true)
 
-fun KtAnnotated.throwsDeclared(): Boolean = annotationEntries.any {
-    it.shortName?.asString() == kotlinThrowsText
+//fun KtAnnotated.throwsDeclared(): Boolean = annotationEntries.any {
+//    it.shortName?.asString() == kotlinThrowsText
+//}
+
+
+fun KtAnnotated.throwsTypes(): List<UClass> {
+    val annotation = annotationEntries.findThrows() ?: return listOf()
+
+    return annotation.valueArguments.map { value ->
+        value.resolveClassLiterals().mapNotNull { klass ->
+            klass.findUClass()
+        }
+    }.flatten()
+}
+
+fun List<KtAnnotationEntry>.findThrows(): KtAnnotationEntry? {
+    return find {
+        it.shortName?.asString() == kotlinThrowsText
+    }
 }
 
 /**
@@ -95,13 +115,13 @@ fun PsiElement.findParentTryCatch(): KtTryExpression? {
     }
 }
 
-fun KtElement.isContainingFunctionMarkedAsThrows(): Boolean {
+fun KtElement.containingFunctionMarkedAsThrowTypes(): List<UClass> {
     var current: PsiElement = this
     while (true) {
         when (current) {
-            is KtPropertyAccessor -> return current.throwsDeclared()
-            is KtNamedFunction -> return current.throwsDeclared()
-            else -> current = current.parent ?: return false
+            is KtPropertyAccessor -> return current.throwsTypes()
+            is KtNamedFunction -> return current.throwsTypes()
+            else -> current = current.parent ?: return listOf()
         }
 
     }
@@ -145,6 +165,23 @@ fun KtThrowExpression.tryAndResolveThrowType(): String? = tryAndLog {
 
 fun KtThrowExpression.tryAndResolveThrowTypeOrDefault(): String = tryAndResolveThrowType() ?: kotlinMainExceptionFqName
 
+fun KtThrowExpression.tryAndResolveThrowTypeOrDefaultUClass(): UClass? {
+    val thrownExpression = this.thrownExpression as? KtCallExpression ?: return null
+    val nameExpression = thrownExpression.calleeExpression as? KtNameReferenceExpression ?: return null
+    val descriptor = nameExpression.resolveToCall()?.resultingDescriptor ?: return null
+    return descriptor.findUClass()
+}
+
+
+fun CallableDescriptor.findUClass(): UClass? {
+    val psi = findPsi() ?: return null
+    return if (psi is PsiClass) {
+        psi.toUElement(UClass::class.java)
+    } else {
+        PsiTreeUtil.getParentOfType(psi, PsiClass::class.java)?.toUElement(UClass::class.java)
+    }
+}
+
 fun KtElement.resolveToCall(bodyResolveMode: BodyResolveMode = BodyResolveMode.PARTIAL): ResolvedCall<out CallableDescriptor>? =
         getResolvedCall(analyze(bodyResolveMode))
 
@@ -158,11 +195,28 @@ fun KtTryExpression.catchesAll(throws: List<UClass>): Boolean {
     }
 }
 
+/**
+ * Does any of the receiver classes catches the given class  ( is any of them subtypes of the thrown type)
+ * @receiver List<UClass>
+ * @param inputClass UClass
+ * @return Boolean
+ */
+fun List<UClass>.catchesClass(inputClass: UClass): Boolean = any {
+    inputClass.isSubTypeOf(it)
+}
+
+
+fun List<UClass>.isAllThrowsHandledByTypes(catches: List<UClass>) = all {
+    catches.catchesClass(it)
+}
+
 fun List<KtCatchClause>.catches(inputClass: UClass): Boolean = this.any {
     return it.catchParameter?.isSubtypeOf(inputClass) == true
 }
 
-private fun KtParameter.isSubtypeOf(throwType: UClass): Boolean {
+fun UClass.isSubTypeOf(other: UClass) = isChildOfSafe(other)
+
+fun KtParameter.isSubtypeOf(throwType: UClass): Boolean {
     val caughtClass = resolveTypeClass()
             ?: return false
 

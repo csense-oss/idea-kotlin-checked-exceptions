@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "0.9.1-alpha"
+version = "0.9.2"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -31,8 +31,9 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
             <li>Mark Functions returning nothing</li>
             <li>Attempt at resolving types.</li>
             <li>Wrap in try catch should now respect the code, and not chop of things...</li>
-            <li>Caching </li>
+            <li>Caching /better performance in most cases</li>
             <li>Should be more stable.</li>
+            <li>Throws annotation types are checked and quickfixes for adding missing types</li>
         </ul>
       """)
 }

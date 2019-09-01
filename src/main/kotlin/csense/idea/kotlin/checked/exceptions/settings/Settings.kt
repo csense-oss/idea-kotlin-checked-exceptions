@@ -1,8 +1,6 @@
 package csense.idea.kotlin.checked.exceptions.settings
 
-import com.intellij.codeInspection.*
 import com.intellij.ide.util.*
-import csense.kotlin.extensions.*;
 
 object Settings {
 
@@ -13,15 +11,6 @@ object Settings {
         PropertiesComponent.getInstance()
     }
 
-    private const val checkedExceptionSeverityName = settingsPrefixed + "checkedExceptionSeverity"
-    var checkedExceptionSeverity: ProblemHighlightType
-        get() = enumFromOr(backend.getInt(
-                checkedExceptionSeverityName,
-                ProblemHighlightType.GENERIC_ERROR_OR_WARNING.ordinal),
-                ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-        set(value) {
-            backend.setValue(checkedExceptionSeverityName, value.ordinal, -1)
-        }
 
     private const val shouldHighlightCheckedExceptionsName = settingsPrefixed + "shouldHighlightCheckedExceptions"
 
