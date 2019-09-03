@@ -28,12 +28,7 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
-            <li>Mark Functions returning nothing</li>
-            <li>Attempt at resolving types.</li>
-            <li>Wrap in try catch should now respect the code, and not chop of things...</li>
-            <li>Caching /better performance in most cases</li>
-            <li>Should be more stable.</li>
-            <li>Throws annotation types are checked and quickfixes for adding missing types</li>
+            <li>Constructors marked throws works now.</li>
         </ul>
       """)
 }

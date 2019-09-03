@@ -25,7 +25,7 @@ import org.jetbrains.uast.kotlin.*
 
 fun PsiElement.throwsTypesIfFunction(): List<UClass>? {
     val result = when (this) {
-        is KtNamedFunction -> throwsTypes()
+        is KtFunction -> throwsTypes()
         is PsiMethod -> computeThrowsTypes()
         else -> null
     }
@@ -39,11 +39,11 @@ fun PsiMethod.computeThrowsTypes(): List<UClass> {
     }
 }
 
-fun KtNamedFunction.findThrowsAnnotation(): KtAnnotationEntry? = annotationEntries.firstOrNull {
+fun KtFunction.findThrowsAnnotation(): KtAnnotationEntry? = annotationEntries.firstOrNull {
     it.shortName?.asString() == kotlinThrowsText
 }
 
-fun KtNamedFunction.throwsTypes(): List<UClass> {
+fun KtFunction.throwsTypes(): List<UClass> {
     val throwsAnnotation = findThrowsAnnotation() ?: return listOf()
     return if (throwsAnnotation.children.size <= 1) { //eg "@Throws"
 //        listOf(kotlinMainExceptionFq)
@@ -59,7 +59,7 @@ fun KtNamedFunction.throwsTypes(): List<UClass> {
 
 
 fun KtElement.getContainingFunctionOrPropertyAccessor(): KtModifierListOwner? =
-        getParentOfType<KtNamedFunction>(true) ?: getParentOfType<KtPropertyAccessor>(true)
+        getParentOfType<KtFunction>(true) ?: getParentOfType<KtPropertyAccessor>(true)
 
 //fun KtAnnotated.throwsDeclared(): Boolean = annotationEntries.any {
 //    it.shortName?.asString() == kotlinThrowsText
@@ -105,7 +105,7 @@ fun PsiElement.isNotWrappedInTryCatch(): Boolean {
 fun PsiElement.findParentTryCatch(): KtTryExpression? {
     var current: PsiElement = this
     while (true) {
-        if (current is KtProperty && current.isMember || current is KtNamedFunction) {
+        if (current is KtProperty && current.isMember || current is KtFunction) {
             return null
         }
         if (current is KtTryExpression) {
@@ -120,7 +120,7 @@ fun KtElement.containingFunctionMarkedAsThrowTypes(): List<UClass> {
     while (true) {
         when (current) {
             is KtPropertyAccessor -> return current.throwsTypes()
-            is KtNamedFunction -> return current.throwsTypes()
+            is KtFunction -> return current.throwsTypes()
             else -> current = current.parent ?: return listOf()
         }
 
@@ -148,7 +148,7 @@ fun KtFunction.findInvocationOfName(name: String): KtCallExpression? {
  * Tries to resolve the function we are in.
  * @receiver KtExpression
  */
-fun KtExpression.findFunctionScope(): KtNamedFunction? = getParentOfType(true)
+fun KtExpression.findFunctionScope(): KtFunction? = getParentOfType(true)
 
 /**
  * Tries to resolve the type of a throws expression in kotlin.

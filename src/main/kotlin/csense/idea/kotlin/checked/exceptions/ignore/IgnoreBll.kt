@@ -44,7 +44,7 @@ fun KtElement.getPotentialContainingLambda(): LambdaParameterData? {
                         current.parent?.parent?.parent is KtCallExpression)) {
             val parent = current.parent?.parent as? KtCallExpression
                     ?: current.parent?.parent?.parent as? KtCallExpression
-            val main = parent?.resolveMainReference() as? KtNamedFunction
+            val main = parent?.resolveMainReference() as? KtFunction
 
             val index = current.resolveParameterIndex()
             if (main != null && index != null && index >= 0) {
