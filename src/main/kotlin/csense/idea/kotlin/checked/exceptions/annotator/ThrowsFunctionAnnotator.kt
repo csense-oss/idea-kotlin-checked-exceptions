@@ -17,7 +17,7 @@ class ThrowsFunctionAnnotator : Annotator {
         val exp = element as? KtCallExpression ?: return
         val resultingDescriptor = exp.resolveToCall()?.resultingDescriptor
         val isNothing = resultingDescriptor?.returnType?.isNothing()
-        if (isNothing != true) {
+        if (isNothing != true || resultingDescriptor.typeParameters.isNotEmpty()) {
             return
         }
         //per spec: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing.html

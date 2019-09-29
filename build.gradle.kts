@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "0.9.2"
+version = "0.9.3"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -28,7 +28,7 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
-            <li>Constructors marked throws works now.</li>
+            <li>Nothing from eg a let is no longer marked </li>
         </ul>
       """)
 }
