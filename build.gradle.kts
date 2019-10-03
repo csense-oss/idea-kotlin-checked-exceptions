@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "0.9.3"
+version = "0.9.4"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -28,7 +28,7 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
-            <li>Nothing from eg a let is no longer marked </li>
+            <li>Nothing functions (fail & test &  assert ) in test modules will not be annotated.</li>
         </ul>
       """)
 }
