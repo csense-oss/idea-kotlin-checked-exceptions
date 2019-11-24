@@ -1,27 +1,33 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
-import com.intellij.psi.*
-import com.intellij.psi.impl.source.*
-import com.intellij.psi.util.*
-import csense.kotlin.extensions.*
-import csense.kotlin.extensions.collections.*
-import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.idea.caches.resolve.*
-import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.*
-import org.jetbrains.kotlin.idea.refactoring.fqName.*
-import org.jetbrains.kotlin.idea.references.*
-import org.jetbrains.kotlin.j2k.*
-import org.jetbrains.kotlin.js.resolve.diagnostics.*
-import org.jetbrains.kotlin.name.*
+import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiMethod
+import com.intellij.psi.impl.source.PsiClassReferenceType
+import com.intellij.psi.util.PsiTreeUtil
+import csense.kotlin.extensions.collections.isNotNullOrEmpty
+import csense.kotlin.extensions.map
+import csense.kotlin.extensions.tryAndLog
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.descriptors.ValueDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
+import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.TypeInfo
+import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.getParameterInfos
+import org.jetbrains.kotlin.idea.references.mainReference
+import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.*
-import org.jetbrains.kotlin.resolve.*
-import org.jetbrains.kotlin.resolve.calls.callUtil.*
-import org.jetbrains.kotlin.resolve.calls.model.*
-import org.jetbrains.kotlin.resolve.lazy.*
-import org.jetbrains.uast.*
-import org.jetbrains.uast.getContainingClass
-import org.jetbrains.uast.kotlin.*
+import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
+import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.kotlin.KotlinUClassLiteralExpression
+import org.jetbrains.uast.toUElement
+import org.jetbrains.uast.toUElementOfType
 
 fun PsiElement.throwsTypesIfFunction(): List<UClass>? {
     val result = when (this) {
@@ -256,7 +262,7 @@ fun UClass.isChildOfSafe(other: UClass): Boolean {
         if (currentClass == other) {
             return true
         }
-        currentClass = currentClass.superClass
+        currentClass = currentClass.javaPsi.superClass?.toUElementOfType()
     }
     return false
 }
