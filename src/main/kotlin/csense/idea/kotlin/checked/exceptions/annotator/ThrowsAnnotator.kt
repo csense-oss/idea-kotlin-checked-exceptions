@@ -9,6 +9,8 @@ import csense.idea.kotlin.checked.exceptions.intentionAction.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.uast.*
+import java.io.File
+import java.io.IOException
 
 
 class ThrowsAnnotator : Annotator {

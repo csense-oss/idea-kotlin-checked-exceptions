@@ -1,5 +1,6 @@
 package csense.idea.kotlin.checked.exceptions.cache
 
+import com.intellij.psi.PsiMethod
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.kotlin.ds.cache.*
 import org.jetbrains.kotlin.idea.refactoring.fqName.*
@@ -12,9 +13,7 @@ object SharedMethodThrowingCache {
     //todo provide KtFunction...
 
     fun throwsTypes(exp: KtCallExpression): List<UClass> {
-        val ktPsi = exp.resolveToCall()?.resultingDescriptor?.findPsi() as? KtElement ?: return listOf()
-        val lastModified = ktPsi.getModificationStamp()
-        val fullName = ktPsi.getKotlinFqName()?.asString() ?: "-1"
+        val (fullName, lastModified) = handleExp(exp) ?: return emptyList()
         val cached = inMemoryCallCache.getOrRemove(
                 fullName
         ) { _: String, lookup: CachedFunctionLookup ->
@@ -31,6 +30,26 @@ object SharedMethodThrowingCache {
             throws
         }
     }
+
+    private fun handleExp(exp: KtCallExpression): ResolvedExp? = when (
+        val funcCalled = exp.resolveMainReference()) {
+        is PsiMethod -> {
+            ResolvedExp(
+                    funcCalled.getKotlinFqName()?.asString() ?: "-1",
+                    0
+            )
+        }
+        is KtFunction -> {
+            ResolvedExp(
+                    funcCalled.getKotlinFqName()?.asString() ?: "-1",
+                    funcCalled.getModificationStamp() ?: 0
+
+            )
+        }
+        else -> null
+    }
+
+    private data class ResolvedExp(val fullName: String, val lastModifiedTimeStamp: Long)
 
     private fun resolveThrows(exp: KtCallExpression): List<UClass> {
         val functionResolved = exp.resolveMainReference() ?: return listOf()

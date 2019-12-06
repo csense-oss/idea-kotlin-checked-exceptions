@@ -6,6 +6,7 @@ import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.intentionAction.*
+import csense.kotlin.extensions.primitives.containsAny
 import org.jetbrains.kotlin.idea.util.projectStructure.*
 import org.jetbrains.kotlin.name.*
 import org.jetbrains.kotlin.psi.*
@@ -37,17 +38,6 @@ class ThrowsFunctionAnnotator : Annotator {
                 range,
                 "Throws inside of function")
     }
-}
-//CSENSE..
-/**
- *
- * @receiver String
- * @param strings Array<out String>
- * @param ignoreCase `true` to ignore character case when comparing strings. By default `false`.
- * @return Boolean
- */
-fun String.containsAny(vararg strings: String, ignoreCase: Boolean = false): Boolean = strings.any {
-    this.contains(it, ignoreCase)
 }
 
 
