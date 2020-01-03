@@ -1,6 +1,8 @@
 package csense.idea.kotlin.checked.exceptions.ignore
 
 import com.intellij.psi.*
+import csense.idea.base.bll.kotlin.resolveMainReference
+import csense.idea.base.bll.kotlin.resolveParameterIndex
 import csense.idea.kotlin.checked.exceptions.bll.*
 import org.jetbrains.kotlin.name.*
 import org.jetbrains.kotlin.psi.*

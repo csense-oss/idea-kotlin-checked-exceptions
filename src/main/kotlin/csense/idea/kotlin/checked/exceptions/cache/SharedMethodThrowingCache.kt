@@ -1,6 +1,7 @@
 package csense.idea.kotlin.checked.exceptions.cache
 
 import com.intellij.psi.PsiMethod
+import csense.idea.base.bll.kotlin.resolveMainReference
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.kotlin.ds.cache.*
 import org.jetbrains.kotlin.idea.refactoring.fqName.*

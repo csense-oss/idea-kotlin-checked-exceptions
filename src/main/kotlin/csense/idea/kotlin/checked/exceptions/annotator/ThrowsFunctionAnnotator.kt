@@ -4,6 +4,7 @@ import com.intellij.lang.annotation.*
 import com.intellij.openapi.module.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
+import csense.idea.base.module.isInTestModule
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.intentionAction.*
 import csense.kotlin.extensions.primitives.containsAny
@@ -38,14 +39,4 @@ class ThrowsFunctionAnnotator : Annotator {
                 range,
                 "Throws inside of function")
     }
-}
-
-
-fun PsiElement.isInTestModule(): Boolean {
-    val module = ModuleUtil.findModuleForPsiElement(this) ?: return false
-    return module.isTestModule()
-}
-
-fun Module.isTestModule(): Boolean {
-    return name.endsWith("_test") || name.endsWith(".test")
 }

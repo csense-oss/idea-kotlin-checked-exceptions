@@ -24,7 +24,7 @@ class AddThrowsTypeIntentionAction(
 
     override fun invoke(project: Project, editor: Editor?, file: PsiFile?) = tryAndLog {
         throwsExp.getContainingFunctionOrPropertyAccessor()?.let {
-            val throws = it.annotationEntries.findThrows() ?: return
+            val throws = it.annotationEntries.findThrows() ?: return@tryAndLog
             val throwsNotNull = throws.valueArguments.mapNotNull { it.getArgumentExpression()?.text } + throwType
             val fullText = throwsNotNull.joinToString(", ")
             project.executeWriteCommand(text) {

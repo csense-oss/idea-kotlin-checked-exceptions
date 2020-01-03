@@ -4,6 +4,7 @@ import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.util.*
+import csense.idea.base.bll.psi.findParentAndBeforeFromType
 import csense.idea.kotlin.checked.exceptions.bll.*
 import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
@@ -15,7 +16,7 @@ class WrapInTryCatchQuickFix(
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {
         project.executeWriteCommand(text) {
 
-            val top = startElement.findParentAndChild<KtBlockExpression>() ?: return@executeWriteCommand
+            val top = startElement.findParentAndBeforeFromType<KtBlockExpression>() ?: return@executeWriteCommand
             val elementToUse = top.second
 
             val exceptionType = throwType
@@ -48,17 +49,4 @@ class WrapInTryCatchQuickFix(
     private val throwType: String =
             exceptionTypes.singleOrNull() ?: kotlinMainExceptionFqName
 
-}
-
-inline fun <reified T : PsiElement> PsiElement.findParentAndChild(): Pair<T, PsiElement>? {
-    var currentElement: PsiElement? = this
-    var prev = this
-    while (currentElement != null) {
-        if (currentElement is T) {
-            return Pair(currentElement, prev)
-        }
-        prev = currentElement
-        currentElement = currentElement.parent
-    }
-    return null
 }

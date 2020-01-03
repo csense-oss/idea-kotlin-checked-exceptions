@@ -1,12 +1,12 @@
 plugins {
-    id("org.jetbrains.intellij") version "0.4.14"
+    id("org.jetbrains.intellij") version "0.4.15"
     kotlin("jvm") version "1.3.61"
     java
-    id("org.owasp.dependencycheck") version "5.1.0"
+    id("org.owasp.dependencycheck") version "5.2.4"
 }
 
 group = "csense-idea"
-version = "0.9.8"
+version = "0.9.10"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -17,13 +17,15 @@ intellij {
 
 repositories {
     jcenter()
-    maven { url = uri("https://dl.bintray.com/csense-oss/maven") }
+    maven(url = "https://dl.bintray.com/csense-oss/maven")
+    maven(url = "https://dl.bintray.com/csense-oss/idea")
 }
 
 dependencies {
-    compile("csense.kotlin:csense-kotlin-jvm:0.0.26")
-    compile("csense.kotlin:csense-kotlin-annotations-jvm:0.0.11")
-    compile("csense.kotlin:csense-kotlin-ds-jvm:0.0.24")
+    implementation("csense.kotlin:csense-kotlin-jvm:0.0.29")
+    implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.14")
+    implementation("csense.kotlin:csense-kotlin-ds-jvm:0.0.24")
+    implementation("csense.idea.base:csense-idea-base:0.0.7")
 }
 
 

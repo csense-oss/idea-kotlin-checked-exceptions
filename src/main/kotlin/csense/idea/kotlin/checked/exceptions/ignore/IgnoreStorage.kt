@@ -34,7 +34,7 @@ object IgnoreStorage {
 
     fun getEntries(project: Project): List<IgnoreEntry> = tryAndLog {
         ensureHaveReadFile(project)
-        return current
+        current
     } ?: listOf()
 
     @Throws(IOException::class)
