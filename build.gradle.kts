@@ -32,7 +32,7 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
-            <li>Fixed bug with java throws not being read correctly.</li>
+            <li>Improved general workings (bug fixing)</li>
         </ul>
       """)
 }
