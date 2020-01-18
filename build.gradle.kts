@@ -23,9 +23,9 @@ repositories {
 
 dependencies {
     implementation("csense.kotlin:csense-kotlin-jvm:0.0.29")
-    implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.14")
+    implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.15")
     implementation("csense.kotlin:csense-kotlin-ds-jvm:0.0.24")
-    implementation("csense.idea.base:csense-idea-base:0.0.7")
+    implementation("csense.idea.base:csense-idea-base:0.1.2")
 }
 
 
