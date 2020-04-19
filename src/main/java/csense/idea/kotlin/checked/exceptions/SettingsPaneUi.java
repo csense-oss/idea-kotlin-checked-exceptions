@@ -1,6 +1,5 @@
 package csense.idea.kotlin.checked.exceptions;
 
-import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import csense.idea.kotlin.checked.exceptions.settings.Settings;
@@ -12,8 +11,6 @@ import java.awt.event.ActionEvent;
 
 public class SettingsPaneUi {
     @NotNull
-    public JComboBox<ProblemHighlightType> checkedExceptionsSeverity;
-    @NotNull
     public JCheckBox highlightGutterCheckBox;
     @NotNull
     public JPanel root;
@@ -22,19 +19,7 @@ public class SettingsPaneUi {
 
 
     public SettingsPaneUi() {
-
-        final ProblemHighlightType[] types = ProblemHighlightType.values();
-
-        for (ProblemHighlightType type : types) {
-            checkedExceptionsSeverity.addItem(type);
-        }
         highlightGutterCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightCheckedExceptions());
-        checkedExceptionsSeverity.setAction(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                didChange = true;
-            }
-        });
         highlightGutterCheckBox.setAction(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -80,8 +65,6 @@ public class SettingsPaneUi {
         final JLabel label1 = new JLabel();
         label1.setText("Checked exceptions severity");
         root.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        checkedExceptionsSeverity = new JComboBox();
-        root.add(checkedExceptionsSeverity, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label2 = new JLabel();
         label2.setText("Highlight\n(via gutter) the checked exceptions locations ?");
         root.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

@@ -33,31 +33,37 @@ fun LambdaParameterData.isContainedInLambdaCatchingOrIgnored(
     if (ignoreInMemory.isArgumentMarkedAsIgnore(main, parameterName)) {
         return true
     }
-    return main.findInvocationOfName(parameterName)?.findParentTryCatch()?.let {
-        return it.catchesAll(throwsTypes)
-    } ?: return false
+    return main.findInvocationOfName(parameterName)?.findParentTryCatch()?.catchesAll(throwsTypes) ?: return false
 }
 
 fun KtElement.getPotentialContainingLambda(): LambdaParameterData? {
     var current: PsiElement = this
     while (true) {
-        if (current is KtLambdaExpression &&
-                (current.parent?.parent is KtCallExpression ||
-                        current.parent?.parent?.parent is KtCallExpression)) {
-            val parent = current.parent?.parent as? KtCallExpression
-                    ?: current.parent?.parent?.parent as? KtCallExpression
-            val main = parent?.resolveMainReference() as? KtFunction
-
-            val index = current.resolveParameterIndex()
-            if (main != null && index != null && index >= 0) {
-                val nameToFindInCode = main.valueParameters[index].name
-                if (nameToFindInCode != null) {
-                    return LambdaParameterData(main, index, nameToFindInCode, current)
-                }
-            }
+        val isPotential = current.asPotentialContainingLambda()
+        if (isPotential != null) {
+            return isPotential
         }
         current = current.parent ?: return null
     }
+}
+
+fun PsiElement.asPotentialContainingLambda(): LambdaParameterData? {
+    if (this is KtLambdaExpression &&
+            (this.parent?.parent is KtCallExpression ||
+                    this.parent?.parent?.parent is KtCallExpression)) {
+        val parent = this.parent?.parent as? KtCallExpression
+                ?: this.parent?.parent?.parent as? KtCallExpression
+        val main = parent?.resolveMainReference() as? KtFunction
+        
+        val index = this.resolveParameterIndex()
+        if (main != null && index != null && index >= 0) {
+            val nameToFindInCode = main.valueParameters[index].name
+            if (nameToFindInCode != null) {
+                return LambdaParameterData(main, index, nameToFindInCode, this)
+            }
+        }
+    }
+    return null
 }
 
 data class LambdaParameterData(

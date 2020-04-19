@@ -50,5 +50,5 @@
         <!-- Add your actions here -->
     </actions>
 
-    <idea-version since-build="183"/>
+    <idea-version since-build="192"/>
 </idea-plugin>

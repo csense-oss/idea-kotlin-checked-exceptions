@@ -1,15 +1,13 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.*
 import csense.idea.base.bll.findUClass
-import csense.idea.base.bll.kotlin.findUClass
-import csense.idea.base.bll.kotlin.isSubtypeOf
-import csense.idea.base.bll.kotlin.resolveClassLiterals
+import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.uast.isSubTypeOf
+import csense.idea.kotlin.checked.exceptions.callthough.*
+import csense.idea.kotlin.checked.exceptions.ignore.*
+import csense.kotlin.extensions.*
 import csense.kotlin.extensions.collections.isNotNullOrEmpty
-import csense.kotlin.extensions.map
-import csense.kotlin.extensions.tryAndLog
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.psi.*
@@ -20,22 +18,44 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.uast.UClass
-import org.jetbrains.uast.toUElement
+import org.jetbrains.kotlin.resolve.source.*
+import org.jetbrains.uast.*
 
-fun PsiElement.throwsTypesIfFunction(): List<UClass>? {
+fun PsiElement.throwsTypesIfFunction(callExpression: KtCallExpression): List<UClass>? {
     val result = when (this) {
         is KtFunction -> throwsTypes()
-        is PsiMethod -> computeThrowsTypes()
+        is PsiMethod -> computeThrowsTypes(callExpression)
         else -> null
     }
     return result.isNotNullOrEmpty().map(result, null)
 }
 
 
-fun PsiMethod.computeThrowsTypes(): List<UClass> {
-    return throwsTypes.mapNotNull {
-        it.resolve()?.sourceElement?.toUElement(UClass::class.java)
+fun PsiMethod.computeThrowsTypes(callExpression: KtCallExpression): List<UClass> {
+    //generic exception types is another thing, as we
+
+//    val genericLookup = this.typeParameters.map { Pair(it.name, it) }
+    return throwsTypes.mapIndexedNotNull { index, it ->
+        val clz = it.resolve()?.sourceElement
+        val uClass = clz?.toUElement(UClass::class.java)
+        if (clz is PsiTypeParameter) {
+            val resolvedType: UClass? = this.typeParameters.indexOfFirstOrNull { it.name == clz.name }?.let {
+                callExpression.typeArguments.getOrNull(it)?.typeReference?.resolve()?.toUElementOfType()
+            }
+            if (resolvedType != null) {
+                return@mapIndexedNotNull resolvedType
+            }
+        }
+        
+        uClass
+    }
+}
+
+//waiting for csense (and to add to collection as well)
+inline fun <T> Array<out T>.indexOfFirstOrNull(predicate: (T) -> Boolean): Int? {
+    return when (val value = indexOfFirst(predicate)) {
+        -1 -> null
+        else -> value
     }
 }
 
@@ -61,14 +81,9 @@ fun KtFunction.throwsTypes(): List<UClass> {
 fun KtElement.getContainingFunctionOrPropertyAccessor(): KtModifierListOwner? =
         getParentOfType<KtFunction>(true) ?: getParentOfType<KtPropertyAccessor>(true)
 
-//fun KtAnnotated.throwsDeclared(): Boolean = annotationEntries.any {
-//    it.shortName?.asString() == kotlinThrowsText
-//}
-
-
 fun KtAnnotated.throwsTypes(): List<UClass> {
     val annotation = annotationEntries.findThrows() ?: return listOf()
-
+    
     return annotation.valueArguments.map { value ->
         value.resolveClassLiterals().mapNotNull { klass ->
             klass.findUClass()
@@ -94,15 +109,30 @@ fun PsiElement.isNotWrappedInTryCatch(): Boolean {
 }
 
 fun PsiElement.findParentTryCatch(): KtTryExpression? {
-    var current: PsiElement = this
+    var current: PsiElement? = this
     while (true) {
-        if (current is KtProperty && current.isMember || current is KtFunction) {
+        //skip the "try" from a catch clause..
+        if (current is KtCatchClause) {
+            current = current.parent?.parent
+        }
+        if (current is KtProperty && current.isMember || current is KtFunction && current.fqName != null) {
             return null
+        }
+        if (current is KtLambdaExpression) {
+            val lambda = current.getPotentialContainingLambda() ?: return null
+            val fncFqName = lambda.main.fqName?.asString() ?: return null
+            //if we do not know it, assume its a "callback" based one.
+            val isKnown = InlineLambdaCallInbuilt.inbuiltKotlinSdk.contains(fncFqName) ||
+                    CallthoughInMemory.isArgumentMarkedAsCallthough(lambda.main, lambda.parameterName)
+            if (!isKnown) {
+                return null
+            }
+            current = current.parent?.parent
         }
         if (current is KtTryExpression) {
             return current
         }
-        current = current.parent ?: return null
+        current = current?.parent ?: return null
     }
 }
 
@@ -114,7 +144,7 @@ fun KtElement.containingFunctionMarkedAsThrowTypes(): List<UClass> {
             is KtFunction -> return current.throwsTypes()
             else -> current = current.parent ?: return listOf()
         }
-
+        
     }
 }
 
@@ -178,6 +208,7 @@ fun List<UClass>.catchesClass(inputClass: UClass): Boolean = any {
 fun List<UClass>.isAllThrowsHandledByTypes(catches: List<UClass>) = all {
     catches.catchesClass(it)
 }
+
 
 fun List<KtCatchClause>.catches(inputClass: UClass): Boolean = this.any {
     it.catchParameter?.isSubtypeOf(inputClass) == true

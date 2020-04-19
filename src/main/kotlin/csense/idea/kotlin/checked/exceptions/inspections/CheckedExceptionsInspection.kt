@@ -4,8 +4,8 @@ import com.intellij.codeInspection.*
 import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.cache.*
+import csense.idea.kotlin.checked.exceptions.callthough.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
-import csense.idea.kotlin.checked.exceptions.intentionAction.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.kotlin.extensions.*
@@ -15,43 +15,43 @@ import org.jetbrains.uast.*
 
 
 class CheckedExceptionsInspection : AbstractKotlinInspection() {
-
+    
     private val ignoreInMemory = IgnoreInMemory()
-
+    
     private fun getMaxDepth(): Int {
         return Settings.maxDepth
     }
-
+    
     override fun getDisplayName(): String {
         return "Checked exceptions in kotlin"
     }
-
+    
     override fun getStaticDescription(): String? {
         return "some desc"
     }
-
+    
     override fun getDescriptionFileName(): String? {
         return "more desc ? "
     }
-
+    
     override fun getShortName(): String {
         return "CheckedExceptionsKotlin"
     }
-
+    
     override fun getGroupDisplayName(): String {
         return Constants.groupName
     }
-
+    
     override fun buildVisitor(holder: ProblemsHolder,
                               isOnTheFly: Boolean): KtVisitorVoid {
         return callExpressionVisitor { namedFunction: KtCallExpression ->
-
+            
             val realParent = if (namedFunction.parent is KtDotQualifiedExpression) {
                 namedFunction.parent
             } else {
                 namedFunction
             }
-
+            
             val throwsCached = SharedMethodThrowingCache.throwsTypes(
                     namedFunction)
             //Does it throw ? (if not just break)
@@ -69,7 +69,7 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                 if (!markedThrows.isAllThrowsHandledByTypes(markedThrows)) {
                     registerAnnotationProblem(holder, realParent, namedFunction, throwsCached, markedThrows)
                 }
-
+                
             } else if (!isAllCaught
                     && (lambdaContext == null ||
                             !namedFunction.isContainedInLambdaCatchingOrIgnoredRecursive(
@@ -82,8 +82,8 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
             }
         }
     }
-
-
+    
+    
     private fun registerProblems(
             holder: ProblemsHolder,
             realParent: PsiElement,
@@ -100,14 +100,14 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                 }, false) + getIgnoreQuickFixes(lambdaParameterData))
         )
     }
-
+    
     private fun registerAnnotationProblem(
             holder: ProblemsHolder,
             realParent: PsiElement,
             namedFunction: KtCallExpression,
             throwsTypes: List<UClass>,
             markedTypes: List<UClass>
-
+    
     ) {
         val throwsText = throwsTypes.joinToString(", ") { it.name ?: "" }
         val markedText = markedTypes.joinToString(", ") { it.name ?: "" }
@@ -119,33 +119,43 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
                 }, true))
         )
     }
-
+    
     private fun getIgnoreQuickFixes(lambdaContext: LambdaParameterData?): List<LocalQuickFix> {
-        if (lambdaContext == null || ignoreInMemory.isArgumentMarkedAsIgnore(lambdaContext.main, lambdaContext.parameterName)) {
+        if (lambdaContext == null) {
             return listOf()
         }
+        val result = mutableListOf<LocalQuickFix>()
+        if (!ignoreInMemory.isArgumentMarkedAsIgnore(lambdaContext.main, lambdaContext.parameterName)) {
+            result += AddLambdaToIgnoreQuickFix(lambdaContext.main, lambdaContext.parameterName)
+        }
+        if (!CallthoughInMemory.isArgumentMarkedAsCallthough(lambdaContext.main, lambdaContext.parameterName)) {
+            result += AddLambdaToCallthoughQuickFix(lambdaContext.main, lambdaContext.parameterName)
+        }
         //we either have it ignored or no lambda, or "not", thus we can add it.
-        return listOf(AddLambdaToIgnoreQuickFix(lambdaContext.main, lambdaContext.parameterName))
+        return result
     }
-
-    private fun createQuickFixes(namedFunction: KtCallExpression,
-                                 exceptionTypes: List<String>,
-                                 haveThrowsAnnotation: Boolean): Array<LocalQuickFix> {
-        val delcare: LocalQuickFix = haveThrowsAnnotation.mapLazy({
+    
+    private fun createQuickFixes(
+            namedFunction: KtCallExpression,
+            exceptionTypes: List<String>,
+            haveThrowsAnnotation: Boolean
+    ): Array<LocalQuickFix> {
+        val declare: LocalQuickFix = haveThrowsAnnotation.mapLazy({
             AddFunctionThrowsQuickFix(namedFunction, exceptionTypes)
         }, {
             DeclareFunctionAsThrowsQuickFix(namedFunction, exceptionTypes)
         })
+        
         return arrayOf(
                 WrapInTryCatchQuickFix(namedFunction, exceptionTypes),
-                delcare
+                declare
         )
     }
-
+    
     override fun isEnabledByDefault(): Boolean {
         return true
     }
-
+    
 }
 
 
