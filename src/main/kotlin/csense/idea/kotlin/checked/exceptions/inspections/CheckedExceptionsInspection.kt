@@ -125,11 +125,17 @@ class CheckedExceptionsInspection : AbstractKotlinInspection() {
             return listOf()
         }
         val result = mutableListOf<LocalQuickFix>()
-        if (!ignoreInMemory.isArgumentMarkedAsIgnore(lambdaContext.main, lambdaContext.parameterName)) {
+        if (ignoreInMemory.isArgumentNotMarkedAsIgnore(lambdaContext.main, lambdaContext.parameterName)) {
             result += AddLambdaToIgnoreQuickFix(lambdaContext.main, lambdaContext.parameterName)
         }
-        if (!CallthoughInMemory.isArgumentMarkedAsCallthough(lambdaContext.main, lambdaContext.parameterName)) {
-            result += AddLambdaToCallthoughQuickFix(lambdaContext.main, lambdaContext.parameterName)
+        
+        var lambda: LambdaParameterData? = lambdaContext
+        while (lambda != null && CallthoughInMemory.isArgumentMarkedAsCallthough(lambda.main, lambda.parameterName)) {
+            val parent = lambda.lambdaExpression.parent as? KtElement
+            lambda = parent?.getPotentialContainingLambda()
+        }
+        if (lambda != null) {
+            result += AddLambdaToCallthoughQuickFix(lambda.main, lambda.parameterName)
         }
         //we either have it ignored or no lambda, or "not", thus we can add it.
         return result

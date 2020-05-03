@@ -1,7 +1,6 @@
 package csense.idea.kotlin.checked.exceptions.callthough
 
 import com.intellij.openapi.project.*
-import csense.idea.kotlin.checked.exceptions.ignore.*
 import csense.kotlin.extensions.*
 import java.io.*
 import java.nio.file.*
@@ -11,7 +10,7 @@ object CallthoughStorage {
     private var lastFileModifiedTime: Long? = null
     
     private val current: MutableList<CallthoughEntry> = mutableListOf()
-    //sync with the file ".ignore.throws" if this feature is enabled. (default it is).
+    //sync with the file ".callthought.throws" if this feature is enabled. (default it is).
     
     @Throws(IOException::class)
     private fun read(project: Project): List<CallthoughEntry> {

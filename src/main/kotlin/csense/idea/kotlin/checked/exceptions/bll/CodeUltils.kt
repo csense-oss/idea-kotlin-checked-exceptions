@@ -32,9 +32,6 @@ fun PsiElement.throwsTypesIfFunction(callExpression: KtCallExpression): List<UCl
 
 
 fun PsiMethod.computeThrowsTypes(callExpression: KtCallExpression): List<UClass> {
-    //generic exception types is another thing, as we
-
-//    val genericLookup = this.typeParameters.map { Pair(it.name, it) }
     return throwsTypes.mapIndexedNotNull { index, it ->
         val clz = it.resolve()?.sourceElement
         val uClass = clz?.toUElement(UClass::class.java)
@@ -97,17 +94,6 @@ fun List<KtAnnotationEntry>.findThrows(): KtAnnotationEntry? {
     }
 }
 
-/**
- * Examines the current scope (until a function or property is reached) for a try catch
- * @receiver PsiElement
- * @return Boolean
- */
-fun PsiElement.isWrappedInTryCatch(): Boolean = findParentTryCatch() != null
-
-fun PsiElement.isNotWrappedInTryCatch(): Boolean {
-    return !isWrappedInTryCatch()
-}
-
 fun PsiElement.findParentTryCatch(): KtTryExpression? {
     var current: PsiElement? = this
     while (true) {
@@ -140,9 +126,22 @@ fun KtElement.containingFunctionMarkedAsThrowTypes(): List<UClass> {
     var current: PsiElement = this
     while (true) {
         when (current) {
+            is KtLambdaExpression -> {
+                val lambda = current.getPotentialContainingLambda() ?: return listOf()
+                val fncFqName = lambda.main.fqName?.asString() ?: return listOf()
+                //if we do not know it, assume its a "callback" based one.
+                val isKnown = InlineLambdaCallInbuilt.inbuiltKotlinSdk.contains(fncFqName) ||
+                        CallthoughInMemory.isArgumentMarkedAsCallthough(lambda.main, lambda.parameterName)
+                println(isKnown)
+                if(!isKnown){
+                    return emptyList()
+                }
+                //go on
+                current = current.parent
+            }
             is KtPropertyAccessor -> return current.throwsTypes()
-            is KtFunction -> return current.throwsTypes()
-            else -> current = current.parent ?: return listOf()
+            is KtNamedFunction -> return current.throwsTypes()
+            else -> current = current.parent ?: return emptyList()
         }
         
     }
