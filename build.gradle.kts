@@ -2,11 +2,11 @@ plugins {
     id("org.jetbrains.intellij") version "0.4.21"
     kotlin("jvm") version "1.3.72"
     java
-    id("org.owasp.dependencycheck") version "5.2.4"
+    id("org.owasp.dependencycheck") version "5.3.2"
 }
 
 group = "csense-idea"
-version = "0.9.13"
+version = "0.9.14"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -22,18 +22,18 @@ repositories {
 }
 
 dependencies {
-    implementation("csense.kotlin:csense-kotlin-jvm:0.0.34")
+    implementation("csense.kotlin:csense-kotlin-jvm:0.0.35")
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.17")
     implementation("csense.kotlin:csense-kotlin-ds-jvm:0.0.25")
-    implementation("csense.idea.base:csense-idea-base:0.1.9")
+    implementation("csense.idea.base:csense-idea-base:0.1.14")
 }
 
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
-            <li>fixed issue with "LineMarker is supposed to be registered for leaf elements only"(internal)</li>
-            <li>fixed issue with LineMarker where types could render a uclass description rather than the type name</li>
+            <li>improved "throws in function" for test targets</li>
+            <li>Added setting to change severity of "throws in function"</li>
         </ul>
       """)
 }

@@ -4,9 +4,10 @@ import com.intellij.lang.annotation.*
 import com.intellij.openapi.module.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
-import csense.idea.base.module.isInTestModule
+import csense.idea.base.module.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.intentionAction.*
+import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.kotlin.extensions.primitives.containsAny
 import org.jetbrains.kotlin.idea.util.projectStructure.*
 import org.jetbrains.kotlin.name.*
@@ -16,7 +17,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.*
 import org.jetbrains.kotlin.types.typeUtil.*
 
 class ThrowsFunctionAnnotator : Annotator {
-
+    
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val exp = element as? KtCallExpression ?: return
         val resultingDescriptor = exp.resolveToCall()?.resultingDescriptor
@@ -25,7 +26,7 @@ class ThrowsFunctionAnnotator : Annotator {
             return
         }
         //skip if test module and it contains either test or fail or assert
-        if (element.isInTestModule() &&
+        if (element.isInTestSourceRoot() &&
                 resultingDescriptor.name.asString().containsAny(
                         "fail", "test", "assert",
                         ignoreCase = true)) {
@@ -35,8 +36,10 @@ class ThrowsFunctionAnnotator : Annotator {
         // for example, if a function has the return type of Nothing, it means that it never returns (always throws an exception).
         val range = TextRange(element.getTextRange().startOffset,
                 element.getTextRange().endOffset)
-        holder.createWarningAnnotation(
+        holder.createAnnotation(
+                Settings.throwsInsideOfFunctionSeverity,
                 range,
-                "Throws inside of function")
+                "Throws inside of function"
+        )
     }
 }

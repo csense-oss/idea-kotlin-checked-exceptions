@@ -1,5 +1,6 @@
 package csense.idea.kotlin.checked.exceptions;
 
+import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import csense.idea.kotlin.checked.exceptions.settings.Settings;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.Objects;
 
 public class SettingsPaneUi {
     @NotNull
@@ -16,6 +18,8 @@ public class SettingsPaneUi {
     public JPanel root;
     @NotNull
     public JSpinner maxDepthSpinner;
+    @NotNull
+    private JComboBox<String> nothingSeverity;
 
 
     public SettingsPaneUi() {
@@ -28,6 +32,15 @@ public class SettingsPaneUi {
         });
         maxDepthSpinner.addChangeListener(e -> didChange = true);
         maxDepthSpinner.setModel(new SpinnerNumberModel(Settings.INSTANCE.getMaxDepth(), 1, 100, 1));
+
+        final HighlightSeverity settingsSeverity = Settings.INSTANCE.getThrowsInsideOfFunctionSeverity();
+        for (HighlightSeverity severity : HighlightSeverity.DEFAULT_SEVERITIES) {
+            nothingSeverity.addItem(severity.getName());
+        }
+        nothingSeverity.setSelectedItem(settingsSeverity.getName());
+        nothingSeverity.addItemListener(e -> {
+            didChange = true;
+        });
     }
 
 
@@ -42,6 +55,14 @@ public class SettingsPaneUi {
         int maxDepthValue = (Integer) maxDepthSpinner.getValue();
         Settings.INSTANCE.setShouldHighlightCheckedExceptions(highlightGutterCheckBox.isSelected());
         Settings.INSTANCE.setMaxDepth(maxDepthValue);
+
+        final String value = (String) nothingSeverity.getSelectedItem();
+        for (HighlightSeverity severity : HighlightSeverity.DEFAULT_SEVERITIES) {
+            if (Objects.equals(value, severity.getName())) {
+                Settings.INSTANCE.setThrowsInsideOfFunctionSeverity(severity);
+                break;
+            }
+        }
         didChange = false;
     }
 
@@ -80,4 +101,8 @@ public class SettingsPaneUi {
         return root;
     }
 
+    @NotNull
+    public JComboBox<String> getNothingSeverity() {
+        return nothingSeverity;
+    }
 }
