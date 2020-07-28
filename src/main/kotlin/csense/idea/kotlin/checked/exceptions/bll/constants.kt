@@ -2,7 +2,7 @@ package csense.idea.kotlin.checked.exceptions.bll
 
 import org.jetbrains.kotlin.name.*
 
-const val kotlinMainExceptionFqName = "Kotlin.Exception"
+const val kotlinMainExceptionFqName = "kotlin.Exception"
 val kotlinMainExceptionFq = FqName(kotlinMainExceptionFqName)
 const val kotlinThrowsText = "Throws"
 

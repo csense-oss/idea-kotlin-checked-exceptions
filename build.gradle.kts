@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "0.9.14"
+version = "1.0.0"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -22,18 +22,24 @@ repositories {
 }
 
 dependencies {
-    implementation("csense.kotlin:csense-kotlin-jvm:0.0.35")
-    implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.17")
+    implementation("csense.kotlin:csense-kotlin-jvm:0.0.36")
+    implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.18")
     implementation("csense.kotlin:csense-kotlin-ds-jvm:0.0.25")
-    implementation("csense.idea.base:csense-idea-base:0.1.14")
+    implementation("csense.idea.base:csense-idea-base:0.1.19")
 }
 
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
-            <li>improved "throws in function" for test targets</li>
-            <li>Added setting to change severity of "throws in function"</li>
+            <li>potential fixes to inspections</li>
+            <li>Settings reloads when clicking ok / apply</li>
+            <li>Settings bugs fixed and added missing settings</li>
+            <li>Fixed naming ("Kotlin.Exception" to "kotlin.Exception")</li>
+            <li>Fixed experimental api usages</li>
+            <li>Option to respect "runtime exceptions" as "unchecked"</li>
+            <li>Handles kotlin.Throwable (did not fully before)</li>
+            <li>Heavily optimized compared to previous versions (still have some room for improvement, but for simple code its around 50 - 100% faster)</li>
         </ul>
       """)
 }

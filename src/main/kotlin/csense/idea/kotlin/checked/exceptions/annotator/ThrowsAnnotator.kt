@@ -9,26 +9,23 @@ import csense.idea.kotlin.checked.exceptions.intentionAction.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.uast.*
-import java.io.File
-import java.io.IOException
 
 
 class ThrowsAnnotator : Annotator {
-    private val ignoreInMemory = IgnoreInMemory()
 
     private fun getMaxDepth(): Int {
         return Settings.maxDepth
     }
-
+    
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val throwsExp = element as? KtThrowExpression ?: return
         val throwType = throwsExp.tryAndResolveThrowTypeOrDefaultUClass() ?: return
-
+        
         val throws = listOf(throwType)
         val range: TextRange = TextRange(element.getTextRange().startOffset,
                 element.getTextRange().endOffset)
         throwsExp.findFunctionScope()?.let {
-
+            
             val lambdaContext = it.getPotentialContainingLambda()
             val tryCatchExpression = it.findParentTryCatch()
             val isAllCaught = tryCatchExpression != null && tryCatchExpression.catchesAll(listOf(throwType))
@@ -38,11 +35,11 @@ class ThrowsAnnotator : Annotator {
                 if (!throws.isAllThrowsHandledByTypes(markedThrows)) {
                     registerAnnotationProblem(holder, listOf(throwType), throwsExp, range)
                 }
-
+                
             } else if (!isAllCaught
                     && (lambdaContext == null ||
                             !it.isContainedInLambdaCatchingOrIgnoredRecursive(
-                                    ignoreInMemory,
+                                    IgnoreInMemory,
                                     getMaxDepth(),
                                     listOf(throwType)))
             ) {
@@ -51,7 +48,7 @@ class ThrowsAnnotator : Annotator {
             }
         }
     }
-
+    
     private fun registerProblems(
             holder: AnnotationHolder,
             throwType: List<UClass>,
@@ -65,7 +62,7 @@ class ThrowsAnnotator : Annotator {
                 DeclareFunctionAsThrowsIntentionAction(throwsExp, throwType.firstOrNull()?.name
                         ?: ""))
     }
-
+    
     private fun registerAnnotationProblem(
             holder: AnnotationHolder,
             throwType: List<UClass>,

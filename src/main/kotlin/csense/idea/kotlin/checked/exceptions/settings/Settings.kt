@@ -2,33 +2,27 @@ package csense.idea.kotlin.checked.exceptions.settings
 
 import com.intellij.ide.util.*
 import com.intellij.lang.annotation.*
+import kotlin.reflect.*
 
 object Settings {
     
-    
     private const val settingsPrefixed = "CsenseCheckedExceptionKotlin"
     
-    private val backend by lazy {
+    private val backend: PropertiesComponent by lazy {
         PropertiesComponent.getInstance()
     }
     
+    var shouldHighlightCheckedExceptions: Boolean by BooleanSetting(backend, settingsPrefixed)
     
-    private const val shouldHighlightCheckedExceptionsName = settingsPrefixed + "shouldHighlightCheckedExceptions"
-    var shouldHighlightCheckedExceptions: Boolean
-        get() = backend.getBoolean(shouldHighlightCheckedExceptionsName, true)
-        set(value) = backend.setValue(shouldHighlightCheckedExceptionsName, value, true)
+    var shouldHighlightThrowsExceptions: Boolean by BooleanSetting(backend, settingsPrefixed)
     
+    var useIgnoreFile: Boolean by BooleanSetting(backend, settingsPrefixed, "Name")
     
-    private const val shouldHighlightThrowsExceptionsName = settingsPrefixed + "shouldHighlightThrowsExceptions"
-    var shouldHighlightThrowsExceptions: Boolean
-        get() = backend.getBoolean(shouldHighlightThrowsExceptionsName, true)
-        set(value) = backend.setValue(shouldHighlightThrowsExceptionsName, value, true)
+    var useCallThoughFile: Boolean by BooleanSetting(backend, settingsPrefixed, "Name")
     
+    var maxDepth: Int by IntSetting(backend, settingsPrefixed, "Name", 10, 1)
     
-    private const val maxDepthName = settingsPrefixed + "maxDepthName"
-    var maxDepth: Int
-        get() = backend.getInt(maxDepthName, 10)
-        set(value) = backend.setValue(maxDepthName, maxOf(value, 1), 10)
+    var runtimeAsCheckedException: Boolean by BooleanSetting(backend, settingsPrefixed)
     
     private const val throwsInsideOfFunctionSeverityName = settingsPrefixed + "throwsInsideOfFunctionSeverity"
     var throwsInsideOfFunctionSeverity: HighlightSeverity
@@ -41,4 +35,38 @@ object Settings {
             val valueToSave = newValue.name
             backend.setValue(throwsInsideOfFunctionSeverityName, valueToSave)
         }
+}
+
+class IntSetting(
+        private val backend: PropertiesComponent,
+        private val settingsNamePrefix: String,
+        private val postfixName: String = "",
+        private val defaultValue: Int = 0,
+        private val minValue: Int = Int.MIN_VALUE,
+        private val maxValue: Int = Int.MAX_VALUE
+) {
+    operator fun getValue(prop: Any, property: KProperty<*>): Int {
+        return backend.getInt(settingsNamePrefix + property.name + postfixName, defaultValue)
+    }
+    
+    operator fun setValue(prop: Any, property: KProperty<*>, newValue: Int) {
+        val safeValue = newValue.coerceAtLeast(minValue).coerceAtMost(maxValue)
+        backend.setValue(settingsNamePrefix + property.name + postfixName, safeValue, defaultValue)
+    }
+}
+
+class BooleanSetting(
+        private val backend: PropertiesComponent,
+        private val settingsNamePrefix: String,
+        private val postfixName: String = "",
+        private val defaultValue: Boolean = true
+) {
+    operator fun getValue(prop: Any, property: KProperty<*>): Boolean {
+        return backend.getBoolean(settingsNamePrefix + property.name + postfixName, defaultValue)
+    }
+    
+    operator fun setValue(prop: Any, property: KProperty<*>, newValue: Boolean) {
+        backend.setValue(settingsNamePrefix + property.name + postfixName, newValue, defaultValue)
+    }
+    
 }

@@ -12,6 +12,10 @@ object SharedMethodThrowingCache {
     private val inMemoryCallCache = SimpleLRUCache<String, CachedFunctionLookup>(500)
     //todo provide KtFunction...
     
+    fun clear(){
+        inMemoryCallCache.clear()
+    }
+    
     fun throwsTypes(exp: KtCallExpression): List<UClass> {
         val (fullName, lastModified) = handleExp(exp) ?: return emptyList()
         val cached = inMemoryCallCache.getOrRemove(
@@ -26,7 +30,7 @@ object SharedMethodThrowingCache {
             val throws = resolveThrows(exp)
             val hasAnyGeneric = exp.hasAnyGenerics()
             if (fullName != "" && !hasAnyGeneric) {
-                inMemoryCallCache.put(fullName, CachedFunctionLookup(lastModified, throws))
+//                inMemoryCallCache.put(fullName, CachedFunctionLookup(lastModified, throws))
             }
             throws
         }

@@ -20,31 +20,54 @@ public class SettingsPaneUi {
     public JSpinner maxDepthSpinner;
     @NotNull
     private JComboBox<String> nothingSeverity;
+    @NotNull
+    private JCheckBox highlightGutterThrowsFunctionsCheckbox;
+    @NotNull
+    private JCheckBox ignoreThrowsCheckbox;
+    @NotNull
+    private JCheckBox callthoughCheckbox;
+    @NotNull
+    private JCheckBox runtimeAsCheckedExceptionCheckBox;
 
 
     public SettingsPaneUi() {
-        highlightGutterCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightCheckedExceptions());
-        highlightGutterCheckBox.setAction(new AbstractAction() {
+        AbstractAction didChangeCallback = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                didChange = true;
+                setDidChange(true);
             }
-        });
-        maxDepthSpinner.addChangeListener(e -> didChange = true);
+        };
+
+        highlightGutterThrowsFunctionsCheckbox.setSelected(Settings.INSTANCE.getShouldHighlightThrowsExceptions());
+        highlightGutterThrowsFunctionsCheckbox.setAction(didChangeCallback);
+
+        highlightGutterCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightCheckedExceptions());
+        highlightGutterCheckBox.setAction(didChangeCallback);
+
+        maxDepthSpinner.addChangeListener(e -> setDidChange(true));
         maxDepthSpinner.setModel(new SpinnerNumberModel(Settings.INSTANCE.getMaxDepth(), 1, 100, 1));
+
+        ignoreThrowsCheckbox.setSelected(Settings.INSTANCE.getUseIgnoreFile());
+        ignoreThrowsCheckbox.setAction(didChangeCallback);
+        callthoughCheckbox.setSelected(Settings.INSTANCE.getUseCallThoughFile());
+        callthoughCheckbox.setAction(didChangeCallback);
+
+        runtimeAsCheckedExceptionCheckBox.setSelected(Settings.INSTANCE.getRuntimeAsCheckedException());
+        runtimeAsCheckedExceptionCheckBox.setAction(didChangeCallback);
+
 
         final HighlightSeverity settingsSeverity = Settings.INSTANCE.getThrowsInsideOfFunctionSeverity();
         for (HighlightSeverity severity : HighlightSeverity.DEFAULT_SEVERITIES) {
             nothingSeverity.addItem(severity.getName());
         }
         nothingSeverity.setSelectedItem(settingsSeverity.getName());
-        nothingSeverity.addItemListener(e -> {
-            didChange = true;
-        });
+        nothingSeverity.addItemListener(e -> setDidChange(true));
+
+
     }
 
 
-    public boolean didChange = false;
+    private boolean didChange = false;
 
     public void store() {
         try {
@@ -55,6 +78,10 @@ public class SettingsPaneUi {
         int maxDepthValue = (Integer) maxDepthSpinner.getValue();
         Settings.INSTANCE.setShouldHighlightCheckedExceptions(highlightGutterCheckBox.isSelected());
         Settings.INSTANCE.setMaxDepth(maxDepthValue);
+        Settings.INSTANCE.setShouldHighlightThrowsExceptions(highlightGutterThrowsFunctionsCheckbox.isSelected());
+        Settings.INSTANCE.setUseIgnoreFile(ignoreThrowsCheckbox.isSelected());
+        Settings.INSTANCE.setUseCallThoughFile(callthoughCheckbox.isSelected());
+        Settings.INSTANCE.setRuntimeAsCheckedException(runtimeAsCheckedExceptionCheckBox.isSelected());
 
         final String value = (String) nothingSeverity.getSelectedItem();
         for (HighlightSeverity severity : HighlightSeverity.DEFAULT_SEVERITIES) {
@@ -63,7 +90,7 @@ public class SettingsPaneUi {
                 break;
             }
         }
-        didChange = false;
+        setDidChange(false);
     }
 
     {
@@ -101,8 +128,13 @@ public class SettingsPaneUi {
         return root;
     }
 
-    @NotNull
-    public JComboBox<String> getNothingSeverity() {
-        return nothingSeverity;
+
+    public boolean didChange() {
+        return didChange;
     }
+
+    public void setDidChange(boolean didChange) {
+        this.didChange = didChange;
+    }
+
 }

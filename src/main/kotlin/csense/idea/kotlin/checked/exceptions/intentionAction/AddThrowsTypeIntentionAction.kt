@@ -1,7 +1,6 @@
 package csense.idea.kotlin.checked.exceptions.intentionAction
 
 import com.intellij.codeInsight.intention.impl.*
-import com.intellij.openapi.command.*
 import com.intellij.openapi.editor.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*

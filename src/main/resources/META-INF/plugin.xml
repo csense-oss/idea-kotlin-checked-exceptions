@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>csense-idea.kotlin-checked-exceptions</id>
-    <name>Csense - kotlin checked exceptions</name>
+    <name>Csense - Kotlin Checked Exceptions</name>
     <vendor email="csense@tvedesys.dk" url="https://github.com/csense-oss/idea-kotlin-checked-exceptions">
         Csense oss
     </vendor>
@@ -27,7 +27,7 @@
                 language="kotlin"
                 implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.ThrowsExceptionLineMarkerProvider"/>
 
-        <applicationConfigurable groupId="tools" displayName="Csense - Kotlin Checked exceptions"
+        <applicationConfigurable groupId="tools" displayName="Csense Kotlin Checked Exceptions"
                                  id="csenseKotlinCheckedExceptionsSettingsPage"
                                  instance="csense.idea.kotlin.checked.exceptions.settings.SettingsPage"/>
 
