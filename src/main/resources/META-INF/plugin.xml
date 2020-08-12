@@ -38,14 +38,6 @@
                    implementationClass="csense.idea.kotlin.checked.exceptions.annotator.ThrowsFunctionAnnotator"/>
     </extensions>
 
-    <project-components>
-        <component>
-            <implementation-class>
-                csense.idea.kotlin.checked.exceptions.notification.CheckedExceptionsNotificationComponent
-            </implementation-class>
-        </component>
-    </project-components>
-
     <actions>
         <!-- Add your actions here -->
     </actions>

@@ -17,8 +17,6 @@ import org.jetbrains.kotlin.psi.*
  */
 class CheckedExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
     
-    private val throwsIcon = IconLoader.getIcon("/icons/throws.png")
-    
     override fun collectNavigationMarkers(element: PsiElement, result: MutableCollection<in RelatedItemLineMarkerInfo<PsiElement>>) {
         if (!Settings.shouldHighlightCheckedExceptions || element !is LeafPsiElement) {
             return
@@ -36,10 +34,13 @@ class CheckedExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
         val throwsTypesText = throwsTypes.toTypeList().joinToString(", ")
         val builder =
                 NavigationGutterIconBuilder
-                        .create(throwsIcon)
+                        .create(exceptionIcon)
                         .setTargets(asMethod)
                         .setTooltipText("This expression is declared to throw the following type(s):\n$throwsTypesText")
         result.add(builder.createLineMarkerInfo(element))
+    }
+    companion object{
+        val exceptionIcon =  IconLoader.getIcon("/icons/throws.svg")
     }
     
 }

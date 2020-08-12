@@ -23,10 +23,13 @@ class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
         val type = asMethod.tryAndResolveThrowTypeOrDefault()
         val builder =
                 NavigationGutterIconBuilder
-                        .create(IconLoader.getIcon("/icons/exception.png"))
+                        .create(exceptionIcon)
                         .setTargets(asMethod)
                         .setTooltipText("You are throwing an exception of type \"$type\"")
         result.add(builder.createLineMarkerInfo(element))
+    }
+    companion object{
+        val exceptionIcon = IconLoader.getIcon("/icons/exception.svg")
     }
 
 }

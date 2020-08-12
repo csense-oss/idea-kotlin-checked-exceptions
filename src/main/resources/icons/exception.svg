@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<svg height="24" id="share" viewBox="0 0 48 48" width="24" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+            .vi-primary {
+            fill: #23C85B;
+            }
+
+            .vi-accent {
+            fill: #0C0058;
+            fill-rule: evenodd;
+            }
+        </style>
+    </defs>
+    <rect class="vi-primary" height="28.5" width="28" x="16" y="10" id="svg_3"/>
+    <path class="vi-accent"
+          d="M5,25 H27 l-3,3 l2,2 l6,-6 V21.5 l-6,-6 l-2,2 l3,3 H5 v3 z"
+          id="svg_2" transform="rotate(-180 18.5,23.5) "/>
+</svg>

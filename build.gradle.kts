@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "1.0.0"
+version = "1.0.1"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -32,14 +32,8 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
-            <li>potential fixes to inspections</li>
-            <li>Settings reloads when clicking ok / apply</li>
-            <li>Settings bugs fixed and added missing settings</li>
-            <li>Fixed naming ("Kotlin.Exception" to "kotlin.Exception")</li>
-            <li>Fixed experimental api usages</li>
-            <li>Option to respect "runtime exceptions" as "unchecked"</li>
-            <li>Handles kotlin.Throwable (did not fully before)</li>
-            <li>Heavily optimized compared to previous versions (still have some room for improvement, but for simple code its around 50 - 100% faster)</li>
+            <li>Updated icons to svg and not so bright colors</li>
+            <li>Removed some deprecated code</li>
         </ul>
       """)
 }
