@@ -1,6 +1,9 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
+import com.intellij.openapi.project.*
 import com.intellij.psi.*
+import com.intellij.psi.search.*
+import csense.idea.base.*
 import csense.idea.base.bll.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psi.*
@@ -13,6 +16,7 @@ import csense.kotlin.extensions.*
 import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.caches.resolve.*
+import org.jetbrains.kotlin.idea.references.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
 import org.jetbrains.kotlin.resolve.*
@@ -41,29 +45,20 @@ fun List<UClass>.filterRuntimeExceptionsBySettings(): List<UClass> {
     }
 }
 
-fun UClass.isRuntimeExceptionClass(): Boolean {
-    return anyParentOf {
-        val fqName = it.getKotlinFqNameString()
-         fqName == "java.lang.RuntimeException" || fqName == "kotlin.RuntimeException"
-    }
-}
-
-private fun UClass.anyParentOf(function: Function1<UClass, Boolean>): Boolean {
-    var parent: UClass? = this
-    while (parent != null) {
-        if (function(parent)) {
-            return true
-        }
-        parent = parent.supers.firstOrNull()?.toUElementOfType()
-    }
-    return false
-}
-
+//TODO csense kotlin
 fun <T, C : Collection<T>> C?.nullOnEmpty(): C? {
     if (this == null) {
         return null
     }
     return isNotEmpty().map(ifTrue = this, ifFalse = null)
+}
+
+//waiting for csense (and to add to collection as well)
+inline fun <T> Array<out T>.indexOfFirstOrNull(predicate: (T) -> Boolean): Int? {
+    return when (val value = indexOfFirst(predicate)) {
+        -1 -> null
+        else -> value
+    }
 }
 
 fun PsiMethod.computeThrowsTypes(callExpression: KtCallExpression): List<UClass> {
@@ -82,23 +77,22 @@ fun PsiMethod.computeThrowsTypes(callExpression: KtCallExpression): List<UClass>
     }
 }
 
-//waiting for csense (and to add to collection as well)
-inline fun <T> Array<out T>.indexOfFirstOrNull(predicate: (T) -> Boolean): Int? {
-    return when (val value = indexOfFirst(predicate)) {
-        -1 -> null
-        else -> value
-    }
-}
 
 fun KtFunction.findThrowsAnnotation(): KtAnnotationEntry? = annotationEntries.firstOrNull {
     it.shortName?.asString() == kotlinThrowsText
 }
 
+
+fun Project.resolveMainKotlinException(): UClass? {
+   return JavaPsiFacade.getInstance(this)
+            .findClass("java.lang.Throwable", GlobalSearchScope.allScope(this))
+            ?.toUElementOfType<UClass>()
+}
+
 fun KtFunction.throwsTypes(): List<UClass> {
     val throwsAnnotation = findThrowsAnnotation() ?: return listOf()
     return if (throwsAnnotation.children.size <= 1) { //eg "@Throws"
-//        listOf(kotlinMainExceptionFq)
-        listOf()//TODO make me
+        listOfNotNull(project.resolveMainKotlinException())
     } else {
         throwsAnnotation.valueArguments.map { value ->
             value.resolveClassLiterals().mapNotNull {
@@ -206,13 +200,19 @@ fun KtThrowExpression.tryAndResolveThrowType(): String? = tryAndLog {
     return@tryAndLog DescriptorUtils.getFqName(declarationDescriptor).asString()
 }
 
-fun KtThrowExpression.tryAndResolveThrowTypeOrDefault(): String = tryAndResolveThrowType() ?: kotlinMainExceptionFqName
-
 fun KtThrowExpression.tryAndResolveThrowTypeOrDefaultUClass(): UClass? {
     val thrownExpression = this.thrownExpression as? KtCallExpression ?: return null
-    val nameExpression = thrownExpression.calleeExpression as? KtNameReferenceExpression ?: return null
-    val descriptor = nameExpression.resolveToCall()?.resultingDescriptor ?: return null
-    return descriptor.findUClass()
+    return thrownExpression.resolveMainReferenceWithTypeAliasForClass()
+}
+
+fun KtCallExpression.resolveMainReferenceWithTypeAliasForClass(): UClass? {
+    val resolved = resolveMainReferenceWithTypeAlias()
+    val clz = when (resolved) {
+        is PsiClass -> resolved
+        is PsiMember -> resolved.containingClass
+        else -> resolved
+    }
+    return clz?.toUElement(UClass::class.java)
 }
 
 fun KtElement.resolveToCall(bodyResolveMode: BodyResolveMode = BodyResolveMode.PARTIAL): ResolvedCall<out CallableDescriptor>? =

@@ -4,8 +4,11 @@ import com.intellij.codeInsight.daemon.*
 import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.tree.*
+import csense.idea.base.bll.uast.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.settings.*
+import org.jetbrains.kotlin.lexer.*
 import org.jetbrains.kotlin.psi.*
 import javax.crypto.*
 
@@ -16,12 +19,22 @@ import javax.crypto.*
 
 class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(element: PsiElement, result: MutableCollection<in RelatedItemLineMarkerInfo<PsiElement>>) {
-        if (!Settings.shouldHighlightThrowsExceptions) {
+        if (!Settings.shouldHighlightCheckedExceptions || element !is LeafPsiElement) {
             return
         }
-        val asMethod = element as? KtThrowExpression ?: return
-
-        val type = asMethod.tryAndResolveThrowTypeOrDefault()
+        if (element.elementType != KtTokens.IDENTIFIER){
+            return
+        }
+        
+        val asMethod = element.parent as? KtThrowExpression
+                ?: element.parent?.parent as? KtThrowExpression
+                ?: element.parent?.parent?.parent as? KtThrowExpression
+                ?: return
+        val uType = asMethod.tryAndResolveThrowTypeOrDefaultUClass()
+        if(uType?.isRuntimeExceptionClass() == true && !Settings.runtimeAsCheckedException){
+            return //skip
+        }
+        val type = uType?.qualifiedName ?:kotlinMainExceptionFqName
         val builder =
                 NavigationGutterIconBuilder
                         .create(exceptionIcon)

@@ -63,7 +63,7 @@ class IncrementalFunctionCheckedVisitor(
     }
     
     override fun visitTryExpression(expression: KtTryExpression, data: IncrementalStep): Void? {
-        val captures = expression.catchClauses.mapNotNull { it.catchParameter?.resolveTypeClass2(project) }
+        val captures = expression.catchClauses.mapNotNull { it.catchParameter?.resolveTypeClassException(project) }
         val newState = data.copy(captures = data.captures + captures.filterRuntimeExceptionsBySettings())
         return super.visitTryExpression(expression, newState)
     }
@@ -107,7 +107,7 @@ class IncrementalFunctionCheckedVisitor(
                     javaThrowableUClass?.let { listOf(it) } ?: emptyList()
                 }
                 //call though => use parent captures
-                lambda.isCallThough(CallthoughInMemory) -> {
+                lambda.isCallThough() -> {
                     data.captures
                 }
                 //else its just a normal lambda, thus it defines its own captures
@@ -151,7 +151,7 @@ data class IncrementalStep(
 )
 
 
-fun KtParameter.resolveTypeClass2(project: Project): UClass? {
+fun KtParameter.resolveTypeClassException(project: Project): UClass? {
     val resolved = this.typeReference?.resolve()
     if (resolved?.getKotlinFqName() == KotlinBuiltIns.FQ_NAMES.throwable) {
         return JavaPsiFacade.getInstance(project)

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "1.0.2"
+version = "1.1.0"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -25,7 +25,7 @@ dependencies {
     implementation("csense.kotlin:csense-kotlin-jvm:0.0.36")
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.18")
     implementation("csense.kotlin:csense-kotlin-ds-jvm:0.0.25")
-    implementation("csense.idea.base:csense-idea-base:0.1.19")
+    implementation("csense.idea.base:csense-idea-base:0.1.20")
 }
 
 
@@ -34,7 +34,10 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
         <ul>
             <li>Updated icons to follow IDEA icon guides (as much as possible)</li>
             <li>Main icon updated to reflect style</li>
-            <li>Fixed bug with runtime exceptions not always respecting settings correctly</li>
+            <li>Fixed bug with runtime exceptions not always respecting settings correctly (when throwing)</li>
+            <li>Fixed minor bug where sometimes resolving references failed for throws expressions</li>
+            <li>@Throws (without any type) now defaults to Throwable, and are reported</li>
+            <li>Fixed issue with "linemarker" reporting (inner workings)</li>
         </ul>
       """)
 }

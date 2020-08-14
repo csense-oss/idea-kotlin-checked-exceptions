@@ -3,6 +3,7 @@ package csense.idea.kotlin.checked.exceptions.annotator
 import com.intellij.lang.annotation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
+import csense.idea.base.bll.uast.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
 import csense.idea.kotlin.checked.exceptions.intentionAction.*
@@ -20,7 +21,10 @@ class ThrowsAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val throwsExp = element as? KtThrowExpression ?: return
         val throwType = throwsExp.tryAndResolveThrowTypeOrDefaultUClass() ?: return
-        
+        //skip runtime exception types iff they are disabled.
+        if(!Settings.runtimeAsCheckedException && throwType.isRuntimeExceptionClass()){
+            return
+        }
         val throws = listOf(throwType)
         val range: TextRange = TextRange(element.getTextRange().startOffset,
                 element.getTextRange().endOffset)
@@ -56,7 +60,8 @@ class ThrowsAnnotator : Annotator {
             range: TextRange
     ) {
         val throwText = throwType.mapNotNull { it.name }.joinToString(", ")
-        holder.createWarningAnnotation(
+        holder.createAnnotation(
+                HighlightSeverity.WARNING,
                 range,
                 "Throws \"$throwText\"").registerFix(
                 DeclareFunctionAsThrowsIntentionAction(throwsExp, throwType.firstOrNull()?.name
@@ -70,7 +75,8 @@ class ThrowsAnnotator : Annotator {
             range: TextRange
     ) {
         val throwText = throwType.mapNotNull { it.name }.joinToString(", ")
-        holder.createWarningAnnotation(
+        holder.createAnnotation(
+                HighlightSeverity.WARNING,
                 range,
                 "Throws \"$throwText\", but does not have that in the throws annotation").registerFix(
                 AddThrowsTypeIntentionAction(throwsExp, throwType.firstOrNull()?.name

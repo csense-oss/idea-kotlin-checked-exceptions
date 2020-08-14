@@ -24,7 +24,6 @@ class WrapInTryCatchQuickFix(
             try {
                 elementToUse.replace(newElement)
             } catch (e: IncorrectOperationException) {
-                TODO("Add error handling here")
             }
         }
     }
