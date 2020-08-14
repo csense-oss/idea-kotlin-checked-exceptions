@@ -7,6 +7,7 @@ import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*
+import javax.crypto.*
 
 /**
  * Highlights "throws" expressions, which is to say, where you throw exceptions.

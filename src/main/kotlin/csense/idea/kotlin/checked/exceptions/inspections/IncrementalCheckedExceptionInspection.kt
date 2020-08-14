@@ -43,9 +43,9 @@ class IncrementalCheckedExceptionInspection : AbstractKotlinInspection() {
                               isOnTheFly: Boolean): KtVisitorVoid {
         return namedFunctionVisitor {
 //            logMeasureTimeInMillis("incremental time") {
-                val project = holder.project
-                val visitor = IncrementalFunctionCheckedVisitor(holder, project)
-                it.accept(visitor, IncrementalStep(listOf()))
+            val project = holder.project
+            val visitor = IncrementalFunctionCheckedVisitor(holder, project)
+            it.accept(visitor, IncrementalStep(listOf()))
 //            }
         }
     }
@@ -64,14 +64,14 @@ class IncrementalFunctionCheckedVisitor(
     
     override fun visitTryExpression(expression: KtTryExpression, data: IncrementalStep): Void? {
         val captures = expression.catchClauses.mapNotNull { it.catchParameter?.resolveTypeClass2(project) }
-        val newState = data.copy(captures = data.captures + captures)
+        val newState = data.copy(captures = data.captures + captures.filterRuntimeExceptionsBySettings())
         return super.visitTryExpression(expression, newState)
     }
     
     override fun visitNamedFunction(function: KtNamedFunction, data: IncrementalStep): Void? {
         val throws = function.throwsTypes()
         val newData = IncrementalStep(
-                data.captures + throws,
+                data.captures + throws.filterRuntimeExceptionsBySettings(),
                 isMarkedThrows = throws.isNotEmpty())
         return super.visitNamedFunction(function, newData)
     }
@@ -153,7 +153,7 @@ data class IncrementalStep(
 
 fun KtParameter.resolveTypeClass2(project: Project): UClass? {
     val resolved = this.typeReference?.resolve()
-    if(resolved?.getKotlinFqName() == KotlinBuiltIns.FQ_NAMES.throwable){
+    if (resolved?.getKotlinFqName() == KotlinBuiltIns.FQ_NAMES.throwable) {
         return JavaPsiFacade.getInstance(project)
                 .findClass("java.lang.Throwable", GlobalSearchScope.allScope(project))
                 ?.toUElementOfType()

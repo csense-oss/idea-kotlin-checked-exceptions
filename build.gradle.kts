@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "1.0.1"
+version = "1.0.2"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -32,8 +32,9 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes("""
         <ul>
-            <li>Updated icons to svg and not so bright colors</li>
-            <li>Removed some deprecated code</li>
+            <li>Updated icons to follow IDEA icon guides (as much as possible)</li>
+            <li>Main icon updated to reflect style</li>
+            <li>Fixed bug with runtime exceptions not always respecting settings correctly</li>
         </ul>
       """)
 }

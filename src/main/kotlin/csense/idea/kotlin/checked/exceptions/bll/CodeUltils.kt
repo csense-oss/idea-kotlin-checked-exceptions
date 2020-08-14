@@ -28,18 +28,23 @@ fun PsiElement.throwsTypesIfFunction(callExpression: KtCallExpression): List<UCl
         else -> null
     }
     //if we are to ignore runtime exceptions, filter those out.
-    if (!Settings.runtimeAsCheckedException) {
-        return result?.filterNot {
+    return result?.filterRuntimeExceptionsBySettings()?.nullOnEmpty()
+}
+
+fun List<UClass>.filterRuntimeExceptionsBySettings(): List<UClass> {
+    return if (Settings.runtimeAsCheckedException) {
+        this
+    } else {
+        filterNot {
             it.isRuntimeExceptionClass()
-        }?.nullOnEmpty()
+        }
     }
-    //todo csense later: result?.nullOnEmpty()
-    return result?.nullOnEmpty()
 }
 
 fun UClass.isRuntimeExceptionClass(): Boolean {
     return anyParentOf {
-        it.getKotlinFqNameString() == "java.lang.RuntimeException"
+        val fqName = it.getKotlinFqNameString()
+         fqName == "java.lang.RuntimeException" || fqName == "kotlin.RuntimeException"
     }
 }
 
