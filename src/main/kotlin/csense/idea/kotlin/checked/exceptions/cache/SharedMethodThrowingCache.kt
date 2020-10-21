@@ -3,7 +3,7 @@ package csense.idea.kotlin.checked.exceptions.cache
 import com.intellij.psi.PsiMethod
 import csense.idea.base.bll.kotlin.resolveMainReference
 import csense.idea.kotlin.checked.exceptions.bll.*
-import csense.kotlin.ds.cache.*
+import csense.kotlin.datastructures.collections.SimpleLRUCache
 import org.jetbrains.kotlin.idea.refactoring.fqName.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.uast.*
@@ -11,11 +11,11 @@ import org.jetbrains.uast.*
 object SharedMethodThrowingCache {
     private val inMemoryCallCache = SimpleLRUCache<String, CachedFunctionLookup>(500)
     //todo provide KtFunction...
-    
-    fun clear(){
+
+    fun clear() {
         inMemoryCallCache.clear()
     }
-    
+
     fun throwsTypes(exp: KtCallExpression): List<UClass> {
         val (fullName, lastModified) = handleExp(exp) ?: return emptyList()
         val cached = inMemoryCallCache.getOrRemove(
@@ -35,7 +35,7 @@ object SharedMethodThrowingCache {
             throws
         }
     }
-    
+
     private fun handleExp(exp: KtCallExpression): ResolvedExp? = when (
         val funcCalled = exp.resolveMainReference()) {
         is PsiMethod -> {
@@ -48,24 +48,24 @@ object SharedMethodThrowingCache {
             ResolvedExp(
                     funcCalled.getKotlinFqName()?.asString() ?: "-1",
                     funcCalled.getModificationStamp()
-            
+
             )
         }
         else -> null
     }
-    
+
     private data class ResolvedExp(val fullName: String, val lastModifiedTimeStamp: Long)
-    
+
     private fun resolveThrows(exp: KtCallExpression): List<UClass> {
         val functionResolved = exp.resolveMainReference() ?: return listOf()
         //Does it throw ? (if not just break)
         return functionResolved.throwsTypesIfFunction(exp) ?: return listOf()
     }
-    
+
     data class CachedFunctionLookup(
             val lastModifiedTimeStamp: Long,
             val throwsTypes: List<UClass>
-    
+
     )
 }
 

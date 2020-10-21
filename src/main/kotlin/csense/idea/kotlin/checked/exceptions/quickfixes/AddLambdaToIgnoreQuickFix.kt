@@ -15,7 +15,7 @@ class AddLambdaToIgnoreQuickFix(
     }
 
     override fun getText(): String {
-        return "Add lambda parameter to ignore throws file"
+        return "Ignore exceptions thrown in this lambda argument (adds to .ignore.throws file)"
     }
 
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {

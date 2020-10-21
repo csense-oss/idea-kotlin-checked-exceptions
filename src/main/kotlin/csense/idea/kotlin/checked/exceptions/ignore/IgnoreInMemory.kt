@@ -18,7 +18,7 @@ object IgnoreInMemory {
             it.fullName == lookingFor && it.parameterName == name
         }
     }
-
+    
     fun isArgumentNotMarkedAsIgnore(main: KtFunction, name: String): Boolean {
         return !isArgumentMarkedAsIgnore(main, name)
     }

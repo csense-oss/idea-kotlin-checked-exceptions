@@ -15,7 +15,7 @@ class AddLambdaToCallthoughQuickFix(
     }
     
     override fun getText(): String {
-        return "Add lambda parameter to callthough file"
+        return "Mark this lambda parameter as passing exceptions on (adds to .callthough.throws file)"
     }
     
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {

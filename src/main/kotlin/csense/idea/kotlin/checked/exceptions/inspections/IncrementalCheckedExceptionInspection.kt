@@ -78,10 +78,11 @@ class IncrementalFunctionCheckedVisitor(
     
     
     override fun visitCallExpression(expression: KtCallExpression, data: IncrementalStep): Void? {
-        
+        //skip if ignore.
         val thrown = expression.resolveMainReference()?.throwsTypesIfFunction(expression)
         val nonCaught = thrown?.filterOnlyNonCaught(data.captures)
         if (nonCaught.isNotNullOrEmpty()) {
+            
             val throwTypes = nonCaught.map { it.name ?: "" }
             val text = "This call throws, so you should handle it with try catch, or declare that this method throws.\n It throws the following types:" +
                     throwTypes.joinToString(", ")
@@ -91,7 +92,8 @@ class IncrementalFunctionCheckedVisitor(
                     *createQuickFixes(
                             expression,
                             throwTypes,
-                            data.isMarkedThrows)
+                            data.isMarkedThrows,
+                            data.containingLambda)
             )
         }
         return super.visitCallExpression(expression, data)
@@ -128,7 +130,8 @@ class IncrementalFunctionCheckedVisitor(
     private fun createQuickFixes(
             namedFunction: KtCallExpression,
             exceptionTypes: List<String>,
-            haveThrowsAnnotation: Boolean
+            haveThrowsAnnotation: Boolean,
+            containingLambda: LambdaParameterData?
     ): Array<LocalQuickFix> {
         val declare: LocalQuickFix = haveThrowsAnnotation.mapLazy({
             AddFunctionThrowsQuickFix(namedFunction, exceptionTypes)
@@ -136,10 +139,23 @@ class IncrementalFunctionCheckedVisitor(
             DeclareFunctionAsThrowsQuickFix(namedFunction, exceptionTypes)
         })
         
+        val lambdaRelatedQuickfixes: Array<LocalQuickFix> = if (containingLambda != null) {
+            val lambdaQuickFixes = mutableListOf<LocalQuickFix>()
+            if (!containingLambda.isIgnored(IgnoreInMemory)) {
+                lambdaQuickFixes.add(AddLambdaToIgnoreQuickFix(containingLambda.main, containingLambda.parameterName))
+            }
+            if (!containingLambda.isCallThough()) {
+                lambdaQuickFixes.add(AddLambdaToCallthoughQuickFix(containingLambda.main, containingLambda.parameterName))
+            }
+            lambdaQuickFixes.toTypedArray()
+        } else {
+            arrayOf()
+        }
+        
         return arrayOf(
                 WrapInTryCatchQuickFix(namedFunction, exceptionTypes),
                 declare
-        )
+        ) + lambdaRelatedQuickfixes
     }
     
 }
