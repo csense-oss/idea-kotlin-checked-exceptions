@@ -1,12 +1,12 @@
 plugins {
-    id("org.jetbrains.intellij") version "0.5.0"
-    kotlin("jvm") version "1.4.10"
+    id("org.jetbrains.intellij") version "0.6.5"
+    kotlin("jvm") version "1.4.20"
     java
     id("org.owasp.dependencycheck") version "5.3.2"
 }
 
 group = "csense-idea"
-version = "1.1.2"
+version = "1.1.3"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -30,11 +30,13 @@ dependencies {
 
 
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
-    changeNotes("""
+    changeNotes(
+        """
         <ul>
-            <li> fixed icon (svg) causing exceptions in IDEA log & use paths instead of inline image's </li>
+            <li>fixed issue with upcoming kotlin plugin version incompatibility </li>
         </ul>
-      """)
+      """
+    )
 }
 
 tasks.getByName("check").dependsOn("dependencyCheckAnalyze")

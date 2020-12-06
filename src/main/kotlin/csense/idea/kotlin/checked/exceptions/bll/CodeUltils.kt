@@ -238,7 +238,7 @@ fun List<UClass>.catchesClass(inputClass: UClass): Boolean = any {
 
 
 private val throwableTypes = setOf(
-        KotlinBuiltIns.FQ_NAMES.throwable.asString(),
+        "kotlin.Throwable",
         "java.lang.Throwable"
 )
 

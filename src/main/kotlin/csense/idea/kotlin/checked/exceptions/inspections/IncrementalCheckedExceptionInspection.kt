@@ -169,7 +169,7 @@ data class IncrementalStep(
 
 fun KtParameter.resolveTypeClassException(project: Project): UClass? {
     val resolved = this.typeReference?.resolve()
-    if (resolved?.getKotlinFqName() == KotlinBuiltIns.FQ_NAMES.throwable) {
+    if (resolved?.getKotlinFqNameString() == "kotlin.Throwable") {
         return JavaPsiFacade.getInstance(project)
                 .findClass("java.lang.Throwable", GlobalSearchScope.allScope(project))
                 ?.toUElementOfType()
