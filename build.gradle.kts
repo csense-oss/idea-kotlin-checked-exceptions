@@ -35,7 +35,7 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
     changeNotes(
         """
         <ul>
-            <li>disables throws annotator in test code / module </li>
+            <li>disables throws annotator in test code / modules </li>
         </ul>
       """
     )
