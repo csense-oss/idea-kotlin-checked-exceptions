@@ -1,12 +1,14 @@
 plugins {
+    //https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij") version "0.6.5"
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.4.21"
     java
-    id("org.owasp.dependencycheck") version "5.3.2"
+    //https://github.com/jeremylong/dependency-check-gradle/releases
+    id("org.owasp.dependencycheck") version "6.0.4"
 }
 
 group = "csense-idea"
-version = "1.1.3"
+version = "1.1.4"
 
 intellij {
     updateSinceUntilBuild = false //Disables updating since-build attribute in plugin.xml
@@ -33,7 +35,7 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
     changeNotes(
         """
         <ul>
-            <li>fixed issue with upcoming kotlin plugin version incompatibility </li>
+            <li>disables throws annotator in test code / modules </li>
         </ul>
       """
     )

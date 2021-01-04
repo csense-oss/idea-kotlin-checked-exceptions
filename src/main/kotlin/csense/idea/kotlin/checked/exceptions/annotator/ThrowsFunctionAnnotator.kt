@@ -21,7 +21,6 @@ class ThrowsFunctionAnnotator : Annotator {
         if (isNothing != true || resultingDescriptor.typeParameters.isNotEmpty()) {
             return
         }
-        //skip if test module
         if (element.isInTestSourceRoot()) {
             return
         }
