@@ -4,6 +4,7 @@ import com.intellij.lang.annotation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import csense.idea.base.bll.uast.*
+import csense.idea.base.module.isInTestSourceRoot
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
 import csense.idea.kotlin.checked.exceptions.intentionAction.*
@@ -19,7 +20,11 @@ class ThrowsAnnotator : Annotator {
     }
     
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
+
         val throwsExp = element as? KtThrowExpression ?: return
+        if (element.isInTestSourceRoot()) {
+            return
+        }
         val throwType = throwsExp.tryAndResolveThrowTypeOrDefaultUClass() ?: return
         //skip runtime exception types iff they are disabled.
         if(!Settings.runtimeAsCheckedException && throwType.isRuntimeExceptionClass()){
