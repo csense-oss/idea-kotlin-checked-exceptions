@@ -9,17 +9,18 @@ import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
 class AddFunctionThrowsQuickFix(
-        namedFunction: PsiElement,
-        private val exceptionTypes: List<String>) : LocalQuickFixOnPsiElement(namedFunction) {
+    namedFunction: PsiElement,
+    private val exceptionTypes: List<String>
+) : LocalQuickFixOnPsiElement(namedFunction) {
 
     override fun getText(): String {
         return "Add throws type to function (\"$throwType\")"
     }
 
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) = tryAndLog {
-        val ktElement = startElement as? KtElement ?: return
-        val parent: KtModifierListOwner = ktElement.getContainingFunctionOrPropertyAccessor() ?: return
-        val throws = parent.annotationEntries.findThrows() ?: return
+        val ktElement = startElement as? KtElement ?: return@tryAndLog
+        val parent: KtModifierListOwner = ktElement.getContainingFunctionOrPropertyAccessor() ?: return@tryAndLog
+        val throws = parent.annotationEntries.findThrows() ?: return@tryAndLog
         val exceptionType = exceptionTypes.singleOrNull()
         val throwsNotNull = throws.valueArguments.mapNotNull { it.getArgumentExpression()?.text } + exceptionType
         val fullText = throwsNotNull.joinToString(", ")
@@ -34,5 +35,5 @@ class AddFunctionThrowsQuickFix(
     }
 
     private val throwType: String =
-            exceptionTypes.singleOrNull() ?: kotlinMainExceptionFqName
+        exceptionTypes.singleOrNull() ?: kotlinMainExceptionFqName
 }

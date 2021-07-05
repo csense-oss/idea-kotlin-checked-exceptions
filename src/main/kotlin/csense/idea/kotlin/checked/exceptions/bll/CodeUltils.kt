@@ -84,9 +84,9 @@ fun KtFunction.findThrowsAnnotation(): KtAnnotationEntry? = annotationEntries.fi
 
 
 fun Project.resolveMainKotlinException(): UClass? {
-   return JavaPsiFacade.getInstance(this)
-            .findClass("java.lang.Throwable", GlobalSearchScope.allScope(this))
-            ?.toUElementOfType<UClass>()
+    return JavaPsiFacade.getInstance(this)
+        .findClass("java.lang.Throwable", GlobalSearchScope.allScope(this))
+        ?.toUElementOfType<UClass>()
 }
 
 fun KtFunction.throwsTypes(): List<UClass> {
@@ -103,12 +103,15 @@ fun KtFunction.throwsTypes(): List<UClass> {
 }
 
 
-fun KtElement.getContainingFunctionOrPropertyAccessor(): KtModifierListOwner? =
-        getParentOfType<KtFunction>(true) ?: getParentOfType<KtPropertyAccessor>(true)
+fun KtElement.getContainingFunctionOrPropertyAccessor(): KtModifierListOwner? {
+    val parent = getParentOfType<KtNamedFunction>(true)
+
+    return parent ?: getParentOfType<KtPropertyAccessor>(true)
+}
 
 fun KtAnnotated.throwsTypes(): List<UClass> {
     val annotation = annotationEntries.findThrows() ?: return listOf()
-    
+
     return annotation.valueArguments.map { value ->
         value.resolveClassLiterals().mapNotNull { klass ->
             klass.findUClass()
@@ -170,7 +173,7 @@ fun KtElement.containingFunctionMarkedAsThrowTypes(): List<UClass> {
             is KtNamedFunction -> return current.throwsTypes()
             else -> current = current.parent ?: return emptyList()
         }
-        
+
     }
 }
 
@@ -216,11 +219,11 @@ fun KtCallExpression.resolveMainReferenceWithTypeAliasForClass(): UClass? {
 }
 
 fun KtElement.resolveToCall(bodyResolveMode: BodyResolveMode = BodyResolveMode.PARTIAL): ResolvedCall<out CallableDescriptor>? =
-        getResolvedCall(analyze(bodyResolveMode))
+    getResolvedCall(analyze(bodyResolveMode))
 
 @JvmOverloads
 fun KtElement.analyze(bodyResolveMode: BodyResolveMode = BodyResolveMode.FULL): BindingContext =
-        getResolutionFacade().analyze(this, bodyResolveMode)
+    getResolutionFacade().analyze(this, bodyResolveMode)
 
 fun KtTryExpression.catchesAll(throws: List<UClass>): Boolean = throws.all { clz: UClass ->
     catchClauses.catches(clz)
@@ -238,8 +241,8 @@ fun List<UClass>.catchesClass(inputClass: UClass): Boolean = any {
 
 
 private val throwableTypes = setOf(
-        "kotlin.Throwable",
-        "java.lang.Throwable"
+    "kotlin.Throwable",
+    "java.lang.Throwable"
 )
 
 fun UClass.isKotlinThrowable(): Boolean {

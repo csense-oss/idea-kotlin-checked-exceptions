@@ -9,16 +9,17 @@ import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
 class DeclareFunctionAsThrowsQuickFix(
-        namedFunction: PsiElement,
-        private val exceptionTypes: List<String>) : LocalQuickFixOnPsiElement(namedFunction) {
+    namedFunction: PsiElement,
+    private val exceptionTypes: List<String>
+) : LocalQuickFixOnPsiElement(namedFunction) {
 
     override fun getText(): String {
         return "Mark function as throws \"$throwType\""
     }
 
     override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) = tryAndLog {
-        val ktElement = startElement as? KtElement ?: return
-        val parent: KtModifierListOwner = ktElement.getContainingFunctionOrPropertyAccessor() ?: return
+        val ktElement = startElement as? KtElement ?: return@tryAndLog
+        val parent: KtModifierListOwner = ktElement.getContainingFunctionOrPropertyAccessor() ?: return@tryAndLog
         val exceptionType = exceptionTypes.singleOrNull()
         project.executeWriteCommand(text) {
             parent.addAnnotationEntry(ThrowsAnnotationBll.createThrowsAnnotation(parent, exceptionType))
@@ -31,5 +32,5 @@ class DeclareFunctionAsThrowsQuickFix(
     }
 
     private val throwType: String =
-            exceptionTypes.singleOrNull() ?: kotlinMainExceptionFqName
+        exceptionTypes.singleOrNull() ?: kotlinMainExceptionFqName
 }

@@ -10,14 +10,14 @@ import csense.kotlin.extensions.*
 import org.jetbrains.kotlin.psi.*
 
 class DeclareFunctionAsThrowsIntentionAction(
-        private val throwsExp: KtThrowExpression,
-        val throwType: String
+    private val throwsExp: KtThrowExpression,
+    val throwType: String
 ) : BaseIntentionAction() {
     override fun getFamilyName(): String =
-            "Csense checked exceptions - intention action"
+        "Csense checked exceptions - intention action"
 
     override fun getText(): String =
-            "Mark function as throws \"$throwType\""
+        "Mark function as throws \"$throwType\""
 
     override fun isAvailable(project: Project, editor: Editor?, file: PsiFile?): Boolean = true
 
