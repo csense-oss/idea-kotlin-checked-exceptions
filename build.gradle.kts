@@ -38,6 +38,10 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
         """
         <ul>
             <li>Fixed "Mark function as Throws" when inside a lambda (The annotation got placed at the lambda rather than at the function declaration)</li>
+            <li>Added most of kotlin std lib functions as either callthough or ignore</li>
+            <li>Fixed issues with java interopt</li>
+            <li>Fixed issues with Throwable</li>
+            <li>Fixed issues with indirect exceptions (via variables & method calls)</li>
         </ul>
       """
     )

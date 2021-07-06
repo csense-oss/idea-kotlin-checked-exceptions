@@ -1,29 +1,34 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
-import com.intellij.openapi.project.*
+import com.intellij.openapi.project.Project
 import com.intellij.psi.*
-import com.intellij.psi.search.*
-import csense.idea.base.*
-import csense.idea.base.bll.*
+import com.intellij.psi.search.GlobalSearchScope
 import csense.idea.base.bll.kotlin.*
-import csense.idea.base.bll.psi.*
-import csense.idea.base.bll.uast.*
-import csense.idea.base.cache.*
-import csense.idea.kotlin.checked.exceptions.callthough.*
-import csense.idea.kotlin.checked.exceptions.ignore.*
-import csense.idea.kotlin.checked.exceptions.settings.*
-import csense.kotlin.extensions.*
-import org.jetbrains.kotlin.builtins.*
-import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.idea.caches.resolve.*
-import org.jetbrains.kotlin.idea.references.*
+import csense.idea.base.bll.psi.getKotlinFqNameString
+import csense.idea.base.bll.uast.isChildOfSafe
+import csense.idea.base.bll.uast.isRuntimeExceptionClass
+import csense.idea.base.bll.uast.isSubTypeOf
+import csense.idea.kotlin.checked.exceptions.callthough.CallthoughInMemory
+import csense.idea.kotlin.checked.exceptions.ignore.getPotentialContainingLambda
+import csense.idea.kotlin.checked.exceptions.inspections.resolveTypeClassException
+import csense.idea.kotlin.checked.exceptions.settings.Settings
+import csense.kotlin.extensions.collections.array.indexOfFirstOrNull
+import csense.kotlin.extensions.collections.nullOnEmpty
+import csense.kotlin.extensions.tryAndLog
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.nj2k.postProcessing.resolve
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.*
-import org.jetbrains.kotlin.resolve.*
-import org.jetbrains.kotlin.resolve.calls.callUtil.*
-import org.jetbrains.kotlin.resolve.calls.model.*
-import org.jetbrains.kotlin.resolve.lazy.*
-import org.jetbrains.uast.*
+import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
+import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
+import org.jetbrains.uast.UClass
+import org.jetbrains.uast.toUElement
+import org.jetbrains.uast.toUElementOfType
 
 fun PsiElement.throwsTypesIfFunction(callExpression: KtCallExpression): List<UClass>? {
     val result = when (this) {
@@ -42,22 +47,6 @@ fun List<UClass>.filterRuntimeExceptionsBySettings(): List<UClass> {
         filterNot {
             it.isRuntimeExceptionClass()
         }
-    }
-}
-
-//TODO csense kotlin
-fun <T, C : Collection<T>> C?.nullOnEmpty(): C? {
-    if (this == null) {
-        return null
-    }
-    return isNotEmpty().map(ifTrue = this, ifFalse = null)
-}
-
-//waiting for csense (and to add to collection as well)
-inline fun <T> Array<out T>.indexOfFirstOrNull(predicate: (T) -> Boolean): Int? {
-    return when (val value = indexOfFirst(predicate)) {
-        -1 -> null
-        else -> value
     }
 }
 
@@ -105,7 +94,6 @@ fun KtFunction.throwsTypes(): List<UClass> {
 
 fun KtElement.getContainingFunctionOrPropertyAccessor(): KtModifierListOwner? {
     val parent = getParentOfType<KtNamedFunction>(true)
-
     return parent ?: getParentOfType<KtPropertyAccessor>(true)
 }
 
@@ -137,10 +125,8 @@ fun PsiElement.findParentTryCatch(): KtTryExpression? {
         }
         if (current is KtLambdaExpression) {
             val lambda = current.getPotentialContainingLambda() ?: return null
-            val fncFqName = lambda.main.fqName?.asString() ?: return null
             //if we do not know it, assume its a "callback" based one.
-            val isKnown = InlineLambdaCallInbuilt.inbuiltKotlinSdk.contains(fncFqName) ||
-                    CallthoughInMemory.isArgumentMarkedAsCallthough(lambda.main, lambda.parameterName)
+            val isKnown = CallthoughInMemory.isArgumentMarkedAsCallthough(lambda.main, lambda.parameterName)
             if (!isKnown) {
                 return null
             }
@@ -161,8 +147,7 @@ fun KtElement.containingFunctionMarkedAsThrowTypes(): List<UClass> {
                 val lambda = current.getPotentialContainingLambda() ?: return listOf()
                 val fncFqName = lambda.main.fqName?.asString() ?: return listOf()
                 //if we do not know it, assume its a "callback" based one.
-                val isKnown = InlineLambdaCallInbuilt.inbuiltKotlinSdk.contains(fncFqName) ||
-                        CallthoughInMemory.isArgumentMarkedAsCallthough(lambda.main, lambda.parameterName)
+                val isKnown = CallthoughInMemory.isArgumentMarkedAsCallthough(lambda.main, lambda.parameterName)
                 if (!isKnown) {
                     return emptyList()
                 }
@@ -189,34 +174,46 @@ fun KtFunction.findInvocationOfName(name: String): KtCallExpression? {
  * @receiver KtExpression
  */
 fun KtExpression.findFunctionScope(): KtFunction? = getParentOfType(true)
+//
+///**
+// * Tries to resolve the type of a throws expression in kotlin.
+// * @receiver KtThrowExpression
+// * @return String?
+// */
+//fun KtThrowExpression.tryAndResolveThrowType(): String? = tryAndLog {
+//    val thrownExpression = this.thrownExpression as? KtCallExpression ?: return@tryAndLog null
+//    val nameExpression = thrownExpression.calleeExpression as? KtNameReferenceExpression ?: return@tryAndLog null
+//    val descriptor = nameExpression.resolveToCall()?.resultingDescriptor ?: return@tryAndLog null
+//    val declarationDescriptor = descriptor.containingDeclaration
+//    return@tryAndLog DescriptorUtils.getFqName(declarationDescriptor).asString()
+//}
+//
+//fun KtThrowExpression.tryAndResolveThrowTypeOrDefaultUClass(): UClass? {
+//    return thrownExpression?.tryAndResolveThrowTypeOrDefaultUClass()
+//}
+//
+//private fun KtElement.tryAndResolveThrowTypeOrDefaultUClass(): UClass? {
+//    return when (this) {
+//        is KtCallExpression -> this.resolveMainReferenceWithTypeAliasForClass()
+//        is KtDotQualifiedExpression -> selectorExpression?.tryAndResolveThrowTypeOrDefaultUClass()
+//        is KtNameReferenceExpression -> {
+//            val value = this.resolve() as? KtProperty ?: return null
+//            value.resolveTypeClassException(project)
+//        }
+//        else -> null
+//    }
+//}
 
-/**
- * Tries to resolve the type of a throws expression in kotlin.
- * @receiver KtThrowExpression
- * @return String?
- */
-fun KtThrowExpression.tryAndResolveThrowType(): String? = tryAndLog {
-    val thrownExpression = this.thrownExpression as? KtCallExpression ?: return@tryAndLog null
-    val nameExpression = thrownExpression.calleeExpression as? KtNameReferenceExpression ?: return@tryAndLog null
-    val descriptor = nameExpression.resolveToCall()?.resultingDescriptor ?: return@tryAndLog null
-    val declarationDescriptor = descriptor.containingDeclaration
-    return@tryAndLog DescriptorUtils.getFqName(declarationDescriptor).asString()
-}
-
-fun KtThrowExpression.tryAndResolveThrowTypeOrDefaultUClass(): UClass? {
-    val thrownExpression = this.thrownExpression as? KtCallExpression ?: return null
-    return thrownExpression.resolveMainReferenceWithTypeAliasForClass()
-}
-
-fun KtCallExpression.resolveMainReferenceWithTypeAliasForClass(): UClass? {
-    val resolved = resolveMainReferenceWithTypeAlias()
-    val clz = when (resolved) {
-        is PsiClass -> resolved
-        is PsiMember -> resolved.containingClass
-        else -> resolved
-    }
-    return clz?.toUElement(UClass::class.java)
-}
+//
+//fun KtCallExpression.resolveMainReferenceWithTypeAliasForClass(): UClass? {
+//    val resolved = resolveMainReferenceWithTypeAlias()
+//    val clz = when (resolved) {
+//        is PsiClass -> resolved
+//        is PsiMember -> resolved.containingClass
+//        else -> resolved
+//    }
+//    return clz?.toUElement(UClass::class.java)
+//}
 
 fun KtElement.resolveToCall(bodyResolveMode: BodyResolveMode = BodyResolveMode.PARTIAL): ResolvedCall<out CallableDescriptor>? =
     getResolvedCall(analyze(bodyResolveMode))
