@@ -25,7 +25,6 @@ class SettingsPage : SearchableConfigurable {
     
     override fun apply() {
         ui?.store()
-        SharedMethodThrowingCache.clear()
         ProjectManager.getInstance().openProjects.forEach {
             DaemonCodeAnalyzer.getInstance(it).restart()
         }

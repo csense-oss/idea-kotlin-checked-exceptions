@@ -13,7 +13,7 @@ version = "1.1.5"
 intellij {
     updateSinceUntilBuild.set(false)
     plugins.set(listOf("Kotlin", "java"))
-    version.set("2019.2")
+    version.set("2020.3")
 }
 
 
@@ -30,6 +30,7 @@ dependencies {
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.41")
     implementation("csense.kotlin:csense-kotlin-datastructures-algorithms:0.0.41")
     implementation("csense.idea.base:csense-idea-base:0.1.30")
+    testImplementation("junit:junit:4.13.2")
 }
 
 
@@ -48,6 +49,7 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
 }
 
 tasks.getByName("check").dependsOn("dependencyCheckAnalyze")
+
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     this.kotlinOptions.jvmTarget = "1.8"

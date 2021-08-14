@@ -6,36 +6,36 @@ import java.io.*
 import java.nio.file.*
 
 object CallthoughStorage {
-    
+
     private var lastFileModifiedTime: Long? = null
-    
-    private val current: MutableList<CallthoughEntry> = mutableListOf()
+
+    private val current: HashSet<CallthoughEntry> = hashSetOf()
     //sync with the file ".callthought.throws" if this feature is enabled. (default it is).
-    
+
     @Throws(IOException::class)
     private fun read(project: Project): List<CallthoughEntry> {
         val path = resolvePath(project) ?: return listOf()
         return Files.readAllLines(path).parseOrIgnore()
     }
-    
+
     fun addEntry(project: Project, entry: CallthoughEntry) = tryAndLog {
         ensureHaveReadFile(project)
         //TODO do not double add ?
         current.add(entry)
         saveFile(project)
     }
-    
+
     fun removeEntry(project: Project, entry: CallthoughEntry) = tryAndLog {
         ensureHaveReadFile(project)
         current.remove(entry)
         saveFile(project)
     }
-    
-    fun getEntries(project: Project): List<CallthoughEntry> = tryAndLog {
-        ensureHaveReadFile(project)
-        current
-    } ?: listOf()
-    
+
+    fun contains(fqName: String, parameterName: String, forProject: Project): Boolean = tryAndLog {
+        ensureHaveReadFile(forProject)
+        current.contains(CallthoughEntry(fqName, parameterName))
+    } ?: false
+
     @Throws(IOException::class)
     private fun ensureHaveReadFile(project: Project) {
         val path = resolvePath(project) ?: return
@@ -46,7 +46,7 @@ object CallthoughStorage {
             lastFileModifiedTime = last
         }
     }
-    
+
     @Throws(IOException::class)
     private fun getLastAccessed(project: Project): Long? {
         val path = resolvePath(project) ?: return null
@@ -56,7 +56,7 @@ object CallthoughStorage {
             null
         }
     }
-    
+
     @Throws(IOException::class)
     private fun saveFile(project: Project) {
         val path = resolvePath(project) ?: return
@@ -65,7 +65,7 @@ object CallthoughStorage {
         })
         lastFileModifiedTime = getLastAccessed(project)
     }
-    
+
     private fun resolvePath(project: Project): Path? {
         val rootPath = project.basePath ?: return null
         return Paths.get(rootPath, ".callthough.throws")

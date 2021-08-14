@@ -17,9 +17,7 @@ object CallthoughInMemory {
         if (!isEnabled) {
             return false
         }
-        return CallthoughStorage.getEntries(main.project).any {
-            it.fullName == mainFqName && it.parameterName == parameterName
-        }
+        return CallthoughStorage.contains(mainFqName, parameterName, main.project)
     }
 
 

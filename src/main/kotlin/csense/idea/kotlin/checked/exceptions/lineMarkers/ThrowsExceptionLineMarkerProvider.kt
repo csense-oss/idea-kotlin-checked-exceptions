@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.psi.*
 class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(
         element: PsiElement,
-        result: MutableCollection<in RelatedItemLineMarkerInfo<PsiElement>>
+        result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
         if (!Settings.shouldHighlightCheckedExceptions || element !is LeafPsiElement) {
             return
