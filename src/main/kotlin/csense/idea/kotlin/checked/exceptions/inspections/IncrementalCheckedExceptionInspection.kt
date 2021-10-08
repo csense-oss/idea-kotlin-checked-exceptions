@@ -3,23 +3,21 @@ package csense.idea.kotlin.checked.exceptions.inspections
 import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
-import com.intellij.psi.impl.source.PsiClassReferenceType
+import com.intellij.psi.impl.source.*
 import com.intellij.psi.search.*
-import csense.idea.base.UastKtPsi.resolvePsi
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.idea.kotlin.checked.exceptions.bll.Constants
 import csense.idea.kotlin.checked.exceptions.callthough.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.kotlin.extensions.*
 import csense.kotlin.extensions.collections.*
-import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.idea.inspections.*
-import org.jetbrains.kotlin.nj2k.postProcessing.resolve
+import org.jetbrains.kotlin.nj2k.postProcessing.*
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.containingClass
-import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
+import org.jetbrains.kotlin.psi.psiUtil.*
 import org.jetbrains.uast.*
 
 class IncrementalCheckedExceptionInspection : AbstractKotlinInspection() {

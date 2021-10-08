@@ -1,8 +1,8 @@
 package csense.idea.kotlin.checked.exceptions.ignore
 
-import csense.idea.base.UastKtPsi.getKotlinFqNameString
-import csense.idea.kotlin.checked.exceptions.settings.Settings
-import org.jetbrains.kotlin.psi.KtFunction
+import csense.idea.base.uastKtPsi.*
+import csense.idea.kotlin.checked.exceptions.settings.*
+import org.jetbrains.kotlin.psi.*
 
 object IgnoreInMemory {
 

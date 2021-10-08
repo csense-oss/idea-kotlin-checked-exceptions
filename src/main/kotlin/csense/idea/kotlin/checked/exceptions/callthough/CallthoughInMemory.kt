@@ -1,6 +1,7 @@
 package csense.idea.kotlin.checked.exceptions.callthough
 
-import csense.idea.base.UastKtPsi.getKotlinFqNameString
+
+import csense.idea.base.uastKtPsi.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*
 

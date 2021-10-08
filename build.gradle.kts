@@ -1,10 +1,10 @@
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.1.2"
-    kotlin("jvm") version "1.5.10"
+    id("org.jetbrains.intellij") version "1.2.0"
+    kotlin("jvm") version "1.5.31"
     java
     //https://github.com/jeremylong/dependency-check-gradle/releases
-    id("org.owasp.dependencycheck") version "6.2.2"
+    id("org.owasp.dependencycheck") version "6.3.2"
 }
 
 group = "csense-idea"
@@ -26,10 +26,10 @@ repositories {
 }
 
 dependencies {
-    implementation("csense.kotlin:csense-kotlin-jvm:0.0.46")
+    implementation("csense.kotlin:csense-kotlin-jvm:0.0.50")
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.41")
     implementation("csense.kotlin:csense-kotlin-datastructures-algorithms:0.0.41")
-    implementation("csense.idea.base:csense-idea-base:0.1.30")
+    implementation("csense.idea.base:csense-idea-base:0.1.41")
     testImplementation("junit:junit:4.13.2")
 }
 
