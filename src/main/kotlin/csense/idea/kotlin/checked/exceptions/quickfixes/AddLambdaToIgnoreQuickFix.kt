@@ -11,7 +11,7 @@ class AddLambdaToIgnoreQuickFix(
         private val parameterName: String
 ) : LocalQuickFixOnPsiElement(lambdaFunction) {
     override fun getFamilyName(): String {
-        return "csense - checked exceptions - add to ignore quick fix"
+        return "Csense - checked exceptions - add to ignore quick fix"
     }
 
     override fun getText(): String {

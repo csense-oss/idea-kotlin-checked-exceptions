@@ -31,7 +31,7 @@ class AddFunctionThrowsQuickFix(
 
 
     override fun getFamilyName(): String {
-        return "csense kotlin checked exceptions - add throw type to throws annotation"
+        return "Csense kotlin checked exceptions - add throw type to throws annotation"
     }
 
     private val throwType: String =

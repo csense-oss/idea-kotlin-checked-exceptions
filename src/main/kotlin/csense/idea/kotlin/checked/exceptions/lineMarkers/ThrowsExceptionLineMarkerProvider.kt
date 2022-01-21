@@ -7,8 +7,7 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
 import csense.idea.base.bll.uast.*
 import csense.idea.kotlin.checked.exceptions.bll.*
-import csense.idea.kotlin.checked.exceptions.inspections.resolveFirstClassType
-import csense.idea.kotlin.checked.exceptions.inspections.toUExceptionClass
+import csense.idea.kotlin.checked.exceptions.inspections.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.lexer.*
 import org.jetbrains.kotlin.psi.*
@@ -46,7 +45,7 @@ class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
     }
 
     companion object {
-        val exceptionIcon = IconLoader.getIcon("/icons/exception.svg")
+        val exceptionIcon = IconLoader.getIcon("/icons/exception.svg", ThrowsExceptionLineMarkerProvider::class.java)
     }
 
 }

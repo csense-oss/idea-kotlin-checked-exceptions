@@ -28,7 +28,7 @@ class DeclareFunctionAsThrowsQuickFix(
 
 
     override fun getFamilyName(): String {
-        return "csense kotlin checked exceptions - declares func throws"
+        return "Csense kotlin checked exceptions - declares func throws"
     }
 
     private val throwType: String =

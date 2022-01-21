@@ -40,7 +40,7 @@ class CheckedExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
         result.add(builder.createLineMarkerInfo(element))
     }
     companion object{
-        val exceptionIcon =  IconLoader.getIcon("/icons/throws.svg")
+        val exceptionIcon =  IconLoader.getIcon("/icons/throws.svg", CheckedExceptionLineMarkerProvider::class.java)
     }
     
 }

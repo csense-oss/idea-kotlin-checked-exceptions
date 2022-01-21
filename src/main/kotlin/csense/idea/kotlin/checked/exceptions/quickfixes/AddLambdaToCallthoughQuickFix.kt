@@ -11,7 +11,7 @@ class AddLambdaToCallthoughQuickFix(
         private val parameterName: String
 ) : LocalQuickFixOnPsiElement(lambdaFunction) {
     override fun getFamilyName(): String {
-        return "csense - checked exceptions - add to callthough file quick fix"
+        return "Csense - checked exceptions - add to callthough file quick fix"
     }
     
     override fun getText(): String {
