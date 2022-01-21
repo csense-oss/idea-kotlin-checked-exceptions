@@ -10,7 +10,7 @@ class ThrowsFunctionAnnotatorFixture : KotlinLightCodeInsightFixtureTestCaseJuni
 
     @Before
     fun setup() {
-
+        myFixture.allowTreeAccessForAllFiles()
     }
 
     @Test

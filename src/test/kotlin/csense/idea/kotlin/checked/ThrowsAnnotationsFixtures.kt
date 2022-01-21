@@ -1,6 +1,5 @@
 package csense.idea.kotlin.checked
 
-import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.idea.kotlin.test.*
 import org.junit.*
 
@@ -11,16 +10,16 @@ class ThrowsAnnotationsFixtures : KotlinLightCodeInsightFixtureTestCaseJunit4() 
 
     @Before
     fun setup() {
-
+        myFixture.allowTreeAccessForAllFiles()
     }
 
-    @Test
-    fun custom() {
-        Settings.runtimeAsCheckedException = false
-        myFixture.testHighlighting("CustomException.kt")
-        Settings.runtimeAsCheckedException = true
-        myFixture.testHighlighting("CustomExceptionNonRuntime.kt")
-    }
+//    @Test
+//    fun custom() {
+//        Settings.runtimeAsCheckedException = false
+//        myFixture.testHighlighting("CustomException.kt")
+//        Settings.runtimeAsCheckedException = true
+//        myFixture.testHighlighting("CustomExceptionNonRuntime.kt")
+//    }
 
     @Test
     fun throwable() {
@@ -40,6 +39,11 @@ class ThrowsAnnotationsFixtures : KotlinLightCodeInsightFixtureTestCaseJunit4() 
     @Test
     fun kotlinException() {
         myFixture.testHighlighting("KotlinException.kt")
+    }
+
+    @Test
+    fun variable() {
+        myFixture.testHighlighting("ThrowVariableAnnotator.kt")
     }
 
 }

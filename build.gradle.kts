@@ -19,7 +19,6 @@ intellij {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     maven {
         setUrl("https://pkgs.dev.azure.com/csense-oss/csense-oss/_packaging/csense-oss/maven/v1")
         name = "Csense oss"
