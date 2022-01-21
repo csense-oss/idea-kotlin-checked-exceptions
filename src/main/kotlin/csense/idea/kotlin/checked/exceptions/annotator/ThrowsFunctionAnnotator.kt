@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.types.typeUtil.*
 
 class ThrowsFunctionAnnotator : Annotator {
-    
+
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (!Settings.shouldHighlightThrowsExceptions) {
             return
@@ -26,12 +26,11 @@ class ThrowsFunctionAnnotator : Annotator {
         }
         //per spec: https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-nothing.html
         // for example, if a function has the return type of Nothing, it means that it never returns (always throws an exception).
-        val range = TextRange(element.getTextRange().startOffset,
-                element.getTextRange().endOffset)
-        holder.createAnnotation(
-                Settings.throwsInsideOfFunctionSeverity,
-                range,
-                "Throws inside of function"
+        holder.newAnnotation(
+            Settings.throwsInsideOfFunctionSeverity,
+            "Throws inside of function"
         )
+            .range(element)
+            .create()
     }
 }

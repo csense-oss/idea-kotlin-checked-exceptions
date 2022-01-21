@@ -19,3 +19,6 @@ kotlin language design chooses, but to AID in the practical difficulty that aris
 have a given expectation that is simply not met, nor informed.
  
 
+
+
+## for tests see https://github.com/csense-oss/csense-oss-idea-kotlin-shared-test

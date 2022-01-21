@@ -26,14 +26,6 @@ class IncrementalCheckedExceptionInspection : AbstractKotlinInspection() {
         return "Checked exceptions in kotlin"
     }
 
-    override fun getStaticDescription(): String? {
-        return "some desc"
-    }
-
-    override fun getDescriptionFileName(): String? {
-        return "more desc ? "
-    }
-
     override fun getShortName(): String {
         return "CheckedExceptionsKotlin"
     }
@@ -47,11 +39,9 @@ class IncrementalCheckedExceptionInspection : AbstractKotlinInspection() {
         isOnTheFly: Boolean
     ): KtVisitorVoid {
         return namedFunctionVisitor {
-//            logMeasureTimeInMillis("incremental time") {
             val project = holder.project
             val visitor = IncrementalFunctionCheckedVisitor(holder, project)
             it.accept(visitor, IncrementalStep(listOf()))
-//            }
         }
     }
 }
@@ -68,12 +58,8 @@ class IncrementalFunctionCheckedVisitor(
     }
 
     override fun visitTryExpression(expression: KtTryExpression, data: IncrementalStep): Void? {
-
         val captures = expression.catchClauses.mapNotNull {
             it.catchParameter?.resolveTypeClassException(project)
-//            {
-//                javaThrowableUClass
-//            }
         }
         val newState = data.copy(captures = data.captures + captures.filterRuntimeExceptionsBySettings())
         return super.visitTryExpression(expression, newState)
@@ -188,72 +174,13 @@ data class IncrementalStep(
 
 //TODO add , getJavaThrowable: () -> UClass? instead to avoid searching for it multiple times.
 fun KtCallableDeclaration.resolveTypeClassException(project: Project): UClass? {
-    val resolved = this.resolveRealType()
+    val resolved = this.resolveFirstClassType()
     if (resolved?.getKotlinFqNameString() == "kotlin.Throwable") {
         return JavaPsiFacade.getInstance(project)
             .findClass("java.lang.Throwable", GlobalSearchScope.allScope(project))
             ?.toUElementOfType()
     }
     return resolved?.toUElementOfType()
-}
-
-
-fun KtProperty.resolveRealType(): PsiElement? {
-    val type = typeReference
-    if (type != null) {
-        return type.resolve()?.resolveRealType()
-    }
-    val init = initializer
-    if (init != null) {
-        return init.resolveRealType()
-    }
-    val getter = getter
-    if (getter != null) {
-        return getter.resolveRealType()
-    }
-    return null
-}
-
-tailrec fun KtElement.resolveRealType(): PsiElement? {
-    return when (this) {
-        is KtCallExpression -> {
-            val ref = resolveMainReferenceWithTypeAlias()
-            ref?.resolveRealType()
-        }
-        is KtDotQualifiedExpression -> rightMostSelectorExpression()?.resolveRealType()
-        is KtProperty -> resolveRealType()
-        is KtSecondaryConstructor, is KtPrimaryConstructor -> {
-            this.containingClass()
-        }
-        is KtReferenceExpression -> {
-            resolve()?.resolveRealType()
-        }
-        is KtNamedFunction -> {
-            this.getDeclaredReturnType()
-        }
-        else -> null
-    }
-}
-
-fun PsiElement.resolveRealType(): PsiElement? {
-    return when (this) {
-        is KtElement -> resolveRealType()
-        is PsiClass -> this
-        is PsiMethod -> {
-            if (this.isConstructor) {
-                this.containingClass
-            } else {
-                (returnType as? PsiClassReferenceType)?.resolve()
-            }
-
-        }
-        is PsiField -> {
-            val project = project
-            return JavaPsiFacade.getInstance(project)
-                .findClass(this.type.canonicalText, this.type.resolveScope ?: GlobalSearchScope.allScope(project))
-        }
-        else -> null
-    }
 }
 
 tailrec fun KtDotQualifiedExpression.rightMostSelectorExpression(): KtElement? {
@@ -278,3 +205,82 @@ fun Project.getJavaLangThrowableUClass(): UClass? {
         .findClass("java.lang.Throwable", GlobalSearchScope.allScope(this))
         ?.toUElementOfType<UClass>()
 }
+
+//TODO base module
+
+fun PsiElement.resolveFirstClassType(): PsiElement? {
+    return when (this) {
+        //in case we have resolved it.
+
+        is KtElement -> resolveFirstClassType()
+        is PsiClass -> this
+        is PsiMethod -> {
+            if (this.isConstructor) {
+                this.containingClass
+            } else {
+                (returnType as? PsiClassReferenceType)?.resolve()
+            }
+
+        }
+        //TODO improve?
+        is PsiField -> {
+            val project = project
+            return JavaPsiFacade.getInstance(project)
+                .findClass(this.type.canonicalText, this.type.resolveScope ?: GlobalSearchScope.allScope(project))
+        }
+
+        else -> null
+    }
+}
+
+fun KtProperty.resolveFirstClassType(): PsiElement? {
+    val type = typeReference
+    if (type != null) {
+        return type.resolve()?.resolveFirstClassType()
+    }
+    val init = initializer
+    if (init != null) {
+        return init.resolveFirstClassType()
+    }
+    val getter = getter
+    if (getter != null) {
+        return getter.resolveFirstClassType()
+    }
+    return null
+}
+
+tailrec fun KtElement.resolveFirstClassType(): PsiElement? {
+    return when (this) {
+        is KtClass -> return this
+        is KtCallExpression -> {
+            val ref = resolveMainReferenceWithTypeAlias()
+            ref?.resolveFirstClassType()
+        }
+        is KtDotQualifiedExpression -> rightMostSelectorExpression()?.resolveFirstClassType()
+        is KtProperty -> resolveFirstClassType()
+        is KtSecondaryConstructor, is KtPrimaryConstructor -> {
+            this.containingClass()
+        }
+        is KtNameReferenceExpression -> this.references.firstOrNull()?.resolveFirstClassType()
+        is KtReferenceExpression -> {
+            resolve()?.resolveFirstClassType()
+        }
+        is KtNamedFunction -> {
+            this.getDeclaredReturnType()
+        }
+        is KtParameter -> {
+            this.typeReference?.resolveFirstClassType()
+        }
+        is KtTypeReference -> this.resolveFirstClassType()
+        is KtCallableReferenceExpression -> callableReference.resolveFirstClassType()
+        //TODO should be "first" non null instead of assuming the first is the right one?
+
+        else -> null
+    }
+}
+
+fun KtTypeReference.resolveFirstClassType(): PsiElement? {
+    return resolve()
+}
+
+fun PsiReference.resolveFirstClassType(): PsiElement? = resolve()?.resolveFirstClassType()

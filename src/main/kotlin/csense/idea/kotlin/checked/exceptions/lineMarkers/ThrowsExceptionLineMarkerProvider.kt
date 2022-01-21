@@ -7,7 +7,7 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
 import csense.idea.base.bll.uast.*
 import csense.idea.kotlin.checked.exceptions.bll.*
-import csense.idea.kotlin.checked.exceptions.inspections.resolveRealType
+import csense.idea.kotlin.checked.exceptions.inspections.resolveFirstClassType
 import csense.idea.kotlin.checked.exceptions.inspections.toUExceptionClass
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.lexer.*
@@ -30,7 +30,7 @@ class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
             return
         }
         val asMethod = element.parent as? KtThrowExpression ?: return
-        val realType = asMethod.thrownExpression?.resolveRealType()
+        val realType = asMethod.thrownExpression?.resolveFirstClassType()
         val uType = realType?.toUExceptionClass()
         if (uType?.isRuntimeExceptionClass() == true && !Settings.runtimeAsCheckedException) {
             return //skip
