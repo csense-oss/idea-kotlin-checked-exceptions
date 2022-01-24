@@ -45,7 +45,7 @@ class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
     }
 
     companion object {
-        val exceptionIcon = IconLoader.getIcon("/icons/exception.svg", ThrowsExceptionLineMarkerProvider::class.java)
+        val exceptionIcon = IconLoader.getIcon("/icons/exception.svg", Companion::class.java)
     }
 
 }

@@ -9,15 +9,34 @@ class IncrementalCheckedExceptionInspectionTest : KotlinLightCodeInsightFixtureT
 
 
     @Before
-    fun setup(){
+    fun setup() {
         myFixture.allowTreeAccessForAllFiles()
+        myFixture.enableInspections(IncrementalCheckedExceptionInspection())
     }
 
     @Test
     fun functionDoesNotCatchException() {
         myFixture.configureByFile("CatchingAndNonCatchingExceptionsFunction.kt")
-        myFixture.enableInspections(IncrementalCheckedExceptionInspection())
-        myFixture.checkHighlighting(true, false, false, false)
+        myFixture.checkHighlighting()
+        val x = myFixture.doHighlighting()
+        val matchingInspector = x.filter {
+            it.inspectionToolId == "CheckedExceptionsKotlin"
+        }
+
+        myFixture.checkHighlighting(true, false, false, true)
     }
+
+    @Test
+    fun throwVariable() {
+        myFixture.configureByFile("ThrowVariable.kt")
+        myFixture.checkHighlighting(true, false, false, true)
+    }
+
+    @Test
+    fun useLazy() {
+        myFixture.configureByFile("UseLazy.kt")
+        myFixture.checkHighlighting(true, false, false, true)
+    }
+
 
 }

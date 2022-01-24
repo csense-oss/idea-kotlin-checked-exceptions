@@ -8,5 +8,5 @@ class NonRuntimeException : Throwable("")
 
 fun throwsUncheckedException() {
     //by default non runtime exception should not be highligted
-    throw NonRuntimeException()
+    <warning descr="Throws \"NonRuntimeException\"">throw NonRuntimeException()</warning>
 }

@@ -13,13 +13,10 @@ class ThrowsAnnotationsFixtures : KotlinLightCodeInsightFixtureTestCaseJunit4() 
         myFixture.allowTreeAccessForAllFiles()
     }
 
-//    @Test
-//    fun custom() {
-//        Settings.runtimeAsCheckedException = false
-//        myFixture.testHighlighting("CustomException.kt")
-//        Settings.runtimeAsCheckedException = true
-//        myFixture.testHighlighting("CustomExceptionNonRuntime.kt")
-//    }
+    @Test
+    fun custom() {
+        myFixture.testHighlighting("CustomException.kt")
+    }
 
     @Test
     fun throwable() {
@@ -44,6 +41,11 @@ class ThrowsAnnotationsFixtures : KotlinLightCodeInsightFixtureTestCaseJunit4() 
     @Test
     fun variable() {
         myFixture.testHighlighting("ThrowVariableAnnotator.kt")
+    }
+
+    @Test
+    fun function() {
+        myFixture.testHighlighting("ThrowsFunction.kt")
     }
 
 }
