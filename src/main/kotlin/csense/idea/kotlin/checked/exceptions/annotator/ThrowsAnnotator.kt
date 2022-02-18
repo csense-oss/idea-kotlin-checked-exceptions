@@ -5,7 +5,6 @@ import com.intellij.openapi.project.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import csense.idea.base.bll.uast.*
-import csense.idea.base.module.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
 import csense.idea.kotlin.checked.exceptions.inspections.*
@@ -24,7 +23,7 @@ class ThrowsAnnotator : Annotator {
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val throwsExp = element as? KtThrowExpression ?: return
-        if (element.isInTestSourceRoot()) {
+        if (element.isInTestModule2()) {
             return
         }
         val realType = throwsExp.thrownExpression?.resolveFirstClassType()

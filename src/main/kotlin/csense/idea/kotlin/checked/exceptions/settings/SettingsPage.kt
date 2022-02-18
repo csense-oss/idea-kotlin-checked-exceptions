@@ -24,6 +24,7 @@ class SettingsPage : SearchableConfigurable {
     
     override fun apply() {
         ui?.store()
+        //restartLineMarkersForAllProjects()
         ProjectManager.getInstance().openProjects.forEach {
             DaemonCodeAnalyzer.getInstance(it).restart()
         }

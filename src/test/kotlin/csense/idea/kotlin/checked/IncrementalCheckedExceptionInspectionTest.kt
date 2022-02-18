@@ -17,11 +17,12 @@ class IncrementalCheckedExceptionInspectionTest : KotlinLightCodeInsightFixtureT
     @Test
     fun functionDoesNotCatchException() {
         myFixture.configureByFile("CatchingAndNonCatchingExceptionsFunction.kt")
-        myFixture.checkHighlighting()
-        val x = myFixture.doHighlighting()
-        val matchingInspector = x.filter {
-            it.inspectionToolId == "CheckedExceptionsKotlin"
-        }
+        //TODO improve test with actually knowing the type of the wrongly not caught exceptions etc.
+//        myFixture.checkHighlighting()
+//        val x = myFixture.doHighlighting()
+//        val matchingInspector = x.filter {
+//            it.inspectionToolId == "CheckedExceptionsKotlin"
+//        }
 
         myFixture.checkHighlighting(true, false, false, true)
     }
