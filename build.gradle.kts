@@ -13,8 +13,8 @@ version = "1.2.0"
 intellij {
     updateSinceUntilBuild.set(false)
     plugins.set(listOf("Kotlin", "java"))
-//    version.set("2020.3")
-    version.set("2021.3.2")
+    version.set("2020.3")
+//    version.set("2021.3.2")
 }
 
 
@@ -43,9 +43,10 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes.set(
         """
+            There are a some known bugs, which will be fixed later. this is a "fix some bugs" release and to improve compatibility with eg. android studio. 
         <ul>
             <li>Disabled (by default)"Throws inside of function" annotation, as it is sometimes right and sometimes wrong. but its also quite annoying. It can be turned on in the settings iff need be :) (it has now its own settings as well)</li>
-            <li> Did improve the "Throws inside of function" annotation to link to documentation and explain inline functions + lambdas returning nothing.
+            <li>Did improve the "Throws inside of function" annotation to link to documentation and explain inline functions + lambdas returning nothing.
             <li>Fixed some issues with android studio compatibility </li>
             <li>Fixed numerous bugs</li>
         </ul>
@@ -53,15 +54,6 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
     )
 }
 
-/*
-*
-*   <li>Fixed "Mark function as Throws" when inside a lambda (The annotation got placed at the lambda rather than at the function declaration)</li>
-            <li>Added most of kotlin std lib functions as either callthough or ignore</li>
-            <li>Fixed issues with java interopt</li>
-            <li>Fixed issues with Throwable</li>
-            <li>Fixed issues with indirect exceptions (via variables & method calls)</li>
-*
-* */
 
 tasks.getByName("check").dependsOn("dependencyCheckAnalyze")
 
