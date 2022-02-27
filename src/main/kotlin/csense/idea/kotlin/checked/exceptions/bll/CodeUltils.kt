@@ -1,34 +1,26 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.*
 import com.intellij.psi.*
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.*
 import csense.idea.base.bll.kotlin.*
-import csense.idea.base.bll.psi.getKotlinFqNameString
-import csense.idea.base.bll.uast.isChildOfSafe
-import csense.idea.base.bll.uast.isRuntimeExceptionClass
-import csense.idea.base.bll.uast.isSubTypeOf
-import csense.idea.kotlin.checked.exceptions.callthough.CallthoughInMemory
-import csense.idea.kotlin.checked.exceptions.ignore.getPotentialContainingLambda
-import csense.idea.kotlin.checked.exceptions.inspections.resolveTypeClassException
-import csense.idea.kotlin.checked.exceptions.settings.Settings
-import csense.kotlin.extensions.collections.array.indexOfFirstOrNull
+import csense.idea.base.bll.psi.*
+import csense.idea.base.bll.uast.*
+import csense.idea.kotlin.checked.exceptions.callthough.*
+import csense.idea.kotlin.checked.exceptions.ignore.*
+import csense.idea.kotlin.checked.exceptions.settings.*
+import csense.kotlin.extensions.collections.array.*
 import csense.kotlin.extensions.collections.nullOnEmpty
-import csense.kotlin.extensions.tryAndLog
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
-import org.jetbrains.kotlin.nj2k.postProcessing.resolve
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.idea.caches.resolve.*
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
-import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
-import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
-import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
-import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.uast.UClass
-import org.jetbrains.uast.toUElement
-import org.jetbrains.uast.toUElementOfType
+import org.jetbrains.kotlin.psi.psiUtil.*
+import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.resolve.calls.callUtil.*
+import org.jetbrains.kotlin.resolve.calls.model.*
+import org.jetbrains.kotlin.resolve.lazy.*
+import org.jetbrains.uast.*
+import kotlin.collections.getOrNull
 
 fun PsiElement.throwsTypesIfFunction(callExpression: KtCallExpression): List<UClass>? {
     val result = when (this) {
@@ -145,7 +137,6 @@ fun KtElement.containingFunctionMarkedAsThrowTypes(): List<UClass> {
         when (current) {
             is KtLambdaExpression -> {
                 val lambda = current.getPotentialContainingLambda() ?: return listOf()
-                val fncFqName = lambda.main.fqName?.asString() ?: return listOf()
                 //if we do not know it, assume its a "callback" based one.
                 val isKnown = CallthoughInMemory.isArgumentMarkedAsCallthough(lambda.main, lambda.parameterName)
                 if (!isKnown) {

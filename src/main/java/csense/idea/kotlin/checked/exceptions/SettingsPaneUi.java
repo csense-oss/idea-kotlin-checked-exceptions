@@ -22,6 +22,10 @@ public class SettingsPaneUi {
     private JComboBox<String> nothingSeverity;
     @NotNull
     private JCheckBox highlightGutterThrowsFunctionsCheckbox;
+
+    @NotNull
+    private JCheckBox shouldHighlightThrowsInsideOfFunctionCheckBox;
+
     @NotNull
     private JCheckBox ignoreThrowsCheckbox;
     @NotNull
@@ -55,6 +59,8 @@ public class SettingsPaneUi {
         runtimeAsCheckedExceptionCheckBox.setSelected(Settings.INSTANCE.getRuntimeAsCheckedException());
         runtimeAsCheckedExceptionCheckBox.setAction(didChangeCallback);
 
+        shouldHighlightThrowsInsideOfFunctionCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightThrowsInsideOfFunction());
+        shouldHighlightThrowsInsideOfFunctionCheckBox.setAction(didChangeCallback);
 
         final HighlightSeverity settingsSeverity = Settings.INSTANCE.getThrowsInsideOfFunctionSeverity();
         for (HighlightSeverity severity : HighlightSeverity.DEFAULT_SEVERITIES) {
@@ -82,6 +88,7 @@ public class SettingsPaneUi {
         Settings.INSTANCE.setUseIgnoreFile(ignoreThrowsCheckbox.isSelected());
         Settings.INSTANCE.setUseCallThoughFile(callthoughCheckbox.isSelected());
         Settings.INSTANCE.setRuntimeAsCheckedException(runtimeAsCheckedExceptionCheckBox.isSelected());
+        Settings.INSTANCE.setShouldHighlightThrowsInsideOfFunction(shouldHighlightThrowsInsideOfFunctionCheckBox.isSelected());
 
         final String value = (String) nothingSeverity.getSelectedItem();
         for (HighlightSeverity severity : HighlightSeverity.DEFAULT_SEVERITIES) {

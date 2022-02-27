@@ -4,7 +4,6 @@ import com.intellij.codeInsight.daemon.*
 import com.intellij.openapi.options.*
 import com.intellij.openapi.project.*
 import csense.idea.kotlin.checked.exceptions.*
-import csense.idea.kotlin.checked.exceptions.cache.*
 import csense.kotlin.extensions.*
 import javax.swing.*
 
@@ -20,11 +19,12 @@ class SettingsPage : SearchableConfigurable {
     }
     
     override fun getDisplayName(): String {
-        return "Csense - Kotlin Checked exceptions"
+        return "Csense - Kotlin Checked Exceptions"
     }
     
     override fun apply() {
         ui?.store()
+        //restartLineMarkersForAllProjects()
         ProjectManager.getInstance().openProjects.forEach {
             DaemonCodeAnalyzer.getInstance(it).restart()
         }

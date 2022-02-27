@@ -16,31 +16,35 @@ import org.jetbrains.kotlin.psi.*
  * Highlights method calls  that have checked exceptions associated with them.
  */
 class CheckedExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
-    
-    override fun collectNavigationMarkers(element: PsiElement, result: MutableCollection<in RelatedItemLineMarkerInfo<*>>) {
+
+    override fun collectNavigationMarkers(
+        element: PsiElement,
+        result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
+    ) {
         if (!Settings.shouldHighlightCheckedExceptions || element !is LeafPsiElement) {
             return
         }
-        if (element.elementType != KtTokens.IDENTIFIER){
+        if (element.elementType != KtTokens.IDENTIFIER) {
             return
         }
         val asMethod: KtCallExpression = element.parent as? KtCallExpression
-                ?: element.parent?.parent as? KtCallExpression
-                ?: return
+            ?: element.parent?.parent as? KtCallExpression
+            ?: return
         val throwsTypes = SharedMethodThrowingCache.throwsTypes(asMethod)
         if (throwsTypes.isEmpty()) {
             return
         }
         val throwsTypesText = throwsTypes.toTypeList().joinToString(", ")
         val builder =
-                NavigationGutterIconBuilder
-                        .create(exceptionIcon)
-                        .setTargets(asMethod)
-                        .setTooltipText("This expression is declared to throw the following type(s):\n$throwsTypesText")
+            NavigationGutterIconBuilder
+                .create(exceptionIcon)
+                .setTargets(asMethod)
+                .setTooltipText("This expression is declared to throw the following type(s):\n$throwsTypesText")
         result.add(builder.createLineMarkerInfo(element))
     }
-    companion object{
-        val exceptionIcon =  IconLoader.getIcon("/icons/throws.svg")
+
+    companion object {
+        val exceptionIcon = IconLoader.getIcon("/icons/throws.svg", Companion::class.java)
     }
-    
+
 }
