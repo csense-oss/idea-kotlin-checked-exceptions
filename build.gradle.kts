@@ -13,8 +13,7 @@ version = "1.2.0"
 intellij {
     updateSinceUntilBuild.set(false)
     plugins.set(listOf("Kotlin", "java"))
-    version.set("2020.3")
-//    version.set("2021.3.2")
+    version.set("2020.1")
 }
 
 
@@ -33,6 +32,7 @@ dependencies {
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.50")
     implementation("csense.kotlin:csense-kotlin-datastructures-algorithms:0.0.41")
     implementation("csense.idea.base:csense-idea-base:0.1.41")
+
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
     testImplementation("csense.kotlin:csense-kotlin-tests:0.0.55")
