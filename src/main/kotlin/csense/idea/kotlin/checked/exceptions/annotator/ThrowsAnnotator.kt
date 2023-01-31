@@ -4,7 +4,6 @@ import com.intellij.lang.annotation.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
-import csense.idea.base.bll.uast.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.ignore.*
 import csense.idea.kotlin.checked.exceptions.inspections.*
