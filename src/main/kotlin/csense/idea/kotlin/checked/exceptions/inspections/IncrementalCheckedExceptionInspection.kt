@@ -2,7 +2,9 @@ package csense.idea.kotlin.checked.exceptions.inspections
 
 import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
+import com.intellij.psi.util.*
 import csense.idea.base.bll.kotlin.*
+import csense.idea.base.bll.kotlin.models.*
 import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
@@ -12,10 +14,15 @@ import csense.idea.kotlin.checked.exceptions.annotator.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
 import csense.idea.kotlin.checked.exceptions.builtin.operations.*
+import csense.idea.kotlin.checked.exceptions.callthough.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.kotlin.extensions.*
+import csense.kotlin.extensions.collections.*
 import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.*
+import kotlin.collections.isNotEmpty
+import kotlin.contracts.*
 
 class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
 
@@ -208,9 +215,13 @@ class IncrementalExceptionCheckerVisitor(
         if (isBuiltInCallThough) {
             return true
         }
-        //TODO read contracts.if annotated with callsInPlace => it will be call though.
-
-        //TODO()
+        if (lambda.isCallInPlace()) {
+            return true
+        }
+        val repo = CallThoughRepo(project)
+        if (repo.isLambdaCallThough(lambda)) {
+            return true
+        }
         return false
     }
 
@@ -294,3 +305,4 @@ class NamedFunctionOrDelegationVisitor(
         onPropertyDelegate(delegate)
     }
 }
+
