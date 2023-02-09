@@ -47,5 +47,5 @@ val ThrowingCommonCollections: Map<FqNameReceiver, BuiltInThrowingFunction> = ma
         "kotlin.IllegalArgumentException"
     ),
 
-    
+
 )

@@ -1,7 +1,7 @@
-package csense.idea.kotlin.checked.exceptions.builtin
+package csense.idea.kotlin.checked.exceptions.builtin.throws
 
+import csense.idea.kotlin.checked.exceptions.builtin.*
 import csense.idea.kotlin.checked.exceptions.builtin.map.*
-import csense.idea.kotlin.checked.exceptions.builtin.throws.*
 import csense.idea.kotlin.checked.exceptions.builtin.throws.common.collections.*
 import csense.idea.kotlin.checked.exceptions.builtin.throws.common.math.*
 import csense.idea.kotlin.checked.exceptions.builtin.throws.common.random.*
