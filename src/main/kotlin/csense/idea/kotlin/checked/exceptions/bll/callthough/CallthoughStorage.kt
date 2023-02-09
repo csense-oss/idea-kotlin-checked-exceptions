@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions.callthough
+package csense.idea.kotlin.checked.exceptions.bll.callthough
 
 import com.intellij.openapi.project.*
 import csense.kotlin.extensions.*

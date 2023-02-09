@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions.ignore
+package csense.idea.kotlin.checked.exceptions.bll.ignore
 
 data class IgnoreEntry(
     val fullName: String,

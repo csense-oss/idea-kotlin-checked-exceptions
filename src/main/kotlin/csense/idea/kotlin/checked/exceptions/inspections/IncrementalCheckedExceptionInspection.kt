@@ -12,6 +12,7 @@ import csense.idea.base.bll.psiWrapper.function.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
 import csense.idea.kotlin.checked.exceptions.annotator.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.idea.kotlin.checked.exceptions.bll.callthough.*
 import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
 import csense.idea.kotlin.checked.exceptions.builtin.operations.*
 import csense.idea.kotlin.checked.exceptions.callthough.*

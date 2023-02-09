@@ -3,6 +3,7 @@ package csense.idea.kotlin.checked.exceptions.quickfixes
 import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
+import csense.idea.kotlin.checked.exceptions.bll.callthough.*
 import csense.idea.kotlin.checked.exceptions.callthough.*
 import org.jetbrains.kotlin.psi.*
 

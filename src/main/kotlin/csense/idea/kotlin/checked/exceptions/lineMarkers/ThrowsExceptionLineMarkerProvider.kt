@@ -30,7 +30,7 @@ class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvi
         leafPsiElement: LeafPsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
-        val thrownType: KtPsiClass = typedElement.resolveThrownTypeOrNullIfShouldBeSkipped() ?: return
+        val thrownType: KtPsiClass = typedElement.resolveThrownTypeOrNull() ?: return
         val gutter: RelatedItemLineMarkerInfo<PsiElement> = createGutter(
             forElement = leafPsiElement,
             type = thrownType.fqName ?: "",

@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions.ignore
+package csense.idea.kotlin.checked.exceptions.bll.ignore
 
 import csense.idea.base.uastKtPsi.*
 import csense.idea.kotlin.checked.exceptions.settings.*

@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions.callthough
+package csense.idea.kotlin.checked.exceptions.bll.callthough
 
 import csense.idea.kotlin.checked.exceptions.ignore.*
 
