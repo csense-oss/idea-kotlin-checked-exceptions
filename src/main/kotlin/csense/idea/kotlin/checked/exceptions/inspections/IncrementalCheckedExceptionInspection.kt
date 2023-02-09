@@ -158,16 +158,17 @@ class IncrementalExceptionCheckerVisitor(
         expression: KtLambdaExpression,
         state: IncrementalExceptionCheckerState?
     ): Void? {
-//TODO?
 
-        val captures: List<KtPsiClass> = computeLambdaCaptureTypes(
-            expression,
+        val lambdaCaptures: List<KtPsiClass> = computeLambdaCaptureTypes(
+            lambda = expression,
             currentCaptures = state?.captures.orEmpty()
         )
 
-        val updatedState: IncrementalExceptionCheckerState = createNewStateFrom(
-            previousState = state
-        ).copy(captures = captures)
+        val updatedState = IncrementalExceptionCheckerState(
+            captures = lambdaCaptures,
+            throwsTypes = state?.throwsTypes.orEmpty(),
+            lastLambda = expression
+        )
 
         return super.visitLambdaExpression(
             expression,
@@ -179,9 +180,9 @@ class IncrementalExceptionCheckerVisitor(
         lambda: KtLambdaExpression,
         currentCaptures: List<KtPsiClass>
     ): List<KtPsiClass> = when {
-        isLambdaCallThough(lambda) -> currentCaptures
         isLambdaInIgnoreExceptions(lambda) -> TODO("Root exception type")
-        else -> listOf()
+        isLambdaCallThough(lambda) -> currentCaptures
+        else -> emptyList()
     }
 
 
@@ -199,7 +200,7 @@ class IncrementalExceptionCheckerVisitor(
     ): Boolean {
         val lambdaFqTypeName: String = lambda.getKotlinFqNameString() ?: ""
 
-        //TODO read contracts.
+        //TODO read contracts.if annotated with callsInPlace => it will be call though.
 
         //TODO()
         return false
@@ -236,7 +237,7 @@ class IncrementalExceptionCheckerVisitor(
     ): IncrementalExceptionCheckerState = IncrementalExceptionCheckerState(
         captures = previousState?.captures.orEmpty() + newCaptures,
         throwsTypes = previousState?.throwsTypes.orEmpty() + newThrows,
-        lastLambda = newLambda
+        lastLambda = newLambda ?: previousState?.lastLambda
     )
 
     companion object {
