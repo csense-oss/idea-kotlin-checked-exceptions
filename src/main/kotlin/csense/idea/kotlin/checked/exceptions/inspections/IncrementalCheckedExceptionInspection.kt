@@ -2,6 +2,7 @@ package csense.idea.kotlin.checked.exceptions.inspections
 
 import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
+import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.base.bll.psiWrapper.function.*
@@ -11,6 +12,7 @@ import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.builtin.operations.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.kotlin.extensions.*
+import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
 
 class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
@@ -39,31 +41,17 @@ class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
         return NamedFunctionOrDelegationVisitor(
             onFunctionNamed = {
                 it.accept(
-                    visitor, IncrementalExceptionCheckerState(
-                        captures = listOf(),
-                        throwsTypes = listOf()
-                    )
+                    /* visitor = */ visitor,
+                    /* data = */ IncrementalExceptionCheckerState.empty
                 )
             },
             onPropertyDelegate = {
                 it.accept(
-                    visitor, IncrementalExceptionCheckerState(
-                        captures = listOf(),
-                        throwsTypes = listOf()
-                    )
+                    /* visitor = */ visitor,
+                    /* data = */ IncrementalExceptionCheckerState.empty
                 )
             }
         )
-//        return namedFunctionVisitor {
-
-//            it.accept(
-//                /* visitor = */ visitor,
-//                /* data = */ IncrementalExceptionCheckerState(
-//                    captures = emptyList(),
-//                    throwsTypes = emptyList()
-//                )
-//            )
-//        }
     }
 }
 
@@ -115,18 +103,9 @@ class IncrementalExceptionCheckerVisitor(
 
         val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterNonRelated(to = currentState.captures)
         if (nonCaughtExceptions.isNotEmpty()) {
-//            val text =
-//                "This call throws, so you should handle it with try catch, or declare that this method throws.\n It throws the following types:" +
-//                        throwTypes.joinToString(", ")
             holder.registerProblem(
-                expression,
-                "... Expresion throws type(s)(${nonCaughtExceptions.joinToString { it.fqName ?: "" }}) not caught ..."//,
-//                *createQuickFixes(
-//                    expression,
-//                    throwTypes,
-//                    data.isMarkedThrows,
-//                    data.containingLambda
-//                )
+                /* psiElement = */ expression,
+                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage()
             )
         }
         return super.visitCallExpression(expression, currentState)
@@ -143,14 +122,8 @@ class IncrementalExceptionCheckerVisitor(
         val nonCaughtExceptions: List<KtPsiClass> = throwsList.filterNonRelated(to = currentState.captures)
         if (nonCaughtExceptions.isNotEmpty()) {
             holder.registerProblem(
-                expression,
-                "... Throws type not caught ..."//,
-//                *createQuickFixes(
-//                    expression,
-//                    throwTypes,
-//                    data.isMarkedThrows,
-//                    data.containingLambda
-//                )
+                /* psiElement = */ expression,
+                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage()
             )
         }
         return super.visitThrowExpression(expression, currentState)
@@ -163,22 +136,15 @@ class IncrementalExceptionCheckerVisitor(
     ): Void? {
         val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
 
-
-        val potentialExceptions = delegate.references.firstNotNullOfOrNull {
+        val potentialExceptions: List<KtPsiClass> = delegate.references.firstNotNullOfOrNull {
             it.resolve()?.toKtPsiFunction()
         }?.throwsTypesForSettings().orEmpty()
 
         val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterNonRelated(to = currentState.captures)
         if (nonCaughtExceptions.isNotEmpty()) {
             holder.registerProblem(
-                delegate,
-                "... Throws type not caught ..."//,
-//                *createQuickFixes(
-//                    expression,
-//                    throwTypes,
-//                    data.isMarkedThrows,
-//                    data.containingLambda
-//                )
+                /* psiElement = */ delegate,
+                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage()
             )
         }
         return super.visitPropertyDelegate(
@@ -187,88 +153,110 @@ class IncrementalExceptionCheckerVisitor(
         )
     }
 
+
+    override fun visitLambdaExpression(
+        expression: KtLambdaExpression,
+        state: IncrementalExceptionCheckerState?
+    ): Void? {
+//TODO?
+
+        val captures: List<KtPsiClass> = computeLambdaCaptureTypes(
+            expression,
+            currentCaptures = state?.captures.orEmpty()
+        )
+
+        val updatedState: IncrementalExceptionCheckerState = createNewStateFrom(
+            previousState = state
+        ).copy(captures = captures)
+
+        return super.visitLambdaExpression(
+            expression,
+            updatedState
+        )
+    }
+
+    private fun computeLambdaCaptureTypes(
+        lambda: KtLambdaExpression,
+        currentCaptures: List<KtPsiClass>
+    ): List<KtPsiClass> = when {
+        isLambdaCallThough(lambda) -> currentCaptures
+        isLambdaInIgnoreExceptions(lambda) -> TODO("Root exception type")
+        else -> listOf()
+    }
+
+
+    private fun isLambdaInIgnoreExceptions(
+        lambda: KtLambdaExpression
+    ): Boolean {
+        val lambdaFqTypeName: String = lambda.getKotlinFqNameString() ?: ""
+
+        //TODO()
+        return false
+    }
+
+    private fun isLambdaCallThough(
+        lambda: KtLambdaExpression
+    ): Boolean {
+        val lambdaFqTypeName: String = lambda.getKotlinFqNameString() ?: ""
+
+        //TODO read contracts.
+
+        //TODO()
+        return false
+    }
+
+    private fun List<KtPsiClass>.notCaughtExceptionMessage(): String {
+        @Language("html")
+        val typePrefix = "<b style='color:$typeCssColor'>"
+
+        @Language("html")
+        val typesHtml: String = this.joinToString(
+            separator = "</b>, $typePrefix",
+            prefix = typePrefix,
+            postfix = "</b>",
+            transform = { ktPsiClass: KtPsiClass ->
+                ktPsiClass.fqName.orEmpty()
+            }
+        )
+
+        @Language("html")
+        val resultHtml = "<html>Thrown type(s) $typesHtml are <b>not</b> caught </html>"
+        return resultHtml
+    }
+
     private fun KtPsiFunction.throwsTypesForSettings(): List<KtPsiClass> {
         return throwsTypesOrBuiltIn(project).filterRuntimeExceptionsBySettings()
     }
 
-//    override fun visitLambdaExpression(expression: KtLambdaExpression, data: IncrementalStep): Void? {
-//        val lambda = expression.asPotentialContainingLambda()
-//        val currentCaptures: List<UClass> = if (lambda != null) {
-//            when {
-//                //ignore => capture all
-//                lambda.isIgnored(IgnoreInMemory) -> {
-//                    javaThrowableUClass?.let { listOf(it) } ?: emptyList()
-//                }
-//                //call though => use parent captures
-//                lambda.isCallThough() -> {
-//                    data.captures
-//                }
-//                //else its just a normal lambda, thus it defines its own captures
-//                else -> listOf()
-//            }
-//        } else {
-//            data.captures
-//        }
-//
-//        return super.visitLambdaExpression(
-//            expression,
-//            data.copy(
-//                captures = currentCaptures,
-//                containingLambda = lambda
-//            )
-//        )
-//    }
-
-    //    private fun createQuickFixes(
-//        namedFunction: KtCallExpression,
-//        exceptionTypes: List<String>,
-//        haveThrowsAnnotation: Boolean,
-//        containingLambda: LambdaParameterData?
-//    ): Array<LocalQuickFix> {
-//        val declare: LocalQuickFix = haveThrowsAnnotation.mapLazy({
-//            AddFunctionThrowsQuickFix(namedFunction, exceptionTypes)
-//        }, {
-//            DeclareFunctionAsThrowsQuickFix(namedFunction, exceptionTypes)
-//        })
-//
-//        val lambdaRelatedQuickfixes: Array<LocalQuickFix> = if (containingLambda != null) {
-//            val lambdaQuickFixes = mutableListOf<LocalQuickFix>()
-//            if (!containingLambda.isIgnored(IgnoreInMemory)) {
-//                lambdaQuickFixes.add(AddLambdaToIgnoreQuickFix(containingLambda.main, containingLambda.parameterName))
-//            }
-//            if (!containingLambda.isCallThough()) {
-//                lambdaQuickFixes.add(
-//                    AddLambdaToCallthoughQuickFix(
-//                        containingLambda.main,
-//                        containingLambda.parameterName
-//                    )
-//                )
-//            }
-//            lambdaQuickFixes.toTypedArray()
-//        } else {
-//            arrayOf()
-//        }
-//
-//        return arrayOf(
-//            WrapInTryCatchQuickFix(namedFunction, exceptionTypes),
-//            declare
-//        ) + lambdaRelatedQuickfixes
-//    }
     private fun createNewStateFrom(
         previousState: IncrementalExceptionCheckerState?,
         newCaptures: List<KtPsiClass> = listOf(),
-        newThrows: List<KtPsiClass> = listOf()
+        newThrows: List<KtPsiClass> = listOf(),
+        newLambda: KtLambdaExpression? = null
     ): IncrementalExceptionCheckerState = IncrementalExceptionCheckerState(
         captures = previousState?.captures.orEmpty() + newCaptures,
-        throwsTypes = previousState?.throwsTypes.orEmpty() + newThrows
+        throwsTypes = previousState?.throwsTypes.orEmpty() + newThrows,
+        lastLambda = newLambda
     )
+
+    companion object {
+        const val typeCssColor: String = "#ff6b2b"
+    }
 }
 
 data class IncrementalExceptionCheckerState(
     val captures: List<KtPsiClass>,
     val throwsTypes: List<KtPsiClass>,
-//    val containingLambda: LambdaParameterData? = null
-)
+    val lastLambda: KtLambdaExpression?
+) {
+    companion object {
+        val empty = IncrementalExceptionCheckerState(
+            captures = emptyList(),
+            throwsTypes = emptyList(),
+            lastLambda = null
+        )
+    }
+}
 
 fun KtCallableDeclaration.resolveToExceptionType(): KtPsiClass? =
     this.resolveFirstClassType2()
@@ -281,6 +269,7 @@ fun List<KtPsiClass>.filterRuntimeExceptionsBySettings(): List<KtPsiClass> {
         it.isSubtypeOfRuntimeException()
     }
 }
+
 
 //TODO Better name!?
 fun List<KtPsiClass>.filterNonRelated(to: List<KtPsiClass>): List<KtPsiClass> {
