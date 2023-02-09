@@ -25,6 +25,6 @@ object IgnoreInMemory {
     }
 
     val knownKotlinFunctions: HashMap<String, String> = hashMapOf(
-        Pair("kotlin.runCatching","block")
+        Pair("kotlin.runCatching", "block")
     )
 }

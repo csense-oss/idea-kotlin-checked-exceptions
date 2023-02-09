@@ -4,7 +4,7 @@ import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import com.intellij.util.*
-import csense.idea.base.bll.psi.findParentAndBeforeFromType
+import csense.idea.base.bll.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
@@ -46,6 +46,6 @@ class WrapInTryCatchQuickFix(
     }
 
     private val throwType: String =
-            exceptionTypes.singleOrNull() ?: kotlinMainExceptionFqName
+            exceptionTypes.singleOrNull() ?: Constants.kotlinMainExceptionFqName
 
 }

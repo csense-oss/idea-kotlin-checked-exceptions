@@ -17,12 +17,13 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
         <inspectionToolProvider
                 implementation="csense.idea.kotlin.checked.exceptions.inspections.InspectionsProvider"/>
+
         <codeInsight.lineMarkerProvider
                 language="kotlin"
                 implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.CheckedExceptionLineMarkerProvider"/>
+
         <codeInsight.lineMarkerProvider
                 language="kotlin"
                 implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.ThrowsExceptionLineMarkerProvider"/>

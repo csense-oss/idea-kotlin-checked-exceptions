@@ -56,7 +56,7 @@ public class SettingsPaneUi {
         callthoughCheckbox.setSelected(Settings.INSTANCE.getUseCallThoughFile());
         callthoughCheckbox.setAction(didChangeCallback);
 
-        runtimeAsCheckedExceptionCheckBox.setSelected(Settings.INSTANCE.getRuntimeAsCheckedException());
+        runtimeAsCheckedExceptionCheckBox.setSelected(!Settings.INSTANCE.getIgnoreRuntimeExceptions());
         runtimeAsCheckedExceptionCheckBox.setAction(didChangeCallback);
 
         shouldHighlightThrowsInsideOfFunctionCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightThrowsInsideOfFunction());
@@ -87,7 +87,7 @@ public class SettingsPaneUi {
         Settings.INSTANCE.setShouldHighlightThrowsExceptions(highlightGutterThrowsFunctionsCheckbox.isSelected());
         Settings.INSTANCE.setUseIgnoreFile(ignoreThrowsCheckbox.isSelected());
         Settings.INSTANCE.setUseCallThoughFile(callthoughCheckbox.isSelected());
-        Settings.INSTANCE.setRuntimeAsCheckedException(runtimeAsCheckedExceptionCheckBox.isSelected());
+        Settings.INSTANCE.setIgnoreRuntimeExceptions(!runtimeAsCheckedExceptionCheckBox.isSelected());
         Settings.INSTANCE.setShouldHighlightThrowsInsideOfFunction(shouldHighlightThrowsInsideOfFunctionCheckBox.isSelected());
 
         final String value = (String) nothingSeverity.getSelectedItem();

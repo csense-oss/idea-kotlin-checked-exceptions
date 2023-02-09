@@ -1,17 +1,21 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
+import csense.kotlin.extensions.primitives.*
 import org.jetbrains.kotlin.psi.*
 
 
-object ThrowsAnnotationBll{
-    fun createThrowsAnnotation(caller: KtAnnotated, exceptionType: String?): KtAnnotationEntry {
-        val text =
-                if (exceptionType != null) {
-                    "@Throws($exceptionType::class)"
-                } else {
-                    "@Throws"
-                }
-        return KtPsiFactory(caller).createAnnotationEntry(text)
+object ThrowsAnnotationBll {
 
+    fun createThrowsAnnotation(
+        caller: KtAnnotated,
+        optionalExceptionType: String?
+    ): KtAnnotationEntry {
+        val exceptionType = optionalExceptionType.toExceptionTypeOrEmpty()
+        val annotation = "@${Constants.kotlinThrowsText}(${exceptionType})"
+        return KtPsiFactory(caller).createAnnotationEntry(annotation)
     }
+
+    private fun String?.toExceptionTypeOrEmpty(): String =
+        this?.nullOnBlank().orEmpty()
+
 }

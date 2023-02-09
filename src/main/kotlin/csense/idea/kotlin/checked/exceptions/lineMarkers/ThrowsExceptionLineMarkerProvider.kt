@@ -5,47 +5,73 @@ import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
-import csense.idea.base.bll.uast.*
-import csense.idea.kotlin.checked.exceptions.bll.*
-import csense.idea.kotlin.checked.exceptions.inspections.*
-import csense.idea.kotlin.checked.exceptions.settings.*
-import org.jetbrains.kotlin.lexer.*
+import csense.idea.base.bll.annotator.*
+import csense.idea.base.bll.linemarkers.*
+import csense.idea.base.bll.psiClassWrapper.*
+import csense.idea.base.bll.psiClassWrapper.operations.*
+import csense.idea.base.bll.psiWrapper.`class`.*
+import csense.idea.base.bll.psiWrapper.`class`.operations.*
+import csense.idea.kotlin.checked.exceptions.annotator.*
+import csense.kotlin.extensions.*
+import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
+import javax.swing.*
 
 /**
- * Highlights "throws" expressions, which is to say, where you throw exceptions.
- *
+ * Highlights "throws" expressions
  */
 
-class ThrowsExceptionLineMarkerProvider : RelatedItemLineMarkerProvider() {
-    override fun collectNavigationMarkers(
-        element: PsiElement,
+class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvider<KtThrowExpression>(
+    classType = type()
+) {
+
+    override fun onCollectNavigationMarkersFor(
+        typedElement: KtThrowExpression,
+        leafPsiElement: LeafPsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
-        if (!Settings.shouldHighlightCheckedExceptions || element !is LeafPsiElement) {
-            return
+        val thrownType: KtPsiClass = typedElement.resolveThrownTypeOrNullIfShouldBeSkipped() ?: return
+        val gutter: RelatedItemLineMarkerInfo<PsiElement> = createGutter(
+            forElement = leafPsiElement,
+            type = thrownType.fqName ?: "",
+            isRuntimeException = thrownType.isSubtypeOfRuntimeException()
+        )
+        if (result.doesNotContain(gutter)) {
+            result += gutter
         }
-        if (element.elementType != KtTokens.THROW_KEYWORD) {
-            return
+    }
+
+    private fun MutableCollection<in RelatedItemLineMarkerInfo<*>>.doesNotContain(
+        gutter: RelatedItemLineMarkerInfo<*>
+    ): Boolean = none { it: Any? ->
+        val marker: RelatedItemLineMarkerInfo<*> = it as? RelatedItemLineMarkerInfo<*> ?: return@none false
+        marker.element == gutter.element && marker.lineMarkerTooltip == gutter.lineMarkerTooltip
+    }
+
+    private fun createGutter(
+        forElement: PsiElement,
+        type: String,
+        isRuntimeException: Boolean
+    ): RelatedItemLineMarkerInfo<PsiElement> {
+        @Language("html")
+        val runtimeExceptionText: String = when (isRuntimeException) {
+            true -> "(subtype of <i style=\"color:$iconColorTheme\">RuntimeException</i>)"
+            false -> ""
         }
-        val asMethod = element.parent as? KtThrowExpression ?: return
-        val realType = asMethod.thrownExpression?.resolveFirstClassType()
-        val uType = realType?.toUExceptionClass()
-        if (uType?.isRuntimeExceptionClass() == true && !Settings.runtimeAsCheckedException) {
-            return //skip
-        }
-        //TODO the default here is kinda bogus
-        val type = uType?.qualifiedName ?: kotlinMainExceptionFqName
-        val builder =
-            NavigationGutterIconBuilder
-                .create(exceptionIcon)
-                .setTargets(asMethod)
-                .setTooltipText("You are throwing an exception of type \"$type\"")
-        result.add(builder.createLineMarkerInfo(element))
+
+        @Language("html")
+        val htmlToolTip =
+            "<html>You are throwing an exception of type <b style=\"color:$iconColorTheme\">$type</b>$runtimeExceptionText</html>"
+        return NavigationGutterIconBuilder
+            .create(exceptionIcon)
+            .setTargets(forElement)
+            .setTooltipText(htmlToolTip)
+            .createLineMarkerInfo(forElement)
     }
 
     companion object {
-        val exceptionIcon = IconLoader.getIcon("/icons/exception.svg", Companion::class.java)
+        val exceptionIcon: Icon = IconLoader.getIcon("/icons/exception.svg", Companion::class.java)
+        const val iconColorTheme = "#EDA200"
     }
 
 }

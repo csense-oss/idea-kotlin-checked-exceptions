@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "csense-idea"
-version = "1.3.0"
+version = "2.0.0"
 
 intellij {
     updateSinceUntilBuild.set(false)
@@ -18,6 +18,7 @@ intellij {
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         setUrl("https://pkgs.dev.azure.com/csense-oss/csense-oss/_packaging/csense-oss/maven/v1")
         name = "Csense oss"
@@ -40,9 +41,7 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes.set(
         """
-        <ul>
-            <li></li>
-        </ul>
+            Fully redone plugin code, changed settings page and made it work with MPP projects, android , JVM etc.
       """
     )
 }
@@ -65,7 +64,7 @@ tasks {
         }
     }
     buildSearchableOptions {
-        enabled = false
+        enabled = true
     }
     runIde {
 //        ideDir.set(file("/home/kasper/.local/share/JetBrains/Toolbox/apps/AndroidStudio/ch-0/211.7628.21.2111.8139111/"))

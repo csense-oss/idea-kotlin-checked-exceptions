@@ -28,7 +28,7 @@ object Settings {
 
     var maxDepth: Int by IntSetting(backend, settingsPrefixed, "Name", 10, 1)
 
-    var runtimeAsCheckedException: Boolean by BooleanSetting(backend, settingsPrefixed)
+    var ignoreRuntimeExceptions: Boolean by BooleanSetting(backend, settingsPrefixed)
 
     private const val throwsInsideOfFunctionSeverityName = settingsPrefixed + "throwsInsideOfFunctionSeverity"
     var throwsInsideOfFunctionSeverity: HighlightSeverity
