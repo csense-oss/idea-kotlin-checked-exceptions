@@ -1,6 +1,7 @@
-package csense.idea.kotlin.checked.exceptions.builtin.map.common.time
+package csense.idea.kotlin.checked.exceptions.builtin.throws.common.time
 
 import csense.idea.kotlin.checked.exceptions.builtin.*
+import csense.idea.kotlin.checked.exceptions.builtin.throws.*
 
 val ThrowingCommonDuration: Map<FqNameReceiver, BuiltInThrowingFunction> = mapOf(
 

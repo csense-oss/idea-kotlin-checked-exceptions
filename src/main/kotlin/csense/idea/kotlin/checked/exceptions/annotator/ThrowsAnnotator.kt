@@ -137,11 +137,8 @@ fun KtThrowExpression.resolveThrownTypeOrNullIfShouldBeSkipped(): KtPsiClass? {
 
 
 fun KtThrowExpression.resolveThrownTypeOrNull(): KtPsiClass? {
-    val resolution = ProjectClassResolutionInterface.getOrCreate(project)
-    val thrown = this.thrownExpression ?: run {
-        val throwable = resolution.getThrowable() ?: return@resolveThrownTypeOrNull null
-        return@resolveThrownTypeOrNull KtPsiClass.Psi(throwable)
-    }
+    val resolution: ProjectClassResolutionInterface = ProjectClassResolutionInterface.getOrCreate(project)
+    val thrown: KtExpression = this.thrownExpression ?: return resolution.kotlinOrJavaThrowable
     return thrown.resolveFirstClassType2()
 }
 

@@ -1,6 +1,7 @@
-package csense.idea.kotlin.checked.exceptions.builtin.map
+package csense.idea.kotlin.checked.exceptions.builtin.throws.common.math
 
 import csense.idea.kotlin.checked.exceptions.builtin.*
+import csense.idea.kotlin.checked.exceptions.builtin.throws.*
 
 val ThrowingCommonMath: Map<FqNameReceiver, BuiltInThrowingFunction> = mapOf(
     FqNameReceiver(

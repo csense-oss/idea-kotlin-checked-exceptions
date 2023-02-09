@@ -8,10 +8,12 @@ import com.intellij.psi.impl.source.tree.*
 import csense.idea.base.bll.linemarkers.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
+import csense.idea.kotlin.checked.exceptions.builtin.operations.*
 import csense.idea.kotlin.checked.exceptions.inspections.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.kotlin.extensions.*
 import org.intellij.lang.annotations.*
+import org.jetbrains.kotlin.lexer.*
 import org.jetbrains.kotlin.psi.*
 import javax.swing.*
 
@@ -19,42 +21,35 @@ import javax.swing.*
 /**
  * Highlights method calls  that have checked exceptions associated with them.
  */
-class CheckedExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvider<KtCallExpression>(type()) {
+class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
 
-//    override fun onCollectNavigationMarkers(
-//        element: LeafPsiElement,
-//        result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
-//    ) {
+    override fun onCollectNavigationMarkers(
+        element: LeafPsiElement,
+        result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
+    ) {
+        if (element.elementType != KtTokens.IDENTIFIER) {
+            return
+        }
+        val parent = element.parent
+        if (parent is KtCallExpression) {
+            onCollectNavigationMarkersFor(parent, element, result)
+        }
+        val grandparent = parent.parent
+        if (grandparent is KtCallExpression) {
+            onCollectNavigationMarkersFor(grandparent, element, result)
+        }
+    }
 
-//        if (element.elementType != KtTokens.IDENTIFIER) {
-//            return
-//        }
-//        val asMethod: KtCallExpression = element.parent as? KtCallExpression
-//            ?: element.parent?.parent as? KtCallExpression
-//            ?: return
-//        val throwsTypes = SharedMethodThrowingCache.throwsTypes(asMethod)
-//        if (throwsTypes.isEmpty()) {
-//            return
-//        }
-//        val throwsTypesText = throwsTypes.toTypeList().joinToString(", ")
-//        val builder =
-//            NavigationGutterIconBuilder
-//                .create(exceptionIcon)
-//                .setTargets(asMethod)
-//                .setTooltipText("This expression is declared to throw the following type(s):\n$throwsTypesText")
-//        result.add(builder.createLineMarkerInfo(element))
-//    }
-
-    override fun onCollectNavigationMarkersFor(
+    fun onCollectNavigationMarkersFor(
         typedElement: KtCallExpression,
         leafPsiElement: LeafPsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
-        if (!Settings.shouldHighlightCheckedExceptions) {
-            return
-        }
-        val throwsTypes: List<KtPsiClass> =
-            typedElement.resolveMainReferenceAsFunction()?.throwsTypes()?.filterRuntimeExceptionsBySettings() ?: return
+        val throwsTypes: List<KtPsiClass> = typedElement.resolveMainReferenceAsFunction()
+            ?.throwsTypesOrBuiltIn(project = typedElement.project)
+            ?.filterRuntimeExceptionsBySettings()
+            ?: return
+
         if (throwsTypes.isNotEmpty()) {
             result += createGutter(
                 leafPsiElement = leafPsiElement,
@@ -67,10 +62,15 @@ class CheckedExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProv
         leafPsiElement: LeafPsiElement,
         typesOfExceptions: List<KtPsiClass>
     ): RelatedItemLineMarkerInfo<PsiElement> {
-        val throwsTypesText: String =
-            typesOfExceptions.joinToString(separator = "</i>,<i>", prefix = "<i>", postfix = "</i>") {
-                it.fqName ?: ""
+        @Language("html")
+        val throwsTypesText: String = typesOfExceptions.joinToString(
+            separator = "</i>,<i>",
+            prefix = "<i>",
+            postfix = "</i>",
+            transform = { ktPsiClass: KtPsiClass ->
+                ktPsiClass.fqName.orEmpty()
             }
+        )
 
         @Language("html")
         val htmlToolTip =

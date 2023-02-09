@@ -1,6 +1,7 @@
-package csense.idea.kotlin.checked.exceptions.builtin.map.common.text
+package csense.idea.kotlin.checked.exceptions.builtin.throws.common.text
 
 import csense.idea.kotlin.checked.exceptions.builtin.*
+import csense.idea.kotlin.checked.exceptions.builtin.throws.*
 
 val ThrowingCommonMatchNamedGroupCollection: Map<FqNameReceiver, BuiltInThrowingFunction> = mapOf(
     //TODO INTERFACE

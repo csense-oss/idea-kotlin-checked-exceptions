@@ -1,6 +1,7 @@
-package csense.idea.kotlin.checked.exceptions.builtin.map.common.random
+package csense.idea.kotlin.checked.exceptions.builtin.throws.common.random
 
 import csense.idea.kotlin.checked.exceptions.builtin.*
+import csense.idea.kotlin.checked.exceptions.builtin.throws.*
 
 val ThrowingCommonRandom: Map<FqNameReceiver, BuiltInThrowingFunction> = mapOf(
 //on intRange parameter...

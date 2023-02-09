@@ -2,6 +2,7 @@ package csense.idea.kotlin.checked.exceptions.inspections
 
 import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
+import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
@@ -9,6 +10,7 @@ import csense.idea.base.bll.psiWrapper.function.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
 import csense.idea.kotlin.checked.exceptions.annotator.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
 import csense.idea.kotlin.checked.exceptions.builtin.operations.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.kotlin.extensions.*
@@ -180,7 +182,11 @@ class IncrementalExceptionCheckerVisitor(
         lambda: KtLambdaExpression,
         currentCaptures: List<KtPsiClass>
     ): List<KtPsiClass> = when {
-        isLambdaInIgnoreExceptions(lambda) -> TODO("Root exception type")
+        isLambdaInIgnoreExceptions(lambda) -> {
+            val resolution: ProjectClassResolutionInterface = ProjectClassResolutionInterface.getOrCreate(project)
+            listOfNotNull(resolution.kotlinOrJavaThrowable)
+        }
+
         isLambdaCallThough(lambda) -> currentCaptures
         else -> emptyList()
     }
@@ -189,7 +195,7 @@ class IncrementalExceptionCheckerVisitor(
     private fun isLambdaInIgnoreExceptions(
         lambda: KtLambdaExpression
     ): Boolean {
-        val lambdaFqTypeName: String = lambda.getKotlinFqNameString() ?: ""
+        val lambdaFqTypeName: String = lambda.resolveParameterFunction()?.fqName ?: ""
 
         //TODO()
         return false
@@ -198,8 +204,10 @@ class IncrementalExceptionCheckerVisitor(
     private fun isLambdaCallThough(
         lambda: KtLambdaExpression
     ): Boolean {
-        val lambdaFqTypeName: String = lambda.getKotlinFqNameString() ?: ""
-
+        val isBuiltInCallThough: Boolean = KotlinCallThough.contains(lambda)
+        if (isBuiltInCallThough) {
+            return true
+        }
         //TODO read contracts.if annotated with callsInPlace => it will be call though.
 
         //TODO()
@@ -221,7 +229,7 @@ class IncrementalExceptionCheckerVisitor(
         )
 
         @Language("html")
-        val resultHtml = "<html>Thrown type(s) $typesHtml are <b>not</b> caught </html>"
+        val resultHtml = "<html>Uncaught exceptions $typesHtml</html>"
         return resultHtml
     }
 
@@ -269,28 +277,6 @@ fun List<KtPsiClass>.filterRuntimeExceptionsBySettings(): List<KtPsiClass> {
     return filterNot { it: KtPsiClass ->
         it.isSubtypeOfRuntimeException()
     }
-}
-
-
-//TODO Better name!?
-fun List<KtPsiClass>.filterNonRelated(to: List<KtPsiClass>): List<KtPsiClass> {
-    //TODO caching etc? compute a map of "classes" and then going over the other and testing?
-    return this.filterNot {
-        it.isSubTypeOfAny(to)
-    }
-}
-
-fun KtPsiClass.isSubTypeOfAny(other: List<KtPsiClass>): Boolean {
-    val fqNames = other.mapToSet { it.fqName }
-    if (this.fqName in fqNames) {
-        return true
-    }
-    forEachSuperClassType {
-        if (it.fqName in fqNames) {
-            return@isSubTypeOfAny true
-        }
-    }
-    return false
 }
 
 

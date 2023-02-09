@@ -1,6 +1,7 @@
-package csense.idea.kotlin.checked.exceptions.builtin.map.common.collections
+package csense.idea.kotlin.checked.exceptions.builtin.throws.common.collections
 
 import csense.idea.kotlin.checked.exceptions.builtin.*
+import csense.idea.kotlin.checked.exceptions.builtin.throws.*
 
 val ThrowingCommonCollections: Map<FqNameReceiver, BuiltInThrowingFunction> = mapOf(
     FqNameReceiver(
@@ -45,4 +46,6 @@ val ThrowingCommonCollections: Map<FqNameReceiver, BuiltInThrowingFunction> = ma
     ) to BuiltInThrowingFunction(
         "kotlin.IllegalArgumentException"
     ),
+
+    
 )

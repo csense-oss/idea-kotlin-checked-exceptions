@@ -6,6 +6,7 @@ import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.base.bll.psiWrapper.function.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
 import csense.idea.kotlin.checked.exceptions.builtin.*
+import csense.idea.kotlin.checked.exceptions.builtin.throws.*
 
 fun KtPsiFunction.throwsTypesOrBuiltIn(project: Project): List<KtPsiClass> {
     return builtInThrowsTypes(project) + throwsTypes()
