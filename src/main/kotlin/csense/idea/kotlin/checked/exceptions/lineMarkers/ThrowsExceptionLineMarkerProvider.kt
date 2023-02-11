@@ -8,11 +8,8 @@ import com.intellij.psi.impl.source.tree.*
 import csense.idea.base.bll.annotator.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.linemarkers.*
-import csense.idea.base.bll.psiClassWrapper.*
-import csense.idea.base.bll.psiClassWrapper.operations.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
-//import csense.idea.kotlin.checked.exceptions.annotator.*
 import csense.kotlin.extensions.*
 import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
@@ -62,7 +59,7 @@ class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvi
 
         @Language("html")
         val htmlToolTip =
-            "<html>You are throwing an exception of type <b style=\"color:$iconColorTheme\">$type</b>$runtimeExceptionText</html>"
+            "<html>Throwing exception <b style=\"color:$iconColorTheme\">$type</b>$runtimeExceptionText</html>"
         return NavigationGutterIconBuilder
             .create(exceptionIcon)
             .setTargets(forElement)
