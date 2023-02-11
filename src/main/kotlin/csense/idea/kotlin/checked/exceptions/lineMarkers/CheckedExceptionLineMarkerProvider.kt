@@ -12,6 +12,7 @@ import csense.idea.kotlin.checked.exceptions.builtin.operations.*
 import csense.idea.kotlin.checked.exceptions.inspections.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.kotlin.extensions.*
+import csense.kotlin.extensions.collections.*
 import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.lexer.*
 import org.jetbrains.kotlin.psi.*
@@ -30,13 +31,11 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
         if (element.elementType != KtTokens.IDENTIFIER) {
             return
         }
-        val parent = element.parent
-        if (parent is KtCallExpression) {
-            onCollectNavigationMarkersFor(parent, element, result)
+        element.parent.invokeIsInstance<KtCallExpression> { call ->
+            onCollectNavigationMarkersFor(call, element, result)
         }
-        val grandparent = parent.parent
-        if (grandparent is KtCallExpression) {
-            onCollectNavigationMarkersFor(grandparent, element, result)
+        element.parent.parent.invokeIsInstance<KtCallExpression> { call ->
+            onCollectNavigationMarkersFor(call, element, result)
         }
     }
 
@@ -50,12 +49,13 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
             ?.filterRuntimeExceptionsBySettings()
             ?: return
 
-        if (throwsTypes.isNotEmpty()) {
-            result += createGutter(
-                leafPsiElement = leafPsiElement,
-                typesOfExceptions = throwsTypes
-            )
+        if (throwsTypes.isEmpty()) {
+            return
         }
+        result += createGutter(
+            leafPsiElement = leafPsiElement,
+            typesOfExceptions = throwsTypes
+        )
     }
 
     private fun createGutter(

@@ -1,7 +1,8 @@
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.12.0"
-    kotlin("jvm") version "1.8.0"
+    id("org.jetbrains.intellij") version "1.13.0"
+    //https://github.com/JetBrains/kotlin
+    kotlin("jvm") version "1.8.10"
     //https://github.com/jeremylong/dependency-check-gradle/releases
     id("org.owasp.dependencycheck") version "8.0.2"
 }

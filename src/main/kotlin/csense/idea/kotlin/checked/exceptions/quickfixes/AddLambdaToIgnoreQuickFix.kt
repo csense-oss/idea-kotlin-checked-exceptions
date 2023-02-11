@@ -4,7 +4,7 @@ import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.ignore.*
-import csense.idea.kotlin.checked.exceptions.ignore.*
+//import csense.idea.kotlin.checked.exceptions.ignore.*
 import org.jetbrains.kotlin.psi.*
 
 class AddLambdaToIgnoreQuickFix(
