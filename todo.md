@@ -12,3 +12,4 @@
 - redo the settings page
 - streamline colors for markers etc.
 - re-introduce quick fixes... and add new ones for the various cases.
+- cleanup the integration tests
