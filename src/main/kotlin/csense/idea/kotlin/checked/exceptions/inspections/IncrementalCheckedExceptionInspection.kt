@@ -2,6 +2,7 @@ package csense.idea.kotlin.checked.exceptions.inspections
 
 import com.intellij.codeInspection.*
 import com.intellij.openapi.project.*
+import com.intellij.psi.*
 import com.intellij.psi.util.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.kotlin.models.*
@@ -92,7 +93,7 @@ class IncrementalExceptionCheckerVisitor(
         function: KtNamedFunction,
         state: IncrementalExceptionCheckerState?
     ): Void? {
-        val throwsTypes: List<KtPsiClass> = function.toKtPsiFunction()?.throwsTypesForSettings().orEmpty()
+        val throwsTypes: List<KtPsiClass> = function.toKtPsiFunction().throwsTypesForSettingsOrEmpty()
 
         val newState: IncrementalExceptionCheckerState = createNewStateFrom(
             previousState = state,
@@ -110,11 +111,10 @@ class IncrementalExceptionCheckerVisitor(
         val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
         val potentialExceptions: List<KtPsiClass> = expression
             .resolveMainReferenceAsFunction()
-            ?.throwsTypesForSettings()
-            .orEmpty()
+            .throwsTypesForSettingsOrEmpty()
 
 
-        val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterNonRelated(to = currentState.captures)
+        val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
         if (nonCaughtExceptions.isNotEmpty()) {
             holder.registerProblem(
                 /* psiElement = */ expression,
@@ -132,7 +132,7 @@ class IncrementalExceptionCheckerVisitor(
 
         val throws: KtPsiClass? = expression.resolveThrownTypeOrNull()
         val throwsList: List<KtPsiClass> = listOfNotNull(throws).filterRuntimeExceptionsBySettings()
-        val nonCaughtExceptions: List<KtPsiClass> = throwsList.filterNonRelated(to = currentState.captures)
+        val nonCaughtExceptions: List<KtPsiClass> = throwsList.filterUnrelatedExceptions(to = currentState.captures)
         if (nonCaughtExceptions.isNotEmpty()) {
             holder.registerProblem(
                 /* psiElement = */ expression,
@@ -149,11 +149,11 @@ class IncrementalExceptionCheckerVisitor(
     ): Void? {
         val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
 
-        val potentialExceptions: List<KtPsiClass> = delegate.references.firstNotNullOfOrNull {
-            it.resolve()?.toKtPsiFunction()
-        }?.throwsTypesForSettings().orEmpty()
+        val potentialExceptions: List<KtPsiClass> = delegate.references.firstNotNullOfOrNull { it: PsiReference? ->
+            it?.resolve()?.toKtPsiFunction()
+        }.throwsTypesForSettingsOrEmpty()
 
-        val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterNonRelated(to = currentState.captures)
+        val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
         if (nonCaughtExceptions.isNotEmpty()) {
             holder.registerProblem(
                 /* psiElement = */ delegate,
@@ -165,6 +165,14 @@ class IncrementalExceptionCheckerVisitor(
             currentState
         )
     }
+
+    //TODO hmm? calling / accessing a getter etc on a property?
+//    override fun visitCallableReferenceExpression(
+//        expression: KtCallableReferenceExpression,
+//        data: IncrementalExceptionCheckerState?
+//    ): Void? {
+//        return super.visitCallableReferenceExpression(expression, data)
+//    }
 
 
     override fun visitLambdaExpression(
