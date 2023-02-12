@@ -10,6 +10,7 @@ import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.base.bll.psiWrapper.function.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
+import csense.idea.base.visitors.*
 //import csense.idea.kotlin.checked.exceptions.annotator.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.bll.callthough.*
@@ -49,13 +50,13 @@ class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
             project = project
         )
         return NamedFunctionOrDelegationVisitor(
-            onFunctionNamed = {
+            onFunctionNamed = { it: KtNamedFunction ->
                 it.accept(
                     /* visitor = */ visitor,
                     /* data = */ IncrementalExceptionCheckerState.empty
                 )
             },
-            onPropertyDelegate = {
+            onPropertyDelegate = { it: KtPropertyDelegate ->
                 it.accept(
                     /* visitor = */ visitor,
                     /* data = */ IncrementalExceptionCheckerState.empty
@@ -75,7 +76,7 @@ class IncrementalExceptionCheckerVisitor(
         state: IncrementalExceptionCheckerState?
     ): Void? {
         val captures: List<KtPsiClass> = expression.catchClauses.mapNotNull {
-            it.catchParameter?.resolveToExceptionType()
+            it.catchParameter?.resolveFirstClassType2()
         }.filterRuntimeExceptionsBySettings()
 
         val newState: IncrementalExceptionCheckerState = createNewStateFrom(
@@ -107,8 +108,10 @@ class IncrementalExceptionCheckerVisitor(
         state: IncrementalExceptionCheckerState?
     ): Void? {
         val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
-        val potentialExceptions: List<KtPsiClass> =
-            expression.resolveMainReferenceAsFunction()?.throwsTypesForSettings().orEmpty()
+        val potentialExceptions: List<KtPsiClass> = expression
+            .resolveMainReferenceAsFunction()
+            ?.throwsTypesForSettings()
+            .orEmpty()
 
 
         val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterNonRelated(to = currentState.captures)
@@ -245,10 +248,6 @@ class IncrementalExceptionCheckerVisitor(
         return resultHtml
     }
 
-    private fun KtPsiFunction.throwsTypesForSettings(): List<KtPsiClass> {
-        return throwsTypesOrBuiltIn(project).filterRuntimeExceptionsBySettings()
-    }
-
     private fun createNewStateFrom(
         previousState: IncrementalExceptionCheckerState?,
         newCaptures: List<KtPsiClass> = listOf(),
@@ -279,30 +278,3 @@ data class IncrementalExceptionCheckerState(
     }
 }
 
-fun KtCallableDeclaration.resolveToExceptionType(): KtPsiClass? =
-    this.resolveFirstClassType2()
-
-fun List<KtPsiClass>.filterRuntimeExceptionsBySettings(): List<KtPsiClass> {
-    if (!Settings.ignoreRuntimeExceptions) {
-        return this
-    }
-    return filterNot { it: KtPsiClass ->
-        it.isSubtypeOfRuntimeException()
-    }
-}
-
-
-class NamedFunctionOrDelegationVisitor(
-    private val onFunctionNamed: (KtNamedFunction) -> Unit,
-    private val onPropertyDelegate: (KtPropertyDelegate) -> Unit
-) : KtVisitorVoid() {
-    override fun visitNamedFunction(function: KtNamedFunction) {
-        super.visitNamedFunction(function)
-        onFunctionNamed(function)
-    }
-
-    override fun visitPropertyDelegate(delegate: KtPropertyDelegate) {
-        super.visitPropertyDelegate(delegate)
-        onPropertyDelegate(delegate)
-    }
-}

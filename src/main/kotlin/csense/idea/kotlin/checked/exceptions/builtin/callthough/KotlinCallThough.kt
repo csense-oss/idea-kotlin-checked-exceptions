@@ -1,6 +1,7 @@
 package csense.idea.kotlin.checked.exceptions.builtin.callthough
 
 import csense.idea.base.bll.kotlin.*
+import csense.idea.base.bll.psiWrapper.function.operations.*
 import org.jetbrains.kotlin.psi.*
 
 object KotlinCallThough {
