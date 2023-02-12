@@ -11,3 +11,4 @@
 - add interface handling from csense annotations. (regarding call-though & catches annotations)
 - redo the settings page
 - streamline colors for markers etc.
+- re-introduce quick fixes... and add new ones for the various cases.

@@ -15,6 +15,7 @@ import csense.idea.base.visitors.*
 //import csense.idea.kotlin.checked.exceptions.annotator.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.bll.callthough.*
+import csense.idea.kotlin.checked.exceptions.bll.ignore.*
 import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
 import csense.idea.kotlin.checked.exceptions.builtin.operations.*
 //import csense.idea.kotlin.checked.exceptions.callthough.*
@@ -228,10 +229,8 @@ class IncrementalExceptionCheckerVisitor(
     private fun isLambdaInIgnoreExceptions(
         lambda: KtLambdaExpression
     ): Boolean {
-        val lambdaFqTypeName: String = lambda.resolveParameterFunction()?.fqName ?: ""
-
-        //TODO()
-        return false
+        val repo = IgnoreRepo(project)
+        return repo.isLambdaIgnoreExceptions(lambda)
     }
 
     private fun isLambdaCallThough(
@@ -245,10 +244,7 @@ class IncrementalExceptionCheckerVisitor(
             return true
         }
         val repo = CallThoughRepo(project)
-        if (repo.isLambdaCallThough(lambda)) {
-            return true
-        }
-        return false
+        return repo.isLambdaCallThough(lambda)
     }
 
     private fun List<KtPsiClass>.notCaughtExceptionMessage(): String {
