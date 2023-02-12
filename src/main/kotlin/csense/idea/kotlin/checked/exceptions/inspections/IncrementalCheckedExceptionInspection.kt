@@ -114,7 +114,8 @@ class IncrementalExceptionCheckerVisitor(
             .throwsTypesForSettingsOrEmpty()
 
 
-        val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
+        val nonCaughtExceptions: List<KtPsiClass> =
+            potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
         if (nonCaughtExceptions.isNotEmpty()) {
             holder.registerProblem(
                 /* psiElement = */ expression,
@@ -153,7 +154,8 @@ class IncrementalExceptionCheckerVisitor(
             it?.resolve()?.toKtPsiFunction()
         }.throwsTypesForSettingsOrEmpty()
 
-        val nonCaughtExceptions: List<KtPsiClass> = potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
+        val nonCaughtExceptions: List<KtPsiClass> =
+            potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
         if (nonCaughtExceptions.isNotEmpty()) {
             holder.registerProblem(
                 /* psiElement = */ delegate,
@@ -166,14 +168,26 @@ class IncrementalExceptionCheckerVisitor(
         )
     }
 
-    //TODO hmm? calling / accessing a getter etc on a property?
-//    override fun visitCallableReferenceExpression(
-//        expression: KtCallableReferenceExpression,
-//        data: IncrementalExceptionCheckerState?
-//    ): Void? {
-//        return super.visitCallableReferenceExpression(expression, data)
-//    }
+    override fun visitSimpleNameExpression(
+        expression: KtSimpleNameExpression,
+        data: IncrementalExceptionCheckerState?
+    ): Void? {
+        val currentState: IncrementalExceptionCheckerState = createNewStateFrom(previousState = data)
 
+        val prop: KtProperty = expression.resolveAsKtProperty()
+            ?: return super.visitSimpleNameExpression(expression, data)
+
+        val declaredThrows: List<KtPsiClass> = prop.throwsTypesWithGetter()
+        val nonCaughtExceptions = declaredThrows.filterUnrelatedExceptions(to = currentState.captures)
+        if (nonCaughtExceptions.isNotEmpty()) {
+            holder.registerProblem(
+                /* psiElement = */ expression,
+                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage()
+            )
+        }
+
+        return super.visitSimpleNameExpression(expression, data)
+    }
 
     override fun visitLambdaExpression(
         expression: KtLambdaExpression,
@@ -277,4 +291,6 @@ data class IncrementalExceptionCheckerState(
         )
     }
 }
+
+
 

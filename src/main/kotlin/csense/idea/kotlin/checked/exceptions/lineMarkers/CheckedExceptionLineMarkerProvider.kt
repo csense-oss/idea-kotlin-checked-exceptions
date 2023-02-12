@@ -7,6 +7,7 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
 import com.intellij.psi.tree.*
 import csense.idea.base.bll.ast.*
+import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.linemarkers.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
@@ -35,29 +36,63 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
         if (element.elementType.isNotKtIdentifier()) {
             return
         }
-        element.parent.invokeIsInstance { call: KtCallExpression ->
-            onCollectNavigationMarkersFor(typedElement = call, leafPsiElement = element, result = result)
+        tryParentsAsCallExpression(element, result)
+        tryParentsAsPropertyNamedExpression(element, result)
+    }
+
+    private fun tryParentsAsPropertyNamedExpression(
+        leaf: LeafPsiElement,
+        result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
+    ) {
+        leaf.parent.invokeIsInstance { call: KtSimpleNameExpression ->
+            onNameExpression(element = call, leafPsiElement = leaf, result = result)
         }
-        element.parent.parent.invokeIsInstance { call: KtCallExpression ->
-            onCollectNavigationMarkersFor(typedElement = call, leafPsiElement = element, result = result)
+        leaf.parent.parent.invokeIsInstance { call: KtSimpleNameExpression ->
+            onNameExpression(element = call, leafPsiElement = leaf, result = result)
         }
     }
 
-    fun onCollectNavigationMarkersFor(
-        typedElement: KtCallExpression,
+    private fun onNameExpression(
+        element: KtSimpleNameExpression,
         leafPsiElement: LeafPsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
-        val throwsTypes: List<KtPsiClass> = typedElement.resolveMainReferenceAsFunction()
-            ?.throwsTypesForSettings()
-            ?: return
+        val resolvedAsKtProperty: KtProperty = element.resolveAsKtProperty() ?: return
+        val throwsNonEmpty: List<KtPsiClass> = resolvedAsKtProperty.throwsTypesWithGetter().nullOnEmpty() ?: return
 
-        if (throwsTypes.isEmpty()) {
-            return
-        }
         result += createGutter(
             leafPsiElement = leafPsiElement,
-            typesOfExceptions = throwsTypes
+            typesOfExceptions = throwsNonEmpty
+        )
+    }
+
+    private fun tryParentsAsCallExpression(
+        leaf: LeafPsiElement,
+        result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
+    ) {
+        leaf.parent.invokeIsInstance { call: KtCallExpression ->
+            onCallExpression(element = call, leafPsiElement = leaf, result = result)
+        }
+        leaf.parent.parent.invokeIsInstance { call: KtCallExpression ->
+            onCallExpression(element = call, leafPsiElement = leaf, result = result)
+        }
+
+    }
+
+
+    private fun onCallExpression(
+        element: KtCallExpression,
+        leafPsiElement: LeafPsiElement,
+        result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
+    ) {
+        val throwsNonEmpty: List<KtPsiClass> = element.resolveMainReferenceAsFunction()
+            ?.throwsTypesForSettings()
+            .nullOnEmpty()
+            ?: return
+
+        result += createGutter(
+            leafPsiElement = leafPsiElement,
+            typesOfExceptions = throwsNonEmpty
         )
     }
 
@@ -72,7 +107,7 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
         )
 
         @Language("html")
-        val htmlToolTip = "<html>This expression is declared to throw the following type(s): <b>$typesString</b></html>"
+        val htmlToolTip = "<html>This expression is declared to throw <b>$typesString</b></html>"
         return NavigationGutterIconBuilder
             .create(exceptionIcon)
             .setTargets(leafPsiElement)
