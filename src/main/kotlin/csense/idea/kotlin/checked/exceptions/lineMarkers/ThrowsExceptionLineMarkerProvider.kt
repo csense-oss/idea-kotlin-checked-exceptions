@@ -31,7 +31,7 @@ class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvi
         val thrownType: KtPsiClass = typedElement.resolveThrownTypeOrNull() ?: return
         val gutter: RelatedItemLineMarkerInfo<PsiElement> = createGutter(
             forElement = leafPsiElement,
-            type = thrownType.fqName ?: "",
+            type = thrownType.getFqNameTypeAliased() ?: "",
             isRuntimeException = thrownType.isSubtypeOfRuntimeException()
         )
         if (result.doesNotContain(gutter)) {

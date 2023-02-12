@@ -236,7 +236,7 @@ class IncrementalExceptionCheckerVisitor(
             prefix = typePrefix,
             postfix = "</b>",
             transform = { ktPsiClass: KtPsiClass ->
-                ktPsiClass.fqName.orEmpty()
+                ktPsiClass.getFqNameTypeAliased().orEmpty()
             }
         )
 

@@ -7,6 +7,7 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
 import csense.idea.base.bll.linemarkers.*
 import csense.idea.base.bll.psiWrapper.`class`.*
+import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
 import csense.idea.kotlin.checked.exceptions.builtin.operations.*
 import csense.idea.kotlin.checked.exceptions.inspections.*
@@ -68,7 +69,7 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
             prefix = "<i>",
             postfix = "</i>",
             transform = { ktPsiClass: KtPsiClass ->
-                ktPsiClass.fqName.orEmpty()
+                ktPsiClass.getFqNameTypeAliased().orEmpty()
             }
         )
 
