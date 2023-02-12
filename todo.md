@@ -1,10 +1,19 @@
-# Overall plan
+# Overall todo's:
 
-- improve performance (always a top priority)
+- Improve stability (bug fixes & wrong / false positive etc.)
+- Improve performance (always a top priority)
 
-- handle "by lazy"
+## Should keep the type-alias when displaying exceptions
+
+as of now the way the type hierarchies are resolved, any type-alias are resolved as well.
+This makes the code easier to work with, but means the user will see the resolved name instead.
+
+
+## throwing properties (function, eg lazy):
 
 ```kotlin
+
+@get:Throws
 val x: String by lazy {
     throw Exception()
 }
@@ -14,3 +23,4 @@ fun useX() {
     val newString = x + "test"
 }
 ```
+

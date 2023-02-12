@@ -306,4 +306,3 @@ class NamedFunctionOrDelegationVisitor(
         onPropertyDelegate(delegate)
     }
 }
-
