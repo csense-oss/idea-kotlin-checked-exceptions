@@ -230,17 +230,9 @@ class IncrementalExceptionCheckerVisitor(
     }
 
     private fun List<KtPsiClass>.notCaughtExceptionMessage(): String {
-        @Language("html")
-        val typePrefix = "<b style='color:$typeCssColor'>"
-
-        @Language("html")
-        val typesHtml: String = this.joinToString(
-            separator = "</b>, $typePrefix",
-            prefix = typePrefix,
-            postfix = "</b>",
-            transform = { ktPsiClass: KtPsiClass ->
-                ktPsiClass.getFqNameTypeAliased().orEmpty()
-            }
+        val typesHtml: String = coloredString(
+            cssColor = typeCssColor,
+            tagType = "b"
         )
 
         @Language("html")
