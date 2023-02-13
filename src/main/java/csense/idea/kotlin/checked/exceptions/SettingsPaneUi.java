@@ -17,8 +17,6 @@ public class SettingsPaneUi {
     @NotNull
     public JPanel root;
     @NotNull
-    public JSpinner maxDepthSpinner;
-    @NotNull
     private JComboBox<String> nothingSeverity;
     @NotNull
     private JCheckBox highlightGutterThrowsFunctionsCheckbox;
@@ -73,11 +71,6 @@ public class SettingsPaneUi {
 
 
     public void store() {
-        try {
-            maxDepthSpinner.commitEdit();
-        } catch (java.text.ParseException e) {
-            //... so bad.
-        }
         Settings.INSTANCE.setShouldHighlightCheckedExceptions(highlightGutterCheckBox.isSelected());
         Settings.INSTANCE.setShouldHighlightThrowsExceptions(highlightGutterThrowsFunctionsCheckbox.isSelected());
         Settings.INSTANCE.setUseIgnoreFile(ignoreThrowsCheckbox.isSelected());
