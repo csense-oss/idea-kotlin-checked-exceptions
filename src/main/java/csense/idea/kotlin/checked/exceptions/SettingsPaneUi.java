@@ -78,9 +78,7 @@ public class SettingsPaneUi {
         } catch (java.text.ParseException e) {
             //... so bad.
         }
-        int maxDepthValue = (Integer) maxDepthSpinner.getValue();
         Settings.INSTANCE.setShouldHighlightCheckedExceptions(highlightGutterCheckBox.isSelected());
-        Settings.INSTANCE.setMaxDepth(maxDepthValue);
         Settings.INSTANCE.setShouldHighlightThrowsExceptions(highlightGutterThrowsFunctionsCheckbox.isSelected());
         Settings.INSTANCE.setUseIgnoreFile(ignoreThrowsCheckbox.isSelected());
         Settings.INSTANCE.setUseCallThoughFile(callthoughCheckbox.isSelected());
