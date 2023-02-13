@@ -101,7 +101,7 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
         typesOfExceptions: List<KtPsiClass>
     ): RelatedItemLineMarkerInfo<PsiElement> {
 
-        val typesString: String = typesOfExceptions.coloredString(
+        val typesString: String = typesOfExceptions.coloredFqNameString(
             cssColor = IconThemeColor,
             tagType = "i"
         )

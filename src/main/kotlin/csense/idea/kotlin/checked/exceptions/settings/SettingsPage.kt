@@ -1,7 +1,7 @@
 package csense.idea.kotlin.checked.exceptions.settings
 
 import com.intellij.openapi.options.*
-import csense.idea.base.bll.*
+import csense.idea.base.bll.linemarkers.*
 import csense.idea.kotlin.checked.exceptions.*
 import csense.kotlin.extensions.*
 import javax.swing.*

@@ -10,6 +10,7 @@ import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.linemarkers.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
+import csense.idea.base.bll.psiWrapper.`class`.operations.`is`.*
 import csense.kotlin.extensions.*
 import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*

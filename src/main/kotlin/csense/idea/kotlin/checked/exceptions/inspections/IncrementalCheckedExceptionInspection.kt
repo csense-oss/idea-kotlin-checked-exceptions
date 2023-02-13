@@ -9,6 +9,7 @@ import csense.idea.base.bll.kotlin.models.*
 import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
+import csense.idea.base.bll.psiWrapper.`class`.operations.filter.*
 import csense.idea.base.bll.psiWrapper.function.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
 import csense.idea.base.visitors.*
