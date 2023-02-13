@@ -2,7 +2,6 @@ package csense.idea.kotlin.checked.exceptions.bll.callthough
 
 
 import csense.idea.base.bll.psi.*
-import csense.idea.base.uastKtPsi.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*
 

@@ -2,7 +2,7 @@ package csense.idea.kotlin.checked.exceptions.bll
 
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
-import csense.idea.base.bll.psiWrapper.`class`.operations.*
+import csense.idea.base.bll.psiWrapper.`class`.operations.`is`.*
 import csense.idea.base.module.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import org.jetbrains.kotlin.psi.*

@@ -31,8 +31,9 @@ public class SettingsPaneUi {
     @NotNull
     private JCheckBox callthoughCheckbox;
     @NotNull
-    private JCheckBox runtimeAsCheckedExceptionCheckBox;
+    private JCheckBox ignoreRuntimeExceptionsCheckBox;
 
+    private boolean didChange = false;
 
     public SettingsPaneUi() {
         AbstractAction didChangeCallback = new AbstractAction() {
@@ -48,16 +49,13 @@ public class SettingsPaneUi {
         highlightGutterCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightCheckedExceptions());
         highlightGutterCheckBox.setAction(didChangeCallback);
 
-        maxDepthSpinner.addChangeListener(e -> setDidChange(true));
-        maxDepthSpinner.setModel(new SpinnerNumberModel(Settings.INSTANCE.getMaxDepth(), 1, 100, 1));
-
         ignoreThrowsCheckbox.setSelected(Settings.INSTANCE.getUseIgnoreFile());
         ignoreThrowsCheckbox.setAction(didChangeCallback);
         callthoughCheckbox.setSelected(Settings.INSTANCE.getUseCallThoughFile());
         callthoughCheckbox.setAction(didChangeCallback);
 
-        runtimeAsCheckedExceptionCheckBox.setSelected(!Settings.INSTANCE.getIgnoreRuntimeExceptions());
-        runtimeAsCheckedExceptionCheckBox.setAction(didChangeCallback);
+        ignoreRuntimeExceptionsCheckBox.setSelected(Settings.INSTANCE.getIgnoreRuntimeExceptions());
+        ignoreRuntimeExceptionsCheckBox.setAction(didChangeCallback);
 
         shouldHighlightThrowsInsideOfFunctionCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightThrowsInsideOfFunction());
         shouldHighlightThrowsInsideOfFunctionCheckBox.setAction(didChangeCallback);
@@ -73,7 +71,6 @@ public class SettingsPaneUi {
     }
 
 
-    private boolean didChange = false;
 
     public void store() {
         try {
@@ -87,7 +84,7 @@ public class SettingsPaneUi {
         Settings.INSTANCE.setShouldHighlightThrowsExceptions(highlightGutterThrowsFunctionsCheckbox.isSelected());
         Settings.INSTANCE.setUseIgnoreFile(ignoreThrowsCheckbox.isSelected());
         Settings.INSTANCE.setUseCallThoughFile(callthoughCheckbox.isSelected());
-        Settings.INSTANCE.setIgnoreRuntimeExceptions(!runtimeAsCheckedExceptionCheckBox.isSelected());
+        Settings.INSTANCE.setIgnoreRuntimeExceptions(ignoreRuntimeExceptionsCheckBox.isSelected());
         Settings.INSTANCE.setShouldHighlightThrowsInsideOfFunction(shouldHighlightThrowsInsideOfFunctionCheckBox.isSelected());
 
         final String value = (String) nothingSeverity.getSelectedItem();

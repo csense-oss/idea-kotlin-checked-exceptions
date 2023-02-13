@@ -24,22 +24,3 @@ class ProjectClassResolutionInterface(
         }
     }
 }
-
-//fun JavaPsiFacade.javaClass(
-//    classFqName: String,
-//    inProject: Project
-//): PsiClass? {
-//    val name: String = resolveKotlinClassNameToJava(classFqName)
-//    return findClass(
-//        /* qualifiedName = */ name,
-//        /* scope = */ GlobalSearchScope.allScope(inProject)
-//    )
-//}
-//
-////eg. see also ClassReference.kt etc.
-//@Suppress("UnusedReceiverParameter")
-//fun JavaPsiFacade.resolveKotlinClassNameToJava(kotlinFqName: String): String {
-//    return JavaToKotlinClassMap.mapKotlinToJava(
-//        FqNameUnsafe(kotlinFqName)
-//    )?.asSingleFqName()?.asString() ?: kotlinFqName
-//}
