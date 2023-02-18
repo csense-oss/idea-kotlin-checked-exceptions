@@ -18,6 +18,7 @@ import csense.idea.kotlin.checked.exceptions.bll.callthough.*
 import csense.idea.kotlin.checked.exceptions.bll.ignore.*
 import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
 import csense.idea.kotlin.checked.exceptions.builtin.operations.*
+import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.kotlin.extensions.*
 import csense.kotlin.extensions.collections.*
@@ -109,19 +110,16 @@ class IncrementalExceptionCheckerVisitor(
         state: IncrementalExceptionCheckerState?
     ): Void? {
         val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
-        val potentialExceptions: List<KtPsiClass> = expression
+        val thrownExceptions: List<KtPsiClass> = expression
             .resolveMainReferenceAsFunction()
             .throwsTypesForSettingsOrEmpty()
 
+        findIssuesAndReport(
+            expression = expression,
+            currentState = currentState,
+            potentialExceptions = thrownExceptions
+        )
 
-        val nonCaughtExceptions: List<KtPsiClass> =
-            potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
-        if (nonCaughtExceptions.isNotEmpty()) {
-            holder.registerProblem(
-                /* psiElement = */ expression,
-                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage()
-            )
-        }
         return super.visitCallExpression(expression, currentState)
     }
 
@@ -133,13 +131,9 @@ class IncrementalExceptionCheckerVisitor(
 
         val throws: KtPsiClass? = expression.resolveThrownTypeOrNull()
         val throwsList: List<KtPsiClass> = listOfNotNull(throws).filterRuntimeExceptionsBySettings()
-        val nonCaughtExceptions: List<KtPsiClass> = throwsList.filterUnrelatedExceptions(to = currentState.captures)
-        if (nonCaughtExceptions.isNotEmpty()) {
-            holder.registerProblem(
-                /* psiElement = */ expression,
-                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage()
-            )
-        }
+
+        findIssuesAndReport(expression = expression, currentState = currentState, potentialExceptions = throwsList)
+
         return super.visitThrowExpression(expression, currentState)
     }
 
@@ -150,22 +144,13 @@ class IncrementalExceptionCheckerVisitor(
     ): Void? {
         val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
 
-        val potentialExceptions: List<KtPsiClass> = delegate.references.firstNotNullOfOrNull { it: PsiReference? ->
+        val thrownExceptions: List<KtPsiClass> = delegate.references.firstNotNullOfOrNull { it: PsiReference? ->
             it?.resolve()?.toKtPsiFunction()
         }.throwsTypesForSettingsOrEmpty()
 
-        val nonCaughtExceptions: List<KtPsiClass> =
-            potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
-        if (nonCaughtExceptions.isNotEmpty()) {
-            holder.registerProblem(
-                /* psiElement = */ delegate,
-                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage()
-            )
-        }
-        return super.visitPropertyDelegate(
-            delegate,
-            currentState
-        )
+        findIssuesAndReport(expression = delegate, currentState = currentState, potentialExceptions = thrownExceptions)
+
+        return super.visitPropertyDelegate(delegate, currentState)
     }
 
     override fun visitSimpleNameExpression(
@@ -178,13 +163,8 @@ class IncrementalExceptionCheckerVisitor(
             ?: return super.visitSimpleNameExpression(expression, data)
 
         val declaredThrows: List<KtPsiClass> = prop.throwsTypesWithGetter()
-        val nonCaughtExceptions = declaredThrows.filterUnrelatedExceptions(to = currentState.captures)
-        if (nonCaughtExceptions.isNotEmpty()) {
-            holder.registerProblem(
-                /* psiElement = */ expression,
-                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage()
-            )
-        }
+
+        findIssuesAndReport(expression = expression, currentState = currentState, potentialExceptions = declaredThrows)
 
         return super.visitSimpleNameExpression(expression, data)
     }
@@ -211,6 +191,7 @@ class IncrementalExceptionCheckerVisitor(
         )
     }
 
+    //Todo move out?
     private fun computeLambdaCaptureTypes(
         lambda: KtLambdaExpression,
         currentCaptures: List<KtPsiClass>
@@ -224,7 +205,7 @@ class IncrementalExceptionCheckerVisitor(
         else -> emptyList()
     }
 
-
+    //Todo move out?
     private fun isLambdaInIgnoreExceptions(
         lambda: KtLambdaExpression
     ): Boolean {
@@ -232,6 +213,7 @@ class IncrementalExceptionCheckerVisitor(
         return repo.isLambdaIgnoreExceptions(lambda)
     }
 
+    //Todo move out?
     private fun isLambdaCallThough(
         lambda: KtLambdaExpression
     ): Boolean {
@@ -255,6 +237,25 @@ class IncrementalExceptionCheckerVisitor(
         @Language("html")
         val resultHtml = "<html>Uncaught exceptions $typesHtml</html>"
         return resultHtml
+    }
+
+    private fun <T : KtElement> findIssuesAndReport(
+        expression: T,
+        currentState: IncrementalExceptionCheckerState,
+        potentialExceptions: List<KtPsiClass>
+    ) {
+        val nonCaughtExceptions: List<KtPsiClass> =
+            potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
+        if (nonCaughtExceptions.isNotEmpty()) {
+            holder.registerProblem(
+                /* psiElement = */ expression,
+                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage(),
+                /* ...fixes = */ *expression.quickFixesFor(
+                    state = currentState,
+                    nonCaughtExceptions = nonCaughtExceptions
+                )
+            )
+        }
     }
 
     private fun createNewStateFrom(
@@ -286,6 +287,3 @@ data class IncrementalExceptionCheckerState(
         )
     }
 }
-
-
-

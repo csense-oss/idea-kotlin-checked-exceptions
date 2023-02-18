@@ -4,7 +4,7 @@ plugins {
     //https://github.com/JetBrains/kotlin
     kotlin("jvm") version "1.8.10"
     //https://github.com/jeremylong/dependency-check-gradle/releases
-    id("org.owasp.dependencycheck") version "8.0.2"
+    id("org.owasp.dependencycheck") version "8.1.0"
 }
 
 group = "csense-idea"
