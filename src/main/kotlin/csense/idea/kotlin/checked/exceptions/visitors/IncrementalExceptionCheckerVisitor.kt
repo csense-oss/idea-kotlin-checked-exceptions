@@ -27,8 +27,7 @@ class IncrementalExceptionCheckerVisitor(
             it.catchParameter?.resolveFirstClassType2()
         }.filterRuntimeExceptionsBySettings()
 
-        val newState: IncrementalExceptionCheckerState = createNewStateFrom(
-            previousState = state,
+        val newState: IncrementalExceptionCheckerState = state.newStateByAppending(
             newCaptures = captures
         )
 
@@ -42,8 +41,7 @@ class IncrementalExceptionCheckerVisitor(
     ): Void? {
         val throwsTypes: List<KtPsiClass> = function.toKtPsiFunction().throwsTypesForSettingsOrEmpty()
 
-        val newState: IncrementalExceptionCheckerState = createNewStateFrom(
-            previousState = state,
+        val newState: IncrementalExceptionCheckerState = state.newStateByAppending(
             newCaptures = throwsTypes,
             newThrows = throwsTypes
         )
@@ -55,7 +53,7 @@ class IncrementalExceptionCheckerVisitor(
         expression: KtCallExpression,
         state: IncrementalExceptionCheckerState?
     ): Void? {
-        val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
+        val currentState: IncrementalExceptionCheckerState = state.newStateByAppending()
         val thrownExceptions: List<KtPsiClass> = expression
             .resolveMainReferenceAsFunction()
             .throwsTypesForSettingsOrEmpty()
@@ -73,7 +71,7 @@ class IncrementalExceptionCheckerVisitor(
         expression: KtThrowExpression,
         state: IncrementalExceptionCheckerState?
     ): Void? {
-        val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
+        val currentState: IncrementalExceptionCheckerState = state.newStateByAppending()
 
         val throws: KtPsiClass? = expression.resolveThrownTypeOrNull()
         val throwsList: List<KtPsiClass> = listOfNotNull(throws).filterRuntimeExceptionsBySettings()
@@ -88,7 +86,7 @@ class IncrementalExceptionCheckerVisitor(
         delegate: KtPropertyDelegate,
         state: IncrementalExceptionCheckerState?
     ): Void? {
-        val currentState: IncrementalExceptionCheckerState = createNewStateFrom(state)
+        val currentState: IncrementalExceptionCheckerState = state.newStateByAppending()
 
         val thrownExceptions: List<KtPsiClass> = delegate.references.firstNotNullOfOrNull { it: PsiReference? ->
             it?.resolve()?.toKtPsiFunction()
@@ -101,18 +99,18 @@ class IncrementalExceptionCheckerVisitor(
 
     override fun visitSimpleNameExpression(
         expression: KtSimpleNameExpression,
-        data: IncrementalExceptionCheckerState?
+        state: IncrementalExceptionCheckerState?
     ): Void? {
-        val currentState: IncrementalExceptionCheckerState = createNewStateFrom(previousState = data)
+        val currentState: IncrementalExceptionCheckerState = state.newStateByAppending()
 
         val prop: KtProperty = expression.resolveAsKtProperty()
-            ?: return super.visitSimpleNameExpression(expression, data)
+            ?: return super.visitSimpleNameExpression(expression, state)
 
         val declaredThrows: List<KtPsiClass> = prop.throwsTypesWithGetter()
 
         findIssuesAndReport(expression = expression, currentState = currentState, potentialExceptions = declaredThrows)
 
-        return super.visitSimpleNameExpression(expression, data)
+        return super.visitSimpleNameExpression(expression, state)
     }
 
     override fun visitLambdaExpression(
@@ -127,7 +125,7 @@ class IncrementalExceptionCheckerVisitor(
         val updatedState = IncrementalExceptionCheckerState(
             captures = lambdaCaptures,
             throwsTypes = state?.throwsTypes.orEmpty(),
-            lastLambda = expression
+            containingLambdas = state?.containingLambdas.orEmpty() + expression
         )
 
         return super.visitLambdaExpression(expression, updatedState)
@@ -151,32 +149,45 @@ class IncrementalExceptionCheckerVisitor(
         currentState: IncrementalExceptionCheckerState,
         potentialExceptions: List<KtPsiClass>
     ) {
-        val nonCaughtExceptions: List<KtPsiClass> =
+        val uncaughtExceptions: List<KtPsiClass> =
             potentialExceptions.filterUnrelatedExceptions(to = currentState.captures)
-        if (nonCaughtExceptions.isNotEmpty()) {
+        if (uncaughtExceptions.isNotEmpty()) {
             holder.registerProblem(
                 /* psiElement = */ expression,
-                /* descriptionTemplate = */ nonCaughtExceptions.notCaughtExceptionMessage(),
+                /* descriptionTemplate = */ uncaughtExceptions.notCaughtExceptionMessage(),
                 /* ...fixes = */ *expression.quickFixesFor(
-                    state = currentState,
-                    nonCaughtExceptions = nonCaughtExceptions
+                    uncaughtExceptions = uncaughtExceptions,
+                    state = currentState
                 )
             )
         }
     }
 
-    private fun createNewStateFrom(
-        previousState: IncrementalExceptionCheckerState?,
+    private fun IncrementalExceptionCheckerState?.newStateByAppending(
         newCaptures: List<KtPsiClass> = listOf(),
-        newThrows: List<KtPsiClass> = listOf(),
-        newLambda: KtLambdaExpression? = null
+        newThrows: List<KtPsiClass> = listOf()
     ): IncrementalExceptionCheckerState = IncrementalExceptionCheckerState(
-        captures = previousState?.captures.orEmpty() + newCaptures,
-        throwsTypes = previousState?.throwsTypes.orEmpty() + newThrows,
-        lastLambda = newLambda ?: previousState?.lastLambda
+        captures = this?.captures.orEmpty() + newCaptures,
+        throwsTypes = this?.throwsTypes.orEmpty() + newThrows,
+        containingLambdas = this?.containingLambdas.orEmpty()
     )
 
     companion object {
         const val typeCssColor: String = "#ff6b2b"
+    }
+}
+
+
+data class IncrementalExceptionCheckerState(
+    val captures: List<KtPsiClass>,
+    val throwsTypes: List<KtPsiClass>,
+    val containingLambdas: List<KtLambdaExpression>
+) {
+    companion object {
+        val empty = IncrementalExceptionCheckerState(
+            captures = emptyList(),
+            throwsTypes = emptyList(),
+            containingLambdas = emptyList()
+        )
     }
 }

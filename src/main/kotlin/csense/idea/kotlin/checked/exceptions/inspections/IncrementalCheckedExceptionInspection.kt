@@ -1,7 +1,6 @@
 package csense.idea.kotlin.checked.exceptions.inspections
 
 import com.intellij.codeInspection.*
-import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.visitors.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
@@ -42,20 +41,6 @@ class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
                     /* data = */ IncrementalExceptionCheckerState.empty
                 )
             }
-        )
-    }
-}
-
-data class IncrementalExceptionCheckerState(
-    val captures: List<KtPsiClass>,
-    val throwsTypes: List<KtPsiClass>,
-    val lastLambda: KtLambdaExpression?
-) {
-    companion object {
-        val empty = IncrementalExceptionCheckerState(
-            captures = emptyList(),
-            throwsTypes = emptyList(),
-            lastLambda = null
         )
     }
 }
