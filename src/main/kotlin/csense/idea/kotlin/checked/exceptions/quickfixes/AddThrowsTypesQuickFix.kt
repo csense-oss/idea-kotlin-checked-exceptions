@@ -3,6 +3,7 @@ package csense.idea.kotlin.checked.exceptions.quickfixes
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import csense.idea.base.bll.kotlin.*
+import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.base.bll.quickfixes.*
@@ -44,10 +45,7 @@ class AddThrowsTypesQuickFix(
         project: Project
     ): KtAnnotationEntry {
         val newAnnotation: KtAnnotationEntry = createNewThrowsAnnotation(project = project)
-        element.addBefore(
-            /* element = */ newAnnotation,
-            /* anchor = */ element.firstChild
-        )
+        element.addFirst(newAnnotation)
         return newAnnotation
     }
 
@@ -60,10 +58,9 @@ class AddThrowsTypesQuickFix(
 
     private fun createNewThrowsAnnotation(
         project: Project
-    ): KtAnnotationEntry {
-        return KtPsiFactory(
-            project = project,
-            markGenerated = false
-        ).createAnnotationEntry("@Throws")
-    }
+    ): KtAnnotationEntry = KtPsiFactory(
+        project = project,
+        markGenerated = false
+    ).createAnnotationEntry("@Throws")
 }
+

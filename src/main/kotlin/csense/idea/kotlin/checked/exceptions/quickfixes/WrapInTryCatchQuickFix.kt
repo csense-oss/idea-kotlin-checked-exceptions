@@ -15,12 +15,12 @@ class WrapInTryCatchQuickFix(
     namedFunction
 ) {
 
-    override fun tryUpdate(project: Project, file: PsiFile, element: KtCallExpression): PsiElement? {
-        val top: Pair<KtBlockExpression, PsiElement> = startElement.findParentAndBeforeFromType() ?: return null
+    override fun tryUpdate(project: Project, file: PsiFile, element: KtCallExpression) {
+        val top: Pair<KtBlockExpression, PsiElement> = startElement.findParentAndBeforeFromType() ?: return
         val elementToUse: PsiElement = top.second
 
         val newElement: KtTryExpression = createTryCatchWithElement(elementToUse, throwType)
-        return elementToUse.replace(newElement)
+        elementToUse.replace(newElement)
     }
 
 
