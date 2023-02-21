@@ -16,22 +16,23 @@ import org.jetbrains.kotlin.idea.core.*
 import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
-
+//TODO SHORTEN NAMES!??!?!? IMPORTS!!??!?! :(((((((((((((((((((((
 //TODO make better base class? hmmmmmmmmmmm
 class AddThrowsTypesQuickFix(
     toExpression: KtAnnotated,
     private val missingThrowsTypes: List<KtPsiClass>
 ) : LocalQuickFixUpdateCode<KtAnnotated>(toExpression) {
 
-    //TODO SHORTEN NAMES!??!?!? IMPORTS!!??!?! :(((((((((((((((((((((
-
+    private val throwsTypesListHtml: String = missingThrowsTypes.coloredFqNameString(
+        cssColor = IncrementalExceptionCheckerVisitor.typeCssColor
+    )
 
     override fun getFamilyName(): String =
-        Constants.groupName
+        Constants.groupName + " - " + "add throws type to parent scope"
 
-    override fun getText(): String {
-        return "Add missing throws type(s) to parent scope"
-    }
+
+    override fun getText(): String =
+        "<html>Add missing $throwsTypesListHtml thrown type to parent scope</html>"
 
     override fun tryUpdate(
         project: Project,
@@ -74,14 +75,12 @@ class AddThrowsTypesQuickFix(
         return KtPsiFactory(
             project = project,
             markGenerated = false
-        ).createAnnotationEntry(
-            "@Throws($throwsTypesCode)"
-        )
+        ).createAnnotationEntry("@Throws($throwsTypesCode)")
     }
 
 
 }
-
+//TODO base module ->
 
 abstract class LocalQuickFixUpdateCode<T : KtElement>(
     element: T
