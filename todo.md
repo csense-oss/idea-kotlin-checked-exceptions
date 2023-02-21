@@ -4,7 +4,9 @@
 - Improve performance (always a top priority)
 
 ## Specifics
-
+- tell if certain exceptions are NOT thrown but declared.
+- actions to fix types thrown (e.g. make it throwable, or write the explicit types..)
+- 
 - handle "*arrayOf(exception::class, exception2::class)" ....
 - Handle property setters... (and not just use the getter..)
 - re-introduce custom ignore & call-though
@@ -13,3 +15,4 @@
 - streamline colors for markers etc.
 - re-introduce quick fixes... and add new ones for the various cases.
 - cleanup the integration tests
+- 

@@ -1,19 +1,13 @@
 package csense.idea.kotlin.checked.exceptions.quickfixes
 
-import com.intellij.codeInspection.*
-import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
-import com.intellij.psi.codeStyle.*
 import csense.idea.base.bll.kotlin.*
-import csense.idea.base.bll.linemarkers.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
-import csense.idea.base.bll.psiWrapper.function.operations.*
+import csense.idea.base.bll.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
-import org.jetbrains.kotlin.idea.core.*
-import org.jetbrains.kotlin.idea.util.application.*
 import org.jetbrains.kotlin.psi.*
 
 //TODO SHORTEN NAMES!??!?!? IMPORTS!!??!?! :(((((((((((((((((((((
@@ -26,6 +20,13 @@ class AddThrowsTypesQuickFix(
     private val throwsTypesListHtml: String = missingThrowsTypes.coloredFqNameString(
         cssColor = IncrementalExceptionCheckerVisitor.typeCssColor
     )
+
+    private val missingThrowsFqNamesRef: String by lazy {
+        missingThrowsTypes.joinToString(separator = ",") { it: KtPsiClass ->
+            it.fqNameRef()
+        }
+    }
+
 
     override fun getFamilyName(): String =
         Constants.groupName + " - " + "add throws type to parent scope"
@@ -42,33 +43,30 @@ class AddThrowsTypesQuickFix(
         val throwsAnnotation: KtAnnotationEntry? = element.throwsAnnotationOrNull()
         return when (throwsAnnotation) {
             null -> addThrowsAnnotationTo(element = element, project = project)
-            else -> addThrowsTypesTo(throwsAnnotation = throwsAnnotation, project = project)
+            else -> addThrowsTypesTo(throwsAnnotation = throwsAnnotation)
         }
     }
 
     private fun addThrowsTypesTo(
         throwsAnnotation: KtAnnotationEntry,
-        project: Project
-    ): PsiElement? {
-        val updatedAnnotation: KtAnnotationEntry = createAnnotationCode(throwsTypesCode = "", project = project)
-        return throwsAnnotation.replace(updatedAnnotation)
+    ): PsiElement {
+        throwsAnnotation.valueArgumentList?.addTypeRefs(missingThrowsTypes)
+        return throwsAnnotation
     }
 
     private fun addThrowsAnnotationTo(
         element: KtAnnotated,
         project: Project
     ): PsiElement? {
-        val typeNames: String = missingThrowsTypes.joinToString(separator = ",") { it: KtPsiClass ->
-            it.fqName + "::class"
-        }
-        val newAnnotation: KtAnnotationEntry = createAnnotationCode(throwsTypesCode = typeNames, project = project)
+        val newAnnotation: KtAnnotationEntry =
+            createThrowsAnnotationCode(throwsTypesCode = missingThrowsFqNamesRef, project = project)
         return element.addBefore(
             /* element = */ newAnnotation,
             /* anchor = */ element.firstChild
         )
     }
 
-    private fun createAnnotationCode(
+    private fun createThrowsAnnotationCode(
         throwsTypesCode: String,
         project: Project
     ): KtAnnotationEntry {
@@ -77,52 +75,4 @@ class AddThrowsTypesQuickFix(
             markGenerated = false
         ).createAnnotationEntry("@Throws($throwsTypesCode)")
     }
-
-
 }
-//TODO base module ->
-
-abstract class LocalQuickFixUpdateCode<T : KtElement>(
-    element: T
-) : LocalQuickFixOnSingleKtElement<T>(element) {
-
-    final override fun invoke(project: Project, file: PsiFile, element: T) {
-        if (!element.isWritable) {
-            return
-        }
-        val updatedElement: PsiElement = project.executeWriteCommand(
-            name = this::class.simpleName ?: name,
-            groupId = familyName
-        ) {
-            tryUpdate(
-                project = project,
-                file = file,
-                element = element
-            )
-        } ?: return
-        reformat(project = project, element = updatedElement)
-    }
-
-    abstract fun tryUpdate(project: Project, file: PsiFile, element: T): PsiElement?
-
-    fun reformat(project: Project, element: PsiElement): PsiElement {
-        val styleManager: CodeStyleManager = CodeStyleManager.getInstance(project)
-        return styleManager.reformat(/* element = */ element)
-    }
-
-}
-
-abstract class LocalQuickFixOnSingleKtElement<T : KtElement>(
-    element: T
-) : LocalQuickFixOnPsiElement(element) {
-
-    @Suppress("UNCHECKED_CAST")
-    final override fun invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement) {
-        val elementToUse: T = startElement as? T ?: return
-        invoke(project = project, file = file, element = elementToUse)
-    }
-
-    abstract fun invoke(project: Project, file: PsiFile, element: T)
-
-}
-
