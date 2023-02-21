@@ -39,7 +39,7 @@ class WrapInTryCatchQuickFix(
 
     private fun createCode(oldCode: String): String {
         val catches: String = uncaughtExceptions.joinToString(separator = "\n", transform = { it: KtPsiClass ->
-            it.catchParameter()
+            it.catchParameterCode()
         })
 
         @Language("kotlin")
@@ -47,16 +47,6 @@ class WrapInTryCatchQuickFix(
             try {
                 $oldCode
             }$catches
-        """.trimIndent()
-        return result
-    }
-
-    private fun KtPsiClass.catchParameter(): String {
-        @Language("kotlin")
-        val result = """
-            catch(exception: $fqName){
-                TODO("Add error handling here")
-            }
         """.trimIndent()
         return result
     }
@@ -69,4 +59,14 @@ class WrapInTryCatchQuickFix(
     override fun getText(): String {
         return "<html>wrap in try catch for $typeListHtml exception(s)</html>"
     }
+}
+
+fun KtPsiClass.catchParameterCode(): String {
+    @Language("kotlin")
+    val result = """
+            catch(exception: $fqName){
+                TODO("Add error handling here")
+            }
+        """.trimIndent()
+    return result
 }

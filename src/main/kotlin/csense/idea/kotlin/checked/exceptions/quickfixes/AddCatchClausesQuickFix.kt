@@ -2,6 +2,7 @@ package csense.idea.kotlin.checked.exceptions.quickfixes
 
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
+import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.base.bll.quickfixes.*
@@ -19,18 +20,21 @@ class AddCatchClausesQuickFix(
         )
     }
 
-
     override fun getFamilyName(): String {
-        return "Csense kotlin checked exceptions- wrap in try catch quick fix"
+        return "Csense kotlin checked exceptions- add catch(es) quick fix"
     }
 
     override fun getText(): String {
-        return "<html>wrap in try catch for $typeListHtml exception(s)</html>"
+        return "<html>add catch(es) for $typeListHtml exception(s)</html>"
     }
 
     override fun tryUpdate(project: Project, file: PsiFile, element: KtTryExpression): PsiElement? {
-
+        uncaughtExceptions.forEach { it: KtPsiClass ->
+            val catchClause: KtCatchClause = factory.createCatchClause(
+                catchExpression = "exception: ${it.fqName}"
+            ) ?: return@forEach
+            element.addCatchClauseLast(catchClause)
+        }
         return null
     }
-
 }

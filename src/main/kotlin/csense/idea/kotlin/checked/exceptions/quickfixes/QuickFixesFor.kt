@@ -56,11 +56,11 @@ fun KtCallExpression.quickFixesFor(
 
     val containingTry: KtTryExpression? = state.findContainingTryCatchOrNull(from = this)
 
-    if (containingTry != null) {
-        result += AddCatchClausesQuickFix(tryExpression = containingTry, uncaughtExceptions = uncaughtExceptions)
-    } else {
-        result += WrapInTryCatchQuickFix(namedFunction = this, uncaughtExceptions = uncaughtExceptions)
+    result += when (containingTry) {
+        null -> WrapInTryCatchQuickFix(namedFunction = this, uncaughtExceptions = uncaughtExceptions)
+        else -> AddCatchClausesQuickFix(tryExpression = containingTry, uncaughtExceptions = uncaughtExceptions)
     }
+
     return result.toTypedArray()
 }
 
