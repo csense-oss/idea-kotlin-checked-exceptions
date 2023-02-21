@@ -33,34 +33,30 @@ class AddThrowsTypesQuickFix(
         project: Project,
         file: PsiFile,
         element: KtAnnotated
-    ) {
-        val throwsAnnotation: KtAnnotationEntry = element.throwsAnnotationOrNull()
-            ?: addNewThrowsAnnotationTo(element = element, project = project)
-        addThrowsTypesTo(throwsAnnotation = throwsAnnotation)
+    ): PsiElement? {
+        when (val throwsAnnotation: KtAnnotationEntry? = element.throwsAnnotationOrNull()) {
+            null -> addNewThrowsAnnotationTo(element = element)
+            else -> throwsAnnotation.addThrowsTypes()
+        }
+        return null
     }
 
 
     private fun addNewThrowsAnnotationTo(
-        element: KtAnnotated,
-        project: Project
-    ): KtAnnotationEntry {
-        val newAnnotation: KtAnnotationEntry = createNewThrowsAnnotation(project = project)
-        element.addFirst(newAnnotation)
-        return newAnnotation
-    }
-
-    private fun addThrowsTypesTo(
-        throwsAnnotation: KtAnnotationEntry,
+        element: KtAnnotated
     ) {
-        throwsAnnotation.valueArgumentList?.addTypeRefs(missingThrowsTypes)
+        val newAnnotation: KtAnnotationEntry = createNewThrowsAnnotation()
+        newAnnotation.addThrowsTypes()
+        element.addFirst(newAnnotation)
+    }
+
+    private fun KtAnnotationEntry.addThrowsTypes() {
+        valueArgumentList?.addTypeRefs(missingThrowsTypes)
     }
 
 
-    private fun createNewThrowsAnnotation(
-        project: Project
-    ): KtAnnotationEntry = KtPsiFactory(
-        project = project,
-        markGenerated = false
-    ).createAnnotationEntry("@Throws")
+    private fun createNewThrowsAnnotation(): KtAnnotationEntry {
+        return factory.createAnnotationEntry("@Throws()")
+    }
 }
 

@@ -7,6 +7,7 @@ import csense.idea.kotlin.checked.exceptions.bll.callthough.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
 import csense.kotlin.extensions.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.*
 
 fun KtElement.quickFixesFor(
     uncaughtExceptions: List<KtPsiClass>,
@@ -46,11 +47,35 @@ fun KtCallExpression.quickFixesFor(
     uncaughtExceptions: List<KtPsiClass>,
     state: IncrementalExceptionCheckerState
 ): Array<LocalQuickFix> {
+    val result: MutableList<LocalQuickFix> = mutableListOf()
 
-    return arrayOf()
+    //TODO in lambda?! hmm..
+    if (state.containingLambdas.isNotEmpty()) {
+        //TODO YA........ call though, ignores etc.
+    }
 
+    val containingTry: KtTryExpression? = state.findContainingTryCatchOrNull(from = this)
+
+    if (containingTry != null) {
+        result += AddCatchClausesQuickFix(tryExpression = containingTry, uncaughtExceptions = uncaughtExceptions)
+    } else {
+        result += WrapInTryCatchQuickFix(namedFunction = this, uncaughtExceptions = uncaughtExceptions)
+    }
+    return result.toTypedArray()
 }
 
+//TODO extension(s)? or should be in state? hmm...
+fun IncrementalExceptionCheckerState.findContainingTryCatchOrNull(from: KtElement): KtTryExpression? {
+    val parentScope: KtElement? = findParentScope(from = from)
+    val containingTry: KtTryExpression? = parentScope?.findDescendantOfType()
+    val isTryBeforeThis: Boolean = containingTry != null && containingTry.textOffset <= from.textOffset
+    if (isTryBeforeThis) {
+        return containingTry
+    }
+    return null
+}
+
+//TODO extension(s)? or should be in state? hmm...
 fun IncrementalExceptionCheckerState.findParentScope(from: KtElement): KtElement? {
     //TODO not sure this is accurate enough.. since there might be some more complex cases
     //Eg: functions in functions with lambdas in between......

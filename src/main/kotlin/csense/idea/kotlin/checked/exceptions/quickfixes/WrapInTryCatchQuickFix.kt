@@ -3,32 +3,62 @@ package csense.idea.kotlin.checked.exceptions.quickfixes
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import csense.idea.base.bll.psi.*
+import csense.idea.base.bll.psiWrapper.`class`.*
+import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.base.bll.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.idea.kotlin.checked.exceptions.visitors.*
+import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
 
 
 class WrapInTryCatchQuickFix(
     namedFunction: KtCallExpression,
-    exceptionTypes: List<String>
-) : LocalQuickFixUpdateCode<KtCallExpression>(
-    namedFunction
-) {
+    private val uncaughtExceptions: List<KtPsiClass>,
+) : LocalQuickFixUpdateCode<KtCallExpression>(element = namedFunction) {
 
-    override fun tryUpdate(project: Project, file: PsiFile, element: KtCallExpression) {
-        val top: Pair<KtBlockExpression, PsiElement> = startElement.findParentAndBeforeFromType() ?: return
-        val elementToUse: PsiElement = top.second
+    private val typeListHtml: String by lazy {
+        uncaughtExceptions.coloredFqNameString(
+            cssColor = IncrementalExceptionCheckerVisitor.typeCssColor
+        )
+    }
 
-        val newElement: KtTryExpression = createTryCatchWithElement(elementToUse, throwType)
-        elementToUse.replace(newElement)
+    override fun tryUpdate(project: Project, file: PsiFile, element: KtCallExpression): PsiElement {
+        val newElement: KtExpression = createTryCatchWithElement(element)
+        return element.replace(newElement)
     }
 
 
-    private fun createTryCatchWithElement(element: PsiElement, exceptionType: String): KtTryExpression {
-        val tryExpression: KtTryExpression = KtPsiFactory(element)
-            .createExpression("try{\n}\ncatch(e:$exceptionType){ TODO(\"Add error handling here\")}") as KtTryExpression
-        tryExpression.tryBlock.addAfter(element, tryExpression.tryBlock.lBrace)
-        return tryExpression
+    private fun createTryCatchWithElement(
+        element: PsiElement
+    ): KtExpression {
+        val block: KtBlockExpression = factory.createBlock(createCode(element.text))
+        return block.statements.singleOrNull() ?: block
+    }
+
+
+    private fun createCode(oldCode: String): String {
+        val catches: String = uncaughtExceptions.joinToString(separator = "\n", transform = { it: KtPsiClass ->
+            it.catchParameter()
+        })
+
+        @Language("kotlin")
+        val result: String = """
+            try {
+                $oldCode
+            }$catches
+        """.trimIndent()
+        return result
+    }
+
+    private fun KtPsiClass.catchParameter(): String {
+        @Language("kotlin")
+        val result = """
+            catch(exception: $fqName){
+                TODO("Add error handling here")
+            }
+        """.trimIndent()
+        return result
     }
 
 
@@ -37,10 +67,6 @@ class WrapInTryCatchQuickFix(
     }
 
     override fun getText(): String {
-        return "wrap in try catch (\"$throwType\")"
+        return "<html>wrap in try catch for $typeListHtml exception(s)</html>"
     }
-
-    private val throwType: String =
-        exceptionTypes.singleOrNull() ?: Constants.kotlinMainExceptionFqName
-
 }
