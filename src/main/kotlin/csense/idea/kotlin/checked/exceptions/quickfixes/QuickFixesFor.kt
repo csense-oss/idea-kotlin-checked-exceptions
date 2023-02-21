@@ -23,7 +23,6 @@ fun KtThrowExpression.quickFixesFor(
     state: IncrementalExceptionCheckerState
 ): Array<LocalQuickFix> {
     val parentScope: KtElement = state.findParentScope(from = this) ?: return emptyArray()
-
     if (parentScope.isNot<KtLambdaExpression>() && parentScope is KtAnnotated) {
         return arrayOf(
             AddThrowsTypesQuickFix(
