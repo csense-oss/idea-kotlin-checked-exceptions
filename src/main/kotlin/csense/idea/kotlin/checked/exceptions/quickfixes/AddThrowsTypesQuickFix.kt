@@ -21,13 +21,6 @@ class AddThrowsTypesQuickFix(
         cssColor = IncrementalExceptionCheckerVisitor.typeCssColor
     )
 
-    private val missingThrowsFqNamesRef: String by lazy {
-        missingThrowsTypes.joinToString(separator = ",") { it: KtPsiClass ->
-            it.fqNameRef()
-        }
-    }
-
-
     override fun getFamilyName(): String =
         Constants.groupName + " - " + "add throws type to parent scope"
 
@@ -39,40 +32,38 @@ class AddThrowsTypesQuickFix(
         project: Project,
         file: PsiFile,
         element: KtAnnotated
-    ): PsiElement? {
-        val throwsAnnotation: KtAnnotationEntry? = element.throwsAnnotationOrNull()
-        return when (throwsAnnotation) {
-            null -> addThrowsAnnotationTo(element = element, project = project)
-            else -> addThrowsTypesTo(throwsAnnotation = throwsAnnotation)
-        }
+    ) {
+        val throwsAnnotation: KtAnnotationEntry = element.throwsAnnotationOrNull()
+            ?: addNewThrowsAnnotationTo(element = element, project = project)
+        addThrowsTypesTo(throwsAnnotation = throwsAnnotation)
+    }
+
+
+    private fun addNewThrowsAnnotationTo(
+        element: KtAnnotated,
+        project: Project
+    ): KtAnnotationEntry {
+        val newAnnotation: KtAnnotationEntry = createNewThrowsAnnotation(project = project)
+        element.addBefore(
+            /* element = */ newAnnotation,
+            /* anchor = */ element.firstChild
+        )
+        return newAnnotation
     }
 
     private fun addThrowsTypesTo(
         throwsAnnotation: KtAnnotationEntry,
-    ): PsiElement {
+    ) {
         throwsAnnotation.valueArgumentList?.addTypeRefs(missingThrowsTypes)
-        return throwsAnnotation
     }
 
-    private fun addThrowsAnnotationTo(
-        element: KtAnnotated,
-        project: Project
-    ): PsiElement? {
-        val newAnnotation: KtAnnotationEntry =
-            createThrowsAnnotationCode(throwsTypesCode = missingThrowsFqNamesRef, project = project)
-        return element.addBefore(
-            /* element = */ newAnnotation,
-            /* anchor = */ element.firstChild
-        )
-    }
 
-    private fun createThrowsAnnotationCode(
-        throwsTypesCode: String,
+    private fun createNewThrowsAnnotation(
         project: Project
     ): KtAnnotationEntry {
         return KtPsiFactory(
             project = project,
             markGenerated = false
-        ).createAnnotationEntry("@Throws($throwsTypesCode)")
+        ).createAnnotationEntry("@Throws")
     }
 }
