@@ -28,19 +28,16 @@ class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
             holder = holder,
             project = holder.project
         )
-        return NamedFunctionOrDelegationVisitor(
-            onFunctionNamed = { it: KtNamedFunction ->
-                it.accept(
-                    /* visitor = */ visitor,
-                    /* data = */ IncrementalExceptionCheckerState.empty
-                )
-            },
-            onPropertyDelegate = { it: KtPropertyDelegate ->
-                it.accept(
-                    /* visitor = */ visitor,
-                    /* data = */ IncrementalExceptionCheckerState.empty
-                )
-            }
+        val callVisitor: (KtElement) -> Unit = { it: KtElement ->
+            it.accept(
+                /* visitor = */ visitor,
+                /* data = */ IncrementalExceptionCheckerState.empty
+            )
+        }
+
+        return NamedFunctionOrCustomPropertyCodeVisitor(
+            onFunctionNamed = callVisitor,
+            onPropertyWithInnerCode = callVisitor
         )
     }
 }

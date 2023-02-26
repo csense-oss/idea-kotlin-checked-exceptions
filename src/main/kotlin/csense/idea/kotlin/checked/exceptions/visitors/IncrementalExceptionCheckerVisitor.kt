@@ -11,6 +11,7 @@ import csense.idea.base.bll.psiWrapper.function.operations.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.inspections.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
+import csense.kotlin.extensions.*
 import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
 
@@ -23,17 +24,55 @@ class IncrementalExceptionCheckerVisitor(
         expression: KtTryExpression,
         state: IncrementalExceptionCheckerState?
     ): Void? {
-        val captures: List<KtPsiClass> = expression.catchClauses.mapNotNull {
-            it.catchParameter?.resolveFirstClassType2()
+        val captures: List<KtPsiClass> = expression.catchClauses.mapNotNull { it: KtCatchClause? ->
+            it?.catchParameter?.resolveFirstClassType2()
         }.filterRuntimeExceptionsBySettings()
 
         val newState: IncrementalExceptionCheckerState = state.newStateByAppending(
-            newCaptures = captures
+            newCaptures = captures,
+            containingTryExpression = expression
         )
 
         return super.visitTryExpression(expression, newState)
     }
 
+    //TODO any of theses for class level properties?
+    override fun visitProperty(
+        property: KtProperty,
+        data: IncrementalExceptionCheckerState?
+    ): Void? {
+
+        if (property.hasCustomCode()) {
+            //TODO compute new state for getter, setter, delegation, call the visit on each of these.
+            val customGetter: KtExpression? = property.initalizerOrGetter()
+            if (customGetter != null) {
+                val declaredThrows: List<KtPsiClass> =
+                    property.throwsTypesWithGetter().filterRuntimeExceptionsBySettings()
+
+                val newState: IncrementalExceptionCheckerState = data.newStateByAppending(
+                    newCaptures = declaredThrows,
+                    parentScope = property.getter
+                )
+                visitExpression(/* expression = */ customGetter, /* data = */ newState)
+            }
+
+            val customSetter: KtExpression? = property.setter?.bodyExpression ?: property.setter?.bodyBlockExpression
+            if (customSetter != null) {
+                val declaredThrows: List<KtPsiClass> =
+                    property.throwsTypesWithSetter().filterRuntimeExceptionsBySettings()
+
+                val newState: IncrementalExceptionCheckerState = data.newStateByAppending(
+                    newCaptures = declaredThrows,
+                    parentScope = property.setter
+                )
+                visitExpression(/* expression = */ customSetter, /* data = */ newState)
+            }
+//            val delegate TODO?
+
+            return null
+        }
+        return super.visitProperty(property, data)
+    }
 
     override fun visitNamedFunction(
         function: KtNamedFunction,
@@ -43,7 +82,8 @@ class IncrementalExceptionCheckerVisitor(
 
         val newState: IncrementalExceptionCheckerState = state.newStateByAppending(
             newCaptures = throwsTypes,
-            newThrows = throwsTypes
+            newThrows = throwsTypes,
+            parentScope = function
         )
         return super.visitNamedFunction(function, newState)
     }
@@ -122,10 +162,14 @@ class IncrementalExceptionCheckerVisitor(
             currentCaptures = state?.captures.orEmpty()
         )
 
+        val callsThough: Boolean = expression.isLambdaCallThough()
+
         val updatedState = IncrementalExceptionCheckerState(
             captures = lambdaCaptures,
             throwsTypes = state?.throwsTypes.orEmpty(),
-            containingLambdas = state?.containingLambdas.orEmpty() + expression
+            containingLambdas = state?.containingLambdas.orEmpty() + expression,
+            containingTryExpression = state?.containingTryExpression,
+            parentScope = callsThough.map(ifTrue = state?.parentScope, ifFalse = expression)
         )
 
         return super.visitLambdaExpression(expression, updatedState)
@@ -165,11 +209,15 @@ class IncrementalExceptionCheckerVisitor(
 
     private fun IncrementalExceptionCheckerState?.newStateByAppending(
         newCaptures: List<KtPsiClass> = listOf(),
-        newThrows: List<KtPsiClass> = listOf()
+        newThrows: List<KtPsiClass> = listOf(),
+        containingTryExpression: KtTryExpression? = null,
+        parentScope: KtElement? = null
     ): IncrementalExceptionCheckerState = IncrementalExceptionCheckerState(
         captures = this?.captures.orEmpty() + newCaptures,
         throwsTypes = this?.throwsTypes.orEmpty() + newThrows,
-        containingLambdas = this?.containingLambdas.orEmpty()
+        containingLambdas = this?.containingLambdas.orEmpty(),
+        containingTryExpression = containingTryExpression ?: this?.containingTryExpression,
+        parentScope = parentScope ?: this?.parentScope
     )
 
     companion object {
@@ -181,13 +229,16 @@ class IncrementalExceptionCheckerVisitor(
 data class IncrementalExceptionCheckerState(
     val captures: List<KtPsiClass>,
     val throwsTypes: List<KtPsiClass>,
-    val containingLambdas: List<KtLambdaExpression>
+    val containingLambdas: List<KtLambdaExpression>,
+    val containingTryExpression: KtTryExpression?,
+    val parentScope: KtElement? = null //TODO.... hmm....
 ) {
     companion object {
         val empty = IncrementalExceptionCheckerState(
             captures = emptyList(),
             throwsTypes = emptyList(),
-            containingLambdas = emptyList()
+            containingLambdas = emptyList(),
+            containingTryExpression = null
         )
     }
 }
