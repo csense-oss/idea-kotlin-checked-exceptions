@@ -231,7 +231,7 @@ data class IncrementalExceptionCheckerState(
     val throwsTypes: List<KtPsiClass>,
     val containingLambdas: List<KtLambdaExpression>,
     val containingTryExpression: KtTryExpression?,
-    val parentScope: KtElement? = null //TODO.... hmm....
+    val parentScope: KtElement? = null
 ) {
     companion object {
         val empty = IncrementalExceptionCheckerState(
