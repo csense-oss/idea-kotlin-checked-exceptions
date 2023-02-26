@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions.quickfixes
+package csense.idea.kotlin.checked.exceptions.quickfixes.selectors
 
 import com.intellij.codeInspection.*
 import csense.idea.base.bll.psiWrapper.`class`.*

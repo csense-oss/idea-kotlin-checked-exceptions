@@ -1,8 +1,10 @@
-package csense.idea.kotlin.checked.exceptions.quickfixes
+package csense.idea.kotlin.checked.exceptions.quickfixes.selectors
 
 import com.intellij.codeInspection.*
 import csense.idea.base.bll.psiWrapper.`class`.*
+import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
+import csense.kotlin.extensions.collections.list.*
 import org.jetbrains.kotlin.psi.*
 
 class KtThrowExpressionQuickFixSelector(
@@ -28,7 +30,7 @@ class KtThrowExpressionQuickFixSelector(
         result: MutableList<LocalQuickFix>
     ) {
         addAllThrowsTypesTo(parentScope = parentScope, result = result)
-        if (haveMultipleUncaughtTypes) {
+        if (uncaughtExceptions.doesNotContain(kotlinThrowable)) {
             addKotlinThrowTypeTo(parentScope, result)
         }
     }
