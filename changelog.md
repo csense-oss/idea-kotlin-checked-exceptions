@@ -1,5 +1,10 @@
 # 2.0.0
-- 
+- rewrote most of the code to fix issues 
+  - Most features are now working across android studio & / intellij and across various versions
+  - Performance should be superb
+  - Quick fixes should generally work pretty well now
+  - The settings page have now been reworked
+  - 
 
 # 1.2.0
 - Completely fixed a lot of bugs (via testing)
