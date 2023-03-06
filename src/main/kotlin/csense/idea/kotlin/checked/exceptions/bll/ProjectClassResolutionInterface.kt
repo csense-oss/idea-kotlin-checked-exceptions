@@ -4,7 +4,7 @@ import com.intellij.openapi.project.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
 
-
+//TODO base module?
 class ProjectClassResolutionInterface(
     private val project: Project
 ) {
