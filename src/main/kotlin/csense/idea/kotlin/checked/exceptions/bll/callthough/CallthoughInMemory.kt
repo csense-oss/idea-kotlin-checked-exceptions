@@ -1,28 +1,17 @@
 package csense.idea.kotlin.checked.exceptions.bll.callthough
 
+import csense.idea.base.bll.kotlin.*
+import java.util.HashMap
+
 
 object CallthoughInMemory {
-//
-//    private val isEnabled: Boolean
-//        get() = Settings.useCallThoughFile
-//
-//    fun isArgumentMarkedAsCallthough(main: KtFunction, parameterName: String): Boolean {
-//        val mainFqName = main.getKotlinFqNameString() ?: return false
-//        if (isKnownKotlinFunction(mainFqName, parameterName)) {
-//            return true
-//        }
-//        if (!isEnabled) {
-//            return false
-//        }
-//        return CallthoughStorage.contains(mainFqName, parameterName, main.project)
-//    }
-
-
-    fun isKnownKotlinFunction(fqName: String, paramName: String): Boolean {
-        return knownKotlinFunctions[fqName] == paramName
+    fun isKnownKotlinFunction(lookup: LambdaArgumentLookup): Boolean {
+        val functionName: String = lookup.parentFunctionFqName ?: return false
+        val paramName: String = lookup.parameterName ?: return false
+        return knownKotlinFunctions[functionName] == paramName
     }
 
-    val knownKotlinFunctions = hashMapOf(
+    val knownKotlinFunctions: HashMap<String, String> = hashMapOf(
         //standard kotlin
         Pair("kotlin.run", "block"),
         Pair("kotlin.with", "block"),

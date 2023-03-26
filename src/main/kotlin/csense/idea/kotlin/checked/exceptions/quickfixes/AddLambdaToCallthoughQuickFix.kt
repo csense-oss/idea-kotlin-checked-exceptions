@@ -22,11 +22,10 @@ class AddLambdaToCallthoughQuickFix(
 
     override fun invoke(project: Project, file: PsiFile, element: KtFunction) {
         val name: String = element.getKotlinFqNameString() ?: return
-        CallthoughStorage.forProjectOrNull(project)?.addEntry(
-            CallthoughEntry(
-                fullName = name,
-                parameterName = parameterName
-            )
+        val repo = CallThoughRepo(project)
+        repo.addEntry(
+            fqName = name,
+            parameterName = parameterName
         )
     }
 

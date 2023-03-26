@@ -12,12 +12,14 @@ fun KtLambdaExpression.computeLambdaCaptureTypes(
         val resolution: ProjectClassResolutionInterface = ProjectClassResolutionInterface.getOrCreate(project)
         listOfNotNull(resolution.kotlinOrJavaThrowable)
     }
+
     isLambdaCallThough() -> currentCaptures
     else -> emptyList()
 }
 
 fun KtLambdaExpression.isLambdaInIgnoreExceptions(
 ): Boolean {
+    //TODO this is quite "inefficient".. :/ should use a service or alike?!
     val repo = IgnoreRepo(project)
     return repo.isLambdaIgnoreExceptions(this)
 }

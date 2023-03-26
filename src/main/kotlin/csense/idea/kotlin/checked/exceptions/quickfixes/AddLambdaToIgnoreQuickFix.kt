@@ -21,12 +21,10 @@ class AddLambdaToIgnoreQuickFix(
 
     override fun invoke(project: Project, file: PsiFile, element: KtFunction) {
         val name: String = element.fqName?.asString() ?: return
-        IgnoreStorage.addEntry(
-            project = project,
-            entry = IgnoreEntry(
-                fullName = name,
-                parameterName = parameterName
-            )
+        val repo = IgnoreRepo(project)
+        repo.addEntry(
+            fqName = name,
+            parameterName = parameterName
         )
     }
 

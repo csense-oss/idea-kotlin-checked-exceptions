@@ -1,26 +1,11 @@
 package csense.idea.kotlin.checked.exceptions.bll.ignore
 
-import csense.idea.base.bll.psi.*
-import csense.idea.kotlin.checked.exceptions.settings.*
-import org.jetbrains.kotlin.psi.*
+import csense.idea.base.bll.kotlin.*
 
 object IgnoreInMemory {
-
-    private val isEnabled: Boolean
-        get() = Settings.useIgnoreFile
-
-    fun isArgumentMarkedAsIgnore(main: KtFunction, parameterName: String): Boolean {
-        val mainFqName = main.getKotlinFqNameString() ?: return false
-        if (isInKotlinStdLib(mainFqName, parameterName)) {
-            return true
-        }
-        if (!isEnabled) {
-            return false
-        }
-        return IgnoreStorage.contains(mainFqName, parameterName, main.project)
-    }
-
-    fun isInKotlinStdLib(fqName: String, paramName: String): Boolean {
+    fun isInKotlinStdLib(lookup: LambdaArgumentLookup): Boolean {
+        val fqName: String = lookup.parentFunctionFqName ?: return false
+        val paramName: String = lookup.parameterName ?: return false
         return knownKotlinFunctions[fqName] == paramName
     }
 
