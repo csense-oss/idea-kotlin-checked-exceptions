@@ -158,12 +158,15 @@ class IncrementalExceptionCheckerVisitor(
         state: IncrementalExceptionCheckerState?
     ): Void? {
 
-        val lambdaCaptures: List<KtPsiClass> = expression.computeLambdaCaptureTypes(
-            currentCaptures = state?.captures.orEmpty()
+        val lambdaLookup: LambdaArgumentLookup? = expression.toLamdaArgumentLookup()
+
+        val lambdaCaptures: List<KtPsiClass> = expression.computeLambdaCaptureTypesOrEmpty(
+            lambdaLookup = lambdaLookup,
+            state = state
         )
 
         val resolution: ProjectClassResolutionInterface = ProjectClassResolutionInterface.getOrCreate(project)
-        val callsThough: Boolean = expression.isLambdaCallThough(resolution)
+        val callsThough: Boolean = lambdaLookup?.isLambdaCallThough(resolution) == true
 
         val updatedState = IncrementalExceptionCheckerState(
             captures = lambdaCaptures,
@@ -174,6 +177,19 @@ class IncrementalExceptionCheckerVisitor(
         )
 
         return super.visitLambdaExpression(expression, updatedState)
+    }
+
+    private fun KtLambdaExpression.computeLambdaCaptureTypesOrEmpty(
+        lambdaLookup: LambdaArgumentLookup?,
+        state: IncrementalExceptionCheckerState?
+    ): List<KtPsiClass> {
+        if (lambdaLookup == null) {
+            return emptyList()
+        }
+        return computeLambdaCaptureTypes(
+            currentCaptures = state?.captures.orEmpty(),
+            lambdaLookup = lambdaLookup
+        )
     }
 
 

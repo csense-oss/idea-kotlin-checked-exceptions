@@ -3,7 +3,6 @@ package csense.idea.kotlin.checked.exceptions.bll.ignore
 import com.intellij.openapi.project.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.kotlin.checked.exceptions.bll.files.*
-import org.jetbrains.kotlin.psi.*
 
 class IgnoreRepo(
     project: Project
@@ -13,18 +12,16 @@ class IgnoreRepo(
         CachedFqNameFunctionParameterStorage.forProjectOrNull(project = project, fileName = ignoreFileName)
     }
 
-    fun isLambdaIgnoreExceptions(lambda: KtLambdaExpression): Boolean {
-        val lookup: LambdaArgumentLookup = lambda.toLamdaArgumentLookup() ?: return false
-
-        if (IgnoreInMemory.isInKotlinStdLib(lookup)) {
+    fun isLambdaIgnoreExceptions(lambda: LambdaArgumentLookup): Boolean {
+        if (IgnoreInMemory.isInKotlinStdLib(lambda)) {
             return true
         }
 
-        if (lookup.isCallInPlace()) {
+        if (lambda.isCallInPlace()) {
             return false
         }
 
-        return isLambdaIgnoreInStorage(lookup = lookup)
+        return isLambdaIgnoreInStorage(lookup = lambda)
     }
 
     private fun isLambdaIgnoreInStorage(

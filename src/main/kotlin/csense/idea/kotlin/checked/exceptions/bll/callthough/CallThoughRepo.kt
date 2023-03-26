@@ -2,7 +2,6 @@ package csense.idea.kotlin.checked.exceptions.bll.callthough
 
 import com.intellij.openapi.project.*
 import csense.idea.base.bll.kotlin.*
-import csense.idea.base.bll.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.files.*
 import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
 import org.jetbrains.kotlin.psi.*
@@ -14,27 +13,26 @@ class CallThoughRepo(
         CachedFqNameFunctionParameterStorage.forProjectOrNull(project = project, fileName = callthoughProjectFileName)
     }
 
-    fun isLambdaCallThough(lambda: KtLambdaExpression): Boolean {
-        val lookup: LambdaArgumentLookup = lambda.toLamdaArgumentLookup() ?: return false
-
-        if (isBuiltInCallThough(lookup)) {
+    fun isLambdaCallThough(lambda: LambdaArgumentLookup): Boolean {
+        if (isBuiltInCallThough(lambda)) {
             return true
         }
 
-        if (lookup.isCallInPlace()) {
+        if (lambda.isCallInPlace()) {
             return true
         }
 
-        if (hasRethrowsExceptionAnnotationOnParameter(lookup)) {
+        if (hasRethrowsExceptionAnnotationOnParameter(lambda)) {
             return true
         }
 
-        return isLambdaCallThoughInStorage(lookup = lookup)
+        return isLambdaCallThoughInStorage(lookup = lambda)
     }
 
     private fun hasRethrowsExceptionAnnotationOnParameter(
         lookup: LambdaArgumentLookup
     ): Boolean {
+
         return lookup.parameterToValueExpression.parameterValueAnnotations.isAnyRethrowsExceptions()
     }
 
@@ -62,5 +60,5 @@ class CallThoughRepo(
 }
 
 fun List<KtAnnotationEntry>.isAnyRethrowsExceptions(): Boolean = any { it: KtAnnotationEntry ->
-    it.getKotlinFqNameString() == "csense.kotlin.annotations.exceptions.RethrowsExceptions"
+    it.fqName() == "csense.kotlin.annotations.exceptions.RethrowsExceptions"
 }
