@@ -3,6 +3,8 @@ package csense.idea.kotlin.checked.exceptions.bll
 import com.intellij.openapi.project.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
+import csense.idea.kotlin.checked.exceptions.bll.callthough.*
+import csense.idea.kotlin.checked.exceptions.bll.ignore.*
 
 //TODO base module?
 class ProjectClassResolutionInterface(
@@ -11,6 +13,14 @@ class ProjectClassResolutionInterface(
 
     val kotlinOrJavaThrowable: KtPsiClass? by lazy {
         KtPsiClass.getKotlinThrowable(project) ?: KtPsiClass.getJavaThrowable(project)
+    }
+
+    val ignoreRepo: IgnoreRepo by lazy {
+        IgnoreRepo(project)
+    }
+
+    val callThoughRepo: CallThoughRepo by lazy {
+        CallThoughRepo(project)
     }
 
     companion object {

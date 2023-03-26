@@ -2,6 +2,7 @@ package csense.idea.kotlin.checked.exceptions.bll.callthough
 
 import com.intellij.openapi.project.*
 import csense.idea.base.bll.kotlin.*
+import csense.idea.base.bll.psi.*
 import csense.idea.kotlin.checked.exceptions.bll.files.*
 import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
 import org.jetbrains.kotlin.psi.*
@@ -23,7 +24,18 @@ class CallThoughRepo(
         if (lookup.isCallInPlace()) {
             return true
         }
+
+        if (hasRethrowsExceptionAnnotationOnParameter(lookup)) {
+            return true
+        }
+
         return isLambdaCallThoughInStorage(lookup = lookup)
+    }
+
+    private fun hasRethrowsExceptionAnnotationOnParameter(
+        lookup: LambdaArgumentLookup
+    ): Boolean {
+        return lookup.parameterToValueExpression.parameterValueAnnotations.isAnyRethrowsExceptions()
     }
 
     private fun isBuiltInCallThough(lookup: LambdaArgumentLookup): Boolean {
@@ -40,7 +52,6 @@ class CallThoughRepo(
     }
 
 
-
     fun addEntry(fqName: String, parameterName: String) {
         storage?.addEntry(CachedFqNameFunctionParameter(fqName = fqName, parameterName = parameterName))
     }
@@ -48,4 +59,8 @@ class CallThoughRepo(
     companion object {
         const val callthoughProjectFileName: String = ".callthough.throws"
     }
+}
+
+fun List<KtAnnotationEntry>.isAnyRethrowsExceptions(): Boolean = any { it: KtAnnotationEntry ->
+    it.getKotlinFqNameString() == "csense.kotlin.annotations.exceptions.RethrowsExceptions"
 }

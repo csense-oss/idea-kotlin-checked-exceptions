@@ -162,7 +162,8 @@ class IncrementalExceptionCheckerVisitor(
             currentCaptures = state?.captures.orEmpty()
         )
 
-        val callsThough: Boolean = expression.isLambdaCallThough()
+        val resolution: ProjectClassResolutionInterface = ProjectClassResolutionInterface.getOrCreate(project)
+        val callsThough: Boolean = expression.isLambdaCallThough(resolution)
 
         val updatedState = IncrementalExceptionCheckerState(
             captures = lambdaCaptures,
