@@ -4,7 +4,6 @@ import com.intellij.openapi.project.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.kotlin.checked.exceptions.bll.files.*
 import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
-import org.jetbrains.kotlin.psi.*
 
 class CallThoughRepo(
     project: Project
@@ -32,8 +31,7 @@ class CallThoughRepo(
     private fun hasRethrowsExceptionAnnotationOnParameter(
         lookup: LambdaArgumentLookup
     ): Boolean {
-
-        return lookup.parameterToValueExpression.parameterValueAnnotations.isAnyRethrowsExceptions()
+        return AnnotationsRepo.isAnyRethrowsExceptions(lookup)
     }
 
     private fun isBuiltInCallThough(lookup: LambdaArgumentLookup): Boolean {
@@ -59,6 +57,3 @@ class CallThoughRepo(
     }
 }
 
-fun List<KtAnnotationEntry>.isAnyRethrowsExceptions(): Boolean = any { it: KtAnnotationEntry ->
-    it.fqName() == "csense.kotlin.annotations.exceptions.RethrowsExceptions"
-}

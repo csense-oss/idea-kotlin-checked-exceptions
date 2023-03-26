@@ -1,8 +1,8 @@
 package csense.idea.kotlin.checked.exceptions.bll
 
-import csense.idea.base.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
+import csense.idea.kotlin.checked.exceptions.bll.callthough.*
 import org.jetbrains.kotlin.psi.*
 
 fun KtLambdaExpression.computeLambdaCaptureTypes(
@@ -14,11 +14,12 @@ fun KtLambdaExpression.computeLambdaCaptureTypes(
         return listOfNotNull(resolution.kotlinOrJavaThrowable)
     }
     if (lambdaLookup.isLambdaCallThough(resolution)) {
-            return currentCaptures
+        return currentCaptures
     }
 
-    return lambdaLookup.getCatchesExceptionTypesAnnotationOrEmpty(
-        resolution
+    return AnnotationsRepo.getCatchesExceptionTypesAnnotationOrEmpty(
+        argument = lambdaLookup,
+        resolution = resolution
     )
 }
 
@@ -33,25 +34,3 @@ fun LambdaArgumentLookup.isLambdaCallThough(
 ): Boolean {
     return resolution.callThoughRepo.isLambdaCallThough(this)
 }
-
-
-fun LambdaArgumentLookup.getCatchesExceptionTypesAnnotationOrEmpty(
-    resolution: ProjectClassResolutionInterface
-): List<KtPsiClass> {
-    val allCatchesException: List<KtAnnotationEntry> = parameterToValueExpression
-        .parameterValueAnnotations
-        .filterByFqName(
-            fqName = "csense.kotlin.annotations.exceptions.CatchesExceptions"
-        )
-    if (allCatchesException.isEmpty()) {
-        return emptyList()
-    }
-
-    return allCatchesException.map { it: KtAnnotationEntry ->
-        it.resolveValueParametersAsKClassTypes()
-    }.flatten().onEmpty(
-        listOfNotNull(resolution.kotlinOrJavaThrowable)
-    )
-
-}
-
