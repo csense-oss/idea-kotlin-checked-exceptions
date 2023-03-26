@@ -1,15 +1,12 @@
 package csense.idea.kotlin.checked.exceptions.builtin.callthough
 
 import csense.idea.base.bll.kotlin.*
-import csense.idea.base.bll.psiWrapper.function.operations.*
-import org.jetbrains.kotlin.psi.*
 
 object KotlinCallThough {
 
-    fun contains(ktLambdaExpression: KtLambdaExpression): Boolean {
-        val fqName: String = ktLambdaExpression.resolveParameterFunction()?.fqName ?: return false
+    fun contains(lookup: LambdaArgumentLookup): Boolean{
+        val fqName: String = lookup.parentFunctionFqName ?: return false
         return fqName in builtIn
-
     }
 
     private val builtIn: Set<String> = setOf(

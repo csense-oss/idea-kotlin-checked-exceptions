@@ -1,25 +1,21 @@
 package csense.idea.kotlin.checked.exceptions.bll.callthough
 
 
-import csense.idea.base.bll.psi.*
-import csense.idea.kotlin.checked.exceptions.settings.*
-import org.jetbrains.kotlin.psi.*
-
 object CallthoughInMemory {
-
-    private val isEnabled: Boolean
-        get() = Settings.useCallThoughFile
-
-    fun isArgumentMarkedAsCallthough(main: KtFunction, parameterName: String): Boolean {
-        val mainFqName = main.getKotlinFqNameString() ?: return false
-        if (isKnownKotlinFunction(mainFqName, parameterName)) {
-            return true
-        }
-        if (!isEnabled) {
-            return false
-        }
-        return CallthoughStorage.contains(mainFqName, parameterName, main.project)
-    }
+//
+//    private val isEnabled: Boolean
+//        get() = Settings.useCallThoughFile
+//
+//    fun isArgumentMarkedAsCallthough(main: KtFunction, parameterName: String): Boolean {
+//        val mainFqName = main.getKotlinFqNameString() ?: return false
+//        if (isKnownKotlinFunction(mainFqName, parameterName)) {
+//            return true
+//        }
+//        if (!isEnabled) {
+//            return false
+//        }
+//        return CallthoughStorage.contains(mainFqName, parameterName, main.project)
+//    }
 
 
     fun isKnownKotlinFunction(fqName: String, paramName: String): Boolean {

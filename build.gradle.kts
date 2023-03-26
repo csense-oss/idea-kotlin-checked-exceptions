@@ -1,10 +1,10 @@
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.13.1"
+    id("org.jetbrains.intellij") version "1.13.2"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "1.8.10"
+    kotlin("jvm") version "1.8.20-RC2"
     //https://github.com/jeremylong/dependency-check-gradle/releases
-    id("org.owasp.dependencycheck") version "8.1.2"
+    id("org.owasp.dependencycheck") version "8.2.1"
 }
 
 group = "csense-idea"
@@ -29,7 +29,6 @@ repositories {
 dependencies {
     implementation("csense.kotlin:csense-kotlin-jvm:0.0.60")
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.61")
-    implementation("csense.kotlin:csense-kotlin-datastructures-algorithms:0.0.41")
     implementation("csense.idea.base:csense-idea-base:0.1.60")
 
     testImplementation("junit:junit:4.13.2")
@@ -74,7 +73,7 @@ tasks {
 
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(11))
     }
 }
 

@@ -3,6 +3,7 @@ package csense.idea.kotlin.checked.exceptions.quickfixes
 //import csense.idea.kotlin.checked.exceptions.callthough.*
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
+import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.bll.callthough.*
 import org.jetbrains.kotlin.psi.*
@@ -20,8 +21,13 @@ class AddLambdaToCallthoughQuickFix(
     }
 
     override fun invoke(project: Project, file: PsiFile, element: KtFunction) {
-        val name: String = element.fqName?.asString() ?: return
-        CallthoughStorage.addEntry(project, CallthoughEntry(name, parameterName))
+        val name: String = element.getKotlinFqNameString() ?: return
+        CallthoughStorage.forProjectOrNull(project)?.addEntry(
+            CallthoughEntry(
+                fullName = name,
+                parameterName = parameterName
+            )
+        )
     }
 
 }

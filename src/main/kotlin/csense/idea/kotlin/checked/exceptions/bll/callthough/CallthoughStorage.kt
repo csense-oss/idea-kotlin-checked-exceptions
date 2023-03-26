@@ -1,84 +1,75 @@
 package csense.idea.kotlin.checked.exceptions.bll.callthough
 
 import com.intellij.openapi.project.*
+import csense.idea.kotlin.checked.exceptions.bll.files.*
 import csense.kotlin.extensions.*
-import java.io.*
+import csense.kotlin.extensions.collections.*
 import java.nio.file.*
 
-object CallthoughStorage {
+class CallthoughStorage private constructor(
+    private val fileCache: CachedFileInMemory<HashSet<CallthoughEntry>>
+) {
 
-    private var lastFileModifiedTime: Long? = null
-
-    private val current: HashSet<CallthoughEntry> = hashSetOf()
-    //sync with the file ".callthought.throws" if this feature is enabled. (default it is).
-
-    @Throws(IOException::class)
-    private fun read(project: Project): List<CallthoughEntry> {
-        val path = resolvePath(project) ?: return listOf()
-        return Files.readAllLines(path).parseOrIgnore()
+    init {
+        fileCache.reload()
     }
 
-    fun addEntry(project: Project, entry: CallthoughEntry) = tryAndLog {
-        ensureHaveReadFile(project)
-        //TODO do not double add ?
-        current.add(entry)
-        saveFile(project)
+    fun addEntry(entry: CallthoughEntry) = tryAndLog {
+        fileCache.updateWith { it: HashSet<CallthoughEntry> ->
+            it.add(entry)
+            it
+        }
     }
 
-    fun removeEntry(project: Project, entry: CallthoughEntry) = tryAndLog {
-        ensureHaveReadFile(project)
-        current.remove(entry)
-        saveFile(project)
+    fun removeEntry(entry: CallthoughEntry) = tryAndLog {
+        fileCache.updateWith { it: HashSet<CallthoughEntry> ->
+            it.remove(entry)
+            it
+        }
     }
 
-    fun contains(fqName: String, parameterName: String, forProject: Project): Boolean = tryAndLog {
-        ensureHaveReadFile(forProject)
-        current.contains(CallthoughEntry(fqName, parameterName))
+    fun contains(entry: CallthoughEntry): Boolean = tryAndLog {
+        return fileCache.withCurrentValue { it: HashSet<CallthoughEntry> ->
+            it.contains(entry)
+        }
     } ?: false
 
-    @Throws(IOException::class)
-    private fun ensureHaveReadFile(project: Project) {
-        val path = resolvePath(project) ?: return
-        val last = getLastAccessed(project) ?: return
-        if (last != lastFileModifiedTime && Files.exists(path)) {
-            current.clear()
-            current.addAll(read(project))
-            lastFileModifiedTime = last
+
+    companion object {
+        const val callthoughProjectFileName: String = ".callthough.throws"
+
+        fun forProjectOrNull(project: Project): CallthoughStorage? {
+            val rootPath: String = project.basePath ?: return null
+            val callthoughFilePath: Path = Paths.get(rootPath, callthoughProjectFileName)
+            val cache: CachedFileInMemory<HashSet<CallthoughEntry>> = CachedFileInMemory(
+                initial = hashSetOf(),
+                filePath = callthoughFilePath,
+                serialization = ::serialize,
+                deserialization = ::deserialize
+            )
+            return CallthoughStorage(fileCache = cache)
         }
-    }
 
-    @Throws(IOException::class)
-    private fun getLastAccessed(project: Project): Long? {
-        val path = resolvePath(project) ?: return null
-        return if (Files.exists(path)) {
-            Files.getLastModifiedTime(path).toMillis()
-        } else {
-            null
+        private fun serialize(toSerialize: HashSet<CallthoughEntry>): String {
+            return toSerialize.map { it: CallthoughEntry ->
+                "${it.fullName} ${it.parameterName}"
+            }.joinToStringNewLine()
         }
-    }
 
-    @Throws(IOException::class)
-    private fun saveFile(project: Project) {
-        val path = resolvePath(project) ?: return
-        Files.write(path, current.map {
-            "${it.fullName} ${it.parameterName}"
-        })
-        lastFileModifiedTime = getLastAccessed(project)
-    }
+        private fun deserialize(rawString: String): HashSet<CallthoughEntry> {
+            return rawString.lines().mapNotNull { it: String ->
+                parseSingleLine(it)
+            }.toHashSet()
+        }
 
-    private fun resolvePath(project: Project): Path? {
-        val rootPath = project.basePath ?: return null
-        return Paths.get(rootPath, ".callthough.throws")
-    }
-}
-
-private fun List<String>.parseOrIgnore(): List<CallthoughEntry> = mapNotNull {
-    val raw = it.split(' ')
-    if (raw.size != 2) {
-        null
-    } else {
-        val (fqName, name) = raw
-        CallthoughEntry(fqName, name)
+        private fun parseSingleLine(line: String): CallthoughEntry? {
+            val raw: List<String> = line.split(delimiters = arrayOf(" "))
+            if (raw.size != 2) {
+                return null
+            }
+            val (fqName: String, name: String) = raw
+            return CallthoughEntry(fqName, name)
+        }
     }
 }
 
