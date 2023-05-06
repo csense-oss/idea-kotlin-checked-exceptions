@@ -41,37 +41,70 @@ class IncrementalExceptionCheckerVisitor(
         property: KtProperty,
         data: IncrementalExceptionCheckerState?
     ): Void? {
-
         if (property.hasCustomCode()) {
-            //TODO compute new state for getter, setter, delegation, call the visit on each of these.
-            val customGetter: KtExpression? = property.initalizerOrGetter()
-            if (customGetter != null) {
-                val declaredThrows: List<KtPsiClass> =
-                    property.throwsTypesWithGetter().filterRuntimeExceptionsBySettings()
-
-                val newState: IncrementalExceptionCheckerState = data.newStateByAppending(
-                    newCaptures = declaredThrows,
-                    parentScope = property.getter
-                )
-                visitExpression(/* expression = */ customGetter, /* data = */ newState)
-            }
-
-            val customSetter: KtExpression? = property.setter?.bodyExpression ?: property.setter?.bodyBlockExpression
-            if (customSetter != null) {
-                val declaredThrows: List<KtPsiClass> =
-                    property.throwsTypesWithSetter().filterRuntimeExceptionsBySettings()
-
-                val newState: IncrementalExceptionCheckerState = data.newStateByAppending(
-                    newCaptures = declaredThrows,
-                    parentScope = property.setter
-                )
-                visitExpression(/* expression = */ customSetter, /* data = */ newState)
-            }
-//            val delegate TODO?
-
+            onVisitPropertyWithCustomCode(property = property, data = data)
             return null
         }
         return super.visitProperty(property, data)
+    }
+
+    private fun onVisitPropertyWithCustomCode(property: KtProperty, data: IncrementalExceptionCheckerState?) {
+        val customGetter: KtExpression? = property.initalizerOrGetter()
+        if (customGetter != null) {
+            onVisitPropertyWithCustomGetter(property = property, data = data, customGetter = customGetter)
+        }
+
+        val customSetter: KtExpression? = property.setter?.bodyExpression ?: property.setter?.bodyBlockExpression
+        if (customSetter != null) {
+            onVisitPropertyWithCustomSetter(property = property, data = data, customSetter = customSetter)
+        }
+
+        val delegateExpression: KtExpression? = property.delegateExpression
+        if (delegateExpression != null) {
+            onVisitPropertyWithDelegate(property, data)
+//            val delegate TODO?
+        }
+    }
+
+    private fun onVisitPropertyWithCustomGetter(
+        property: KtProperty,
+        data: IncrementalExceptionCheckerState?,
+        customGetter: KtExpression
+    ) {
+        val declaredThrows: List<KtPsiClass> =
+            property.throwsTypesWithGetter().filterRuntimeExceptionsBySettings()
+
+        val newState: IncrementalExceptionCheckerState = data.newStateByAppending(
+            newCaptures = declaredThrows,
+            parentScope = property.getter
+        )
+        visitExpression(/* expression = */ customGetter, /* data = */ newState)
+    }
+
+    private fun onVisitPropertyWithCustomSetter(
+        property: KtProperty,
+        data: IncrementalExceptionCheckerState?,
+        customSetter: KtExpression
+    ) {
+        val declaredThrows: List<KtPsiClass> =
+            property.throwsTypesWithSetter().filterRuntimeExceptionsBySettings()
+
+        val newState: IncrementalExceptionCheckerState = data.newStateByAppending(
+            newCaptures = declaredThrows,
+            parentScope = property.setter
+        )
+        visitExpression(/* expression = */ customSetter, /* data = */ newState)
+    }
+
+    private fun onVisitPropertyWithDelegate(property: KtProperty, data: IncrementalExceptionCheckerState?) {
+//        val declaredThrows: List<KtPsiClass> =
+//            property.throwsTypesWithSetter().filterRuntimeExceptionsBySettings()
+//
+//        val newState: IncrementalExceptionCheckerState = data.newStateByAppending(
+//            newCaptures = declaredThrows,
+//            parentScope = property.setter
+//        )
+//        visitExpression(/* expression = */ customSetter, /* data = */ newState)
     }
 
     override fun visitNamedFunction(
