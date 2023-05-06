@@ -12,9 +12,10 @@ object AnnotationsRepo {
     fun isAnyRethrowsExceptions(
         argument: LambdaArgumentLookup
     ): Boolean {
-        return argument.parameterToValueExpression.parameterValueAnnotations.any { it: KtAnnotationEntry ->
-            it.fqName() == "csense.kotlin.annotations.exceptions.RethrowsExceptions"
-        }
+        return argument
+            .parameterToValueExpression
+            .parameterValueAnnotations
+            .anyByFqName(rethrowsExceptionFqName)
     }
 
 
@@ -22,22 +23,32 @@ object AnnotationsRepo {
         argument: LambdaArgumentLookup,
         resolution: ProjectClassResolutionInterface
     ): List<KtPsiClass> {
-        val allCatchesException: List<KtAnnotationEntry> = argument.parameterToValueExpression
-            .parameterValueAnnotations
-            .filterByFqName(
-                fqName = "csense.kotlin.annotations.exceptions.CatchesExceptions"
-            )
-        if (allCatchesException.isEmpty()) {
-            return emptyList()
-        }
-
-        return allCatchesException.map { it: KtAnnotationEntry ->
-            it.resolveValueParametersAsKClassTypes()
-        }.flatten().onEmpty(
-            listOfNotNull(resolution.kotlinOrJavaThrowable)
-        )
-
+        val allCatchesException: List<KtAnnotationEntry> = argument.getAllCatchAnnotations()
+        return allCatchesException.toResolvedExceptionsTypes(resolution)
     }
 
+    private fun LambdaArgumentLookup.getAllCatchAnnotations(): List<KtAnnotationEntry> {
+        return parameterToValueExpression.parameterValueAnnotations.filterByFqName(
+            fqName = catchesExceptionFqName
+        )
+    }
+
+    private fun List<KtAnnotationEntry>.toResolvedExceptionsTypes(
+        resolution: ProjectClassResolutionInterface
+    ): List<KtPsiClass> {
+        if (isEmpty()) {
+            return emptyList()
+        }
+        val resolvedTypes: List<KtPsiClass> = map { it: KtAnnotationEntry ->
+            it.resolveValueParametersAsKClassTypes()
+        }.flatten()
+        //in the case that none of the types could be looked up, return the general throwable type.
+        return resolvedTypes.onEmpty(
+            listOfNotNull(resolution.kotlinOrJavaThrowable)
+        )
+    }
+
+    const val rethrowsExceptionFqName = "csense.kotlin.annotations.exceptions.RethrowsExceptions"
+    const val catchesExceptionFqName = "csense.kotlin.annotations.exceptions.CatchesExceptions"
 
 }

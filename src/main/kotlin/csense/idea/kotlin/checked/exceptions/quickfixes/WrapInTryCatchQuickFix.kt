@@ -5,11 +5,13 @@ import com.intellij.psi.*
 import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
+import csense.idea.base.bll.psiWrapper.`class`.operations.`is`.*
 import csense.idea.base.bll.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
 import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.*
 
 
 class WrapInTryCatchQuickFix(
@@ -24,22 +26,23 @@ class WrapInTryCatchQuickFix(
     }
 
     override fun tryUpdate(project: Project, file: PsiFile, element: KtCallExpression): PsiElement {
-        val newElement: KtExpression = createTryCatchWithElement(element)
+        val newElement: KtExpression = createTryCatchWithElement(element, forFile = file)
         return element.replace(newElement)
     }
 
 
     private fun createTryCatchWithElement(
-        element: PsiElement
+        element: PsiElement,
+        forFile: PsiFile
     ): KtExpression {
-        val block: KtBlockExpression = factory.createBlock(createCode(element.text))
+        val block: KtBlockExpression = factory.createBlock(createCode(element.text, forFile))
         return block.statements.singleOrNull() ?: block
     }
 
 
-    private fun createCode(oldCode: String): String {
+    private fun createCode(oldCode: String, forFile: PsiFile): String {
         val catches: String = uncaughtExceptions.joinToString(separator = "\n", transform = { it: KtPsiClass ->
-            it.catchParameterCode()
+            it.catchParameterCode(forFile = forFile)
         })
 
         @Language("kotlin")
@@ -53,7 +56,8 @@ class WrapInTryCatchQuickFix(
 
 
     override fun getFamilyName(): String {
-        return "Csense kotlin checked exceptions- wrap in try catch quick fix"
+
+        return "${Constants.groupName} - wrap in try catch quick fix"
     }
 
     override fun getText(): String {
@@ -61,12 +65,15 @@ class WrapInTryCatchQuickFix(
     }
 }
 
-fun KtPsiClass.catchParameterCode(): String {
+fun KtPsiClass.catchParameterCode(forFile: PsiFile): String {
+    val exceptionName: String = codeNameToUseBasedOnImports(file = forFile)
+
     @Language("kotlin")
     val result = """
-            catch(exception: $fqName){
+            catch(exception: $exceptionName){
                 TODO("Add error handling here")
             }
         """.trimIndent()
     return result
 }
+
