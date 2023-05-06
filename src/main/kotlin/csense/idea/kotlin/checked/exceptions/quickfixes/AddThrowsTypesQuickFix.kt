@@ -23,7 +23,7 @@ class AddThrowsTypesQuickFix(
     )
 
     override fun getFamilyName(): String =
-        Constants.groupName + " - " + "add throws type to parent scope"
+        "${Constants.groupName} - add throws type to parent scope"
 
 
     override fun getText(): String =
@@ -51,7 +51,7 @@ class AddThrowsTypesQuickFix(
     }
 
     private fun KtAnnotationEntry.addThrowsTypes() {
-        valueArgumentList?.addTypeRefs(missingThrowsTypes)
+        valueArgumentList?.addTypeRefs(missingThrowsTypes, forFile = containingFile)
     }
 
 

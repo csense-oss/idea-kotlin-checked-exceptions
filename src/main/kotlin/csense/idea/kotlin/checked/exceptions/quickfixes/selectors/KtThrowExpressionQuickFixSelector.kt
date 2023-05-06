@@ -8,7 +8,7 @@ import csense.kotlin.extensions.collections.list.*
 import org.jetbrains.kotlin.psi.*
 
 class KtThrowExpressionQuickFixSelector(
-    private val throwExpression: KtThrowExpression,
+    throwExpression: KtThrowExpression,
     uncaughtExceptions: List<KtPsiClass>
 ) : AbstractUncaughtExceptionQuickfixSelector(
     element = throwExpression,

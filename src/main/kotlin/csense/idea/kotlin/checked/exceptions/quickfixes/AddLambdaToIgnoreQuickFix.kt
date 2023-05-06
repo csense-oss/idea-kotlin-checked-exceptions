@@ -4,6 +4,7 @@ package csense.idea.kotlin.checked.exceptions.quickfixes
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import csense.idea.base.bll.quickfixes.*
+import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.bll.ignore.*
 import org.jetbrains.kotlin.psi.*
 
@@ -12,7 +13,7 @@ class AddLambdaToIgnoreQuickFix(
     private val parameterName: String
 ) : LocalQuickFixOnSingleKtElement<KtFunction>(lambdaFunction) {
     override fun getFamilyName(): String {
-        return "Csense - checked exceptions - add to ignore quick fix"
+        return "${Constants.groupName} - add to ignore quick fix"
     }
 
     override fun getText(): String {

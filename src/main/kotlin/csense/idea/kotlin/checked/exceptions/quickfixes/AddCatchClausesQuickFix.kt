@@ -31,8 +31,9 @@ class AddCatchClausesQuickFix(
 
     override fun tryUpdate(project: Project, file: PsiFile, element: KtTryExpression): PsiElement? {
         uncaughtExceptions.forEach { it: KtPsiClass ->
+            val exceptionName: String = it.codeNameToUseBasedOnImports(file)
             val catchClause: KtCatchClause = factory.createCatchClause(
-                catchExpression = "exception: ${it.fqName}"
+                catchExpression = "exception: $exceptionName"
             ) ?: return@forEach
             element.addCatchClauseLast(catchClause)
         }
