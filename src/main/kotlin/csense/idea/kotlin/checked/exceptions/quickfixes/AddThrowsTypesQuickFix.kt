@@ -6,24 +6,19 @@ import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
-import csense.idea.base.bll.quickfixes.*
-import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
 import org.jetbrains.kotlin.psi.*
 
-//TODO SHORTEN NAMES!??!?!? IMPORTS!!??!?! :(((((((((((((((((((((
-//TODO make better base class? hmmmmmmmmmmm
 class AddThrowsTypesQuickFix(
     toExpression: KtAnnotated,
     private val missingThrowsTypes: List<KtPsiClass>
-) : LocalQuickFixUpdateCode<KtAnnotated>(toExpression) {
+) : BaseLocalQuickFixUpdateCode<KtAnnotated>(toExpression) {
 
     private val throwsTypesListHtml: String = missingThrowsTypes.coloredFqNameString(
         cssColor = IncrementalExceptionCheckerVisitor.typeCssColor
     )
 
-    override fun getFamilyName(): String =
-        "${Constants.groupName} - add throws type to parent scope"
+    override fun getActionText(): String = "add throws type to parent scope"
 
 
     override fun getText(): String =

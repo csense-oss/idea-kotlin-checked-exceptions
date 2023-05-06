@@ -13,11 +13,10 @@ import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
 
-
 class WrapInTryCatchQuickFix(
     namedFunction: KtCallExpression,
     private val uncaughtExceptions: List<KtPsiClass>,
-) : LocalQuickFixUpdateCode<KtCallExpression>(element = namedFunction) {
+) : BaseLocalQuickFixUpdateCode<KtCallExpression>(element = namedFunction) {
 
     private val typeListHtml: String by lazy {
         uncaughtExceptions.coloredFqNameString(
@@ -55,10 +54,7 @@ class WrapInTryCatchQuickFix(
     }
 
 
-    override fun getFamilyName(): String {
-
-        return "${Constants.groupName} - wrap in try catch quick fix"
-    }
+    override fun getActionText(): String = "wrap in try catch quick fix"
 
     override fun getText(): String {
         return "<html>wrap in try catch for $typeListHtml exception(s)</html>"

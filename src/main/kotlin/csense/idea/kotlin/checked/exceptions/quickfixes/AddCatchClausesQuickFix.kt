@@ -5,15 +5,13 @@ import com.intellij.psi.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
-import csense.idea.base.bll.quickfixes.*
-import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
 import org.jetbrains.kotlin.psi.*
 
 class AddCatchClausesQuickFix(
     tryExpression: KtTryExpression,
     private val uncaughtExceptions: List<KtPsiClass>,
-) : LocalQuickFixUpdateCode<KtTryExpression>(element = tryExpression) {
+) : BaseLocalQuickFixUpdateCode<KtTryExpression>(element = tryExpression) {
 
     private val typeListHtml: String by lazy {
         uncaughtExceptions.coloredFqNameString(
@@ -21,9 +19,7 @@ class AddCatchClausesQuickFix(
         )
     }
 
-    override fun getFamilyName(): String {
-        return "${Constants.groupName} - add catch(es) quick fix"
-    }
+    override fun getActionText(): String = "add catch(es) quick fix"
 
     override fun getText(): String {
         return "<html>add catch(es) for $typeListHtml exception(s)</html>"
