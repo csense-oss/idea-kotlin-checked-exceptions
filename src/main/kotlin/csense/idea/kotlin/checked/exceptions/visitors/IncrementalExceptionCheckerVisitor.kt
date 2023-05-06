@@ -199,7 +199,6 @@ class IncrementalExceptionCheckerVisitor(
             tagType = "b"
         )
 
-        //TODO this should be a resource bundle.
         @Language("html")
         val resultHtml = "<html>Uncaught exceptions $typesHtml</html>"
         return resultHtml

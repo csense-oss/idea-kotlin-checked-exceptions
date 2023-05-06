@@ -14,22 +14,22 @@ class CachedFqNameFunctionParameterStorage private constructor(
         fileCache.reload()
     }
 
-    fun addEntry(entry: CachedFqNameFunctionParameter) = tryAndLog {
+    fun addEntry(entry: CachedFqNameFunctionParameter): Unit = tryAndLog {
         fileCache.updateWith { it: HashSet<CachedFqNameFunctionParameter> ->
             it.add(entry)
             it
         }
-    }
+    }.toUnit()
 
-    fun removeEntry(entry: CachedFqNameFunctionParameter) = tryAndLog {
+    fun removeEntry(entry: CachedFqNameFunctionParameter): Unit = tryAndLog {
         fileCache.updateWith { it: HashSet<CachedFqNameFunctionParameter> ->
             it.remove(entry)
             it
         }
-    }
+    }.toUnit()
 
     fun contains(entry: CachedFqNameFunctionParameter): Boolean = tryAndLog {
-        return fileCache.withCurrentValue { it: HashSet<CachedFqNameFunctionParameter> ->
+        fileCache.withCurrentValue { it: HashSet<CachedFqNameFunctionParameter> ->
             it.contains(entry)
         }
     } ?: false
