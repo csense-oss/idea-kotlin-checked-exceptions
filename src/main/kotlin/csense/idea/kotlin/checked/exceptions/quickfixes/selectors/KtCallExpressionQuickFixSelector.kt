@@ -40,18 +40,20 @@ class KtCallExpressionQuickFixSelector(
         state: IncrementalExceptionCheckerState,
         result: MutableList<LocalQuickFix>
     ) {
-        val lambda: LambdaArgumentLookup = state
-            .containingLambdas
-            .lastOrNull()
-            ?.toLamdaArgumentLookup()
-            ?: return
+        val lambda: LambdaArgumentLookup = getLambdaFromStateOrNull(state) ?: return
 
         if (!ignoreRepo.isLambdaIgnoreExceptions(lambda)) {
-            addLambdaToIgnoreQuickFix(lambda = lambda, result = result)
+            result += AddLambdaToIgnoreQuickFix(lambda)
         }
         if (!callThoughRepo.isLambdaCallThough(lambda)) {
-            addLambdaToCallThoughQuickFix(lambda, result)
+            result += AddLambdaToCallthoughQuickFix(lambda)
         }
+    }
+
+    private fun getLambdaFromStateOrNull(
+        state: IncrementalExceptionCheckerState
+    ): LambdaArgumentLookup? {
+        return state.containingLambdas.lastOrNull()?.toLamdaArgumentLookup()
     }
 
     private fun appendQuickFixesForExpression(
@@ -67,20 +69,6 @@ class KtCallExpressionQuickFixSelector(
             return
         }
         addWrapInTryCatchFixes(result = result)
-    }
-
-    private fun addLambdaToIgnoreQuickFix(
-        lambda: LambdaArgumentLookup,
-        result: MutableList<LocalQuickFix>
-    ) {
-        result += AddLambdaToIgnoreQuickFix(lambda)
-    }
-
-    private fun addLambdaToCallThoughQuickFix(
-        lambda: LambdaArgumentLookup,
-        result: MutableList<LocalQuickFix>
-    ) {
-        result += AddLambdaToCallthoughQuickFix(lambda)
     }
 
     private fun addCatchClauseFixes(

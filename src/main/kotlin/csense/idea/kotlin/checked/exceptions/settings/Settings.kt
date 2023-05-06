@@ -7,7 +7,7 @@ import csense.idea.base.settings.propertiesComponent.*
 
 object Settings {
 
-    private const val settingsPrefixed = "CsenseCheckedExceptionKotlin"
+    private const val settingsPrefixed = "CsenseCheckedExceptionKotlinV2"
 
     private val backend: PropertiesComponent by lazy {
         PropertiesComponent.getInstance()

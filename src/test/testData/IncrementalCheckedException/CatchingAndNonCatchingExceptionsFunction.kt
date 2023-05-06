@@ -5,8 +5,7 @@ object CatchingAndNonCatchingExceptionsFunction {
     }
 
     fun iDoNotCatchException() {
-        <warning descr="This call throws, so you should handle it with try catch, or declare that this method throws.
- It throws the following types:Throwable">iThrow()</warning>
+        <warning descr="Uncaught exceptions kotlin.Throwable">iThrow()</warning>
     }
 
     @Throws
@@ -24,8 +23,7 @@ object CatchingAndNonCatchingExceptionsFunction {
 
     fun iDoCatchWrongType() {
         try {
-            <warning descr="This call throws, so you should handle it with try catch, or declare that this method throws.
- It throws the following types:Throwable">iThrow()</warning>
+            <warning descr="Uncaught exceptions kotlin.Throwable">iThrow()</warning>
         } catch (E: Exception) {
 
         }

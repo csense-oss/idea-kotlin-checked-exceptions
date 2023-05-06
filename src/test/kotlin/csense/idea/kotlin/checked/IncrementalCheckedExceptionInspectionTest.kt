@@ -1,5 +1,6 @@
 package csense.idea.kotlin.checked
 
+import csense.idea.kotlin.checked.exceptions.inspections.*
 import csense.idea.kotlin.test.*
 import org.junit.*
 
@@ -10,7 +11,7 @@ class IncrementalCheckedExceptionInspectionTest : KotlinLightCodeInsightFixtureT
     @Before
     fun setup() {
         myFixture.allowTreeAccessForAllFiles()
-//        myFixture.enableInspections(IncrementalCheckedExceptionInspection())
+        myFixture.enableInspections(IncrementalCheckedExceptionInspection())
     }
 
     @Test

@@ -9,6 +9,7 @@
     - Highlights simple Throws in kotlin doc (is not fully implemented)
     - should respect imports now when generating quick fixe(s)
 - began work on coding throwing functions from kotlin's std lib. (requires a lot of work)
+- Renamed settings to avoid conflicts with older version(s).
 
 # 1.2.0
 
