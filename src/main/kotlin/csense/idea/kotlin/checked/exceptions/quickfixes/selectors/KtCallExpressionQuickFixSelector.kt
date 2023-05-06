@@ -1,8 +1,12 @@
 package csense.idea.kotlin.checked.exceptions.quickfixes.selectors
 
 import com.intellij.codeInspection.*
+import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
-import csense.idea.kotlin.checked.exceptions.quickfixes.*
+import csense.idea.kotlin.checked.exceptions.bll.callthough.*
+import csense.idea.kotlin.checked.exceptions.bll.ignore.*
+import csense.idea.kotlin.checked.exceptions.quickfixes.add.*
+import csense.idea.kotlin.checked.exceptions.quickfixes.wrap.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
 import org.jetbrains.kotlin.psi.*
 
@@ -14,26 +18,70 @@ class KtCallExpressionQuickFixSelector(
     uncaughtExceptions = uncaughtExceptions
 ) {
 
+    private val ignoreRepo: IgnoreRepo by lazy {
+        IgnoreRepo(callExpression.project)
+    }
+
+    private val callThoughRepo: CallThoughRepo by lazy {
+        CallThoughRepo(callExpression.project)
+    }
+
     override fun appendQuickFixesFor(
         state: IncrementalExceptionCheckerState,
         result: MutableList<LocalQuickFix>
     ) {
-        //TODO in lambda?! hmm..
         if (state.containingLambdas.isNotEmpty()) {
-            //TODO YA........ call though, ignores etc.
+            appendQuickFixesForContainingLambdas(state, result)
         }
+        appendQuickFixesForExpression(state, result)
+    }
 
+    private fun appendQuickFixesForContainingLambdas(
+        state: IncrementalExceptionCheckerState,
+        result: MutableList<LocalQuickFix>
+    ) {
+        val lambda: LambdaArgumentLookup = state
+            .containingLambdas
+            .lastOrNull()
+            ?.toLamdaArgumentLookup()
+            ?: return
+
+        if (!ignoreRepo.isLambdaIgnoreExceptions(lambda)) {
+            addLambdaToIgnoreQuickFix(lambda = lambda, result = result)
+        }
+        if (!callThoughRepo.isLambdaCallThough(lambda)) {
+            addLambdaToCallThoughQuickFix(lambda, result)
+        }
+    }
+
+    private fun appendQuickFixesForExpression(
+        state: IncrementalExceptionCheckerState,
+        result: MutableList<LocalQuickFix>
+    ) {
         val containingTry: KtTryExpression? = state.containingTryExpression
-        if (containingTry == null) {
-            addWrapInTryCatchFixes(result = result)
-        } else {
+        if (containingTry != null) {
             addCatchClauseFixes(
                 tryExpression = containingTry,
                 result = result
             )
+            return
         }
+        addWrapInTryCatchFixes(result = result)
     }
 
+    private fun addLambdaToIgnoreQuickFix(
+        lambda: LambdaArgumentLookup,
+        result: MutableList<LocalQuickFix>
+    ) {
+        result += AddLambdaToIgnoreQuickFix(lambda)
+    }
+
+    private fun addLambdaToCallThoughQuickFix(
+        lambda: LambdaArgumentLookup,
+        result: MutableList<LocalQuickFix>
+    ) {
+        result += AddLambdaToCallthoughQuickFix(lambda)
+    }
 
     private fun addCatchClauseFixes(
         tryExpression: KtTryExpression,

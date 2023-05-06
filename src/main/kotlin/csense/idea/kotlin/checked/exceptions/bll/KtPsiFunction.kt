@@ -7,6 +7,7 @@ import csense.idea.kotlin.checked.exceptions.builtin.operations.*
 fun KtPsiFunction.throwsTypesForSettings(): List<KtPsiClass> {
     return throwsTypesOrBuiltIn().filterRuntimeExceptionsBySettings()
 }
+
 fun KtPsiFunction?.throwsTypesForSettingsOrEmpty(): List<KtPsiClass> {
     return this?.throwsTypesForSettings().orEmpty()
 }

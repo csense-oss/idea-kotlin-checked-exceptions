@@ -1,23 +1,20 @@
-package csense.idea.kotlin.checked.exceptions.quickfixes
+package csense.idea.kotlin.checked.exceptions.quickfixes.wrap
 
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
-import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
-import csense.idea.base.bll.psiWrapper.`class`.operations.`is`.*
-import csense.idea.base.bll.quickfixes.*
-import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
-import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.*
 
 class WrapInTryCatchQuickFix(
     namedFunction: KtCallExpression,
+    @Suppress("ActionIsNotPreviewFriendly")
     private val uncaughtExceptions: List<KtPsiClass>,
 ) : BaseLocalQuickFixUpdateCode<KtCallExpression>(element = namedFunction) {
 
+    @Suppress("ActionIsNotPreviewFriendly")
     private val typeListHtml: String by lazy {
         uncaughtExceptions.coloredFqNameString(
             cssColor = IncrementalExceptionCheckerVisitor.typeCssColor
@@ -44,7 +41,7 @@ class WrapInTryCatchQuickFix(
             it.catchParameterCode(forFile = forFile)
         })
 
-        @Language("kotlin")
+        //language=kotlin
         val result: String = """
             try {
                 $oldCode
@@ -64,7 +61,7 @@ class WrapInTryCatchQuickFix(
 fun KtPsiClass.catchParameterCode(forFile: PsiFile): String {
     val exceptionName: String = codeNameToUseBasedOnImports(file = forFile)
 
-    @Language("kotlin")
+    //language=kotlin
     val result = """
             catch(exception: $exceptionName){
                 TODO("Add error handling here")

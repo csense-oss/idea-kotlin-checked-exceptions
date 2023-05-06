@@ -10,9 +10,11 @@ fun KtLambdaExpression.computeLambdaCaptureTypes(
     lambdaLookup: LambdaArgumentLookup
 ): List<KtPsiClass> {
     val resolution: ProjectClassResolutionInterface = ProjectClassResolutionInterface.getOrCreate(project)
+
     if (lambdaLookup.isLambdaInIgnoreExceptions(resolution)) {
         return listOfNotNull(resolution.kotlinOrJavaThrowable)
     }
+
     if (lambdaLookup.isLambdaCallThough(resolution)) {
         return currentCaptures
     }

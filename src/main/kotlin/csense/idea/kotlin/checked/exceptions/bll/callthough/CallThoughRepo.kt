@@ -12,20 +12,11 @@ class CallThoughRepo(
         CachedFqNameFunctionParameterStorage.forProjectOrNull(project = project, fileName = callthoughProjectFileName)
     }
 
-    fun isLambdaCallThough(lambda: LambdaArgumentLookup): Boolean {
-        if (isBuiltInCallThough(lambda)) {
-            return true
-        }
-
-        if (lambda.isCallInPlace()) {
-            return true
-        }
-
-        if (hasRethrowsExceptionAnnotationOnParameter(lambda)) {
-            return true
-        }
-
-        return isLambdaCallThoughInStorage(lookup = lambda)
+    fun isLambdaCallThough(lambda: LambdaArgumentLookup): Boolean = when {
+        isBuiltInCallThough(lambda) -> true
+        lambda.isCallInPlace() -> true
+        hasRethrowsExceptionAnnotationOnParameter(lambda) -> true
+        else -> isLambdaCallThoughInStorage(lookup = lambda)
     }
 
     private fun hasRethrowsExceptionAnnotationOnParameter(

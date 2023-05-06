@@ -12,16 +12,10 @@ class IgnoreRepo(
         CachedFqNameFunctionParameterStorage.forProjectOrNull(project = project, fileName = ignoreFileName)
     }
 
-    fun isLambdaIgnoreExceptions(lambda: LambdaArgumentLookup): Boolean {
-        if (IgnoreInMemory.isInKotlinStdLib(lambda)) {
-            return true
-        }
-
-        if (lambda.isCallInPlace()) {
-            return false
-        }
-
-        return isLambdaIgnoreInStorage(lookup = lambda)
+    fun isLambdaIgnoreExceptions(lambda: LambdaArgumentLookup): Boolean = when {
+        IgnoreInMemory.isInKotlinStdLib(lambda) -> true
+        lambda.isCallInPlace() -> false
+        else -> isLambdaIgnoreInStorage(lookup = lambda)
     }
 
     private fun isLambdaIgnoreInStorage(

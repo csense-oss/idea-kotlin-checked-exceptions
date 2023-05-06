@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions.quickfixes
+package csense.idea.kotlin.checked.exceptions.quickfixes.add
 
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
@@ -6,11 +6,13 @@ import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
+import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
 import org.jetbrains.kotlin.psi.*
 
 class AddThrowsTypesQuickFix(
     toExpression: KtAnnotated,
+    @Suppress("ActionIsNotPreviewFriendly")
     private val missingThrowsTypes: List<KtPsiClass>
 ) : BaseLocalQuickFixUpdateCode<KtAnnotated>(toExpression) {
 
@@ -40,18 +42,13 @@ class AddThrowsTypesQuickFix(
     private fun addNewThrowsAnnotationTo(
         element: KtAnnotated
     ) {
-        val newAnnotation: KtAnnotationEntry = createNewThrowsAnnotation()
+        val newAnnotation: KtAnnotationEntry = factory.createThrowsAnnotation()
         newAnnotation.addThrowsTypes()
         element.addFirst(newAnnotation)
     }
 
     private fun KtAnnotationEntry.addThrowsTypes() {
         valueArgumentList?.addTypeRefs(missingThrowsTypes, forFile = containingFile)
-    }
-
-
-    private fun createNewThrowsAnnotation(): KtAnnotationEntry {
-        return factory.createAnnotationEntry("@Throws()")
     }
 }
 

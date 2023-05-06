@@ -6,3 +6,4 @@
 - redo the settings page
 - re-introduce quick fixes... and add new ones for the various cases.
 - cleanup the integration tests
+- come up with something for init that can throw..
