@@ -1,5 +1,5 @@
 plugins {
-//https://github.com/JetBrains/gradle-intellij-plugin
+    //https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij") version "1.13.3"
     //https://github.com/JetBrains/kotlin
     kotlin("jvm") version "1.8.21"
