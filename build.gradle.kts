@@ -57,6 +57,7 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
           <li>a lot of things that previously did not work (or only partially worked) now works</li>
           <li>Preliminary support for @throws kotlin doc</li>
           <li>should respect imports now for quickfixes</li>
+          <li>Removed most of the previous settings</li>
           <li>Started on mapping kotlin std lib functions that throws</li>
         </ul>
         Nb: there are some known issues. However the previous version barely works thus the release of this version is prioritized. 
