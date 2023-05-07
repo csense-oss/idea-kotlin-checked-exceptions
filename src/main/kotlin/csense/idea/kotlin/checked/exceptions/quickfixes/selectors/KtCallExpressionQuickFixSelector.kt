@@ -29,10 +29,16 @@ class KtCallExpressionQuickFixSelector(
         state: IncrementalExceptionCheckerState,
         result: MutableList<LocalQuickFix>
     ) {
+        appendQuickFixesForExpression(state, result)
         if (state.containingLambdas.isNotEmpty()) {
             appendQuickFixesForContainingLambdas(state, result)
+        } else {
+            AddThrowsTypeToSelector.tryAddThrowsTypesAnnotations(
+                parent = state.parentScope,
+                result = result, uncaughtExceptions = uncaughtExceptions,
+                kotlinThrowable = kotlinThrowable
+            )
         }
-        appendQuickFixesForExpression(state, result)
     }
 
     private fun appendQuickFixesForContainingLambdas(
@@ -68,7 +74,9 @@ class KtCallExpressionQuickFixSelector(
             return
         }
         addWrapInTryCatchFixes(result = result)
+
     }
+
 
     private fun addCatchClauseFixes(
         tryExpression: KtTryExpression,

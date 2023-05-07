@@ -3,7 +3,6 @@ package csense.idea.kotlin.checked.exceptions.quickfixes.add
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
 import csense.idea.base.bll.kotlin.*
-import csense.idea.base.bll.psi.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
@@ -31,24 +30,29 @@ class AddThrowsTypesQuickFix(
         file: PsiFile,
         element: KtAnnotated
     ): PsiElement? {
-        when (val throwsAnnotation: KtAnnotationEntry? = element.throwsAnnotationOrNull()) {
-            null -> addNewThrowsAnnotationTo(element = element)
+        return when (val throwsAnnotation: KtAnnotationEntry? = element.throwsAnnotationOrNull()) {
+            null -> addNewThrowsAnnotationTo(element = element, file = file)
             else -> throwsAnnotation.addThrowsTypes()
         }
-        return null
     }
 
 
     private fun addNewThrowsAnnotationTo(
-        element: KtAnnotated
-    ) {
-        val newAnnotation: KtAnnotationEntry = factory.createThrowsAnnotation()
-        newAnnotation.addThrowsTypes()
-        element.addFirst(newAnnotation)
+        element: KtAnnotated,
+        file: PsiFile
+    ): PsiElement? {
+        val replacement: KtNamedFunction = factory.createFunction(
+            """
+            @Throws(${missingThrowsTypes.joinToString { it.nameRef(file) }})
+            ${element.text}
+        """.trimIndent()
+        )
+        return element.replace(replacement)
     }
 
-    private fun KtAnnotationEntry.addThrowsTypes() {
+    private fun KtAnnotationEntry.addThrowsTypes(): PsiElement? {
         valueArgumentList?.addTypeRefs(missingThrowsTypes, forFile = containingFile)
+        return null
     }
 }
 

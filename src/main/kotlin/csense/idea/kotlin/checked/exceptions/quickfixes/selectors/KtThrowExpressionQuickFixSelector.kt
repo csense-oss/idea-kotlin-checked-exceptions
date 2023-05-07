@@ -18,26 +18,52 @@ class KtThrowExpressionQuickFixSelector(
         state: IncrementalExceptionCheckerState,
         result: MutableList<LocalQuickFix>
     ) {
-
         val parent: KtElement? = state.parentScope
+        AddThrowsTypeToSelector.tryAddThrowsTypesAnnotations(
+            parent = parent,
+            result = result,
+            uncaughtExceptions = uncaughtExceptions,
+            kotlinThrowable = kotlinThrowable
+        )
+    }
+
+
+}
+
+object AddThrowsTypeToSelector {
+
+    fun tryAddThrowsTypesAnnotations(
+        parent: KtElement?,
+        result: MutableList<LocalQuickFix>,
+        uncaughtExceptions: List<KtPsiClass>,
+        kotlinThrowable: KtPsiClass?
+    ) {
         if (parent is KtAnnotated) {
-            addThrowsTypesAnnotations(parentScope = parent, result = result)
+            addThrowsTypesAnnotations(
+                parentScope = parent,
+                result = result,
+                uncaughtExceptions = uncaughtExceptions,
+                kotlinThrowable
+            )
         }
     }
 
-    private fun addThrowsTypesAnnotations(
+    fun addThrowsTypesAnnotations(
         parentScope: KtAnnotated,
-        result: MutableList<LocalQuickFix>
+        result: MutableList<LocalQuickFix>,
+        uncaughtExceptions: List<KtPsiClass>,
+        kotlinThrowable: KtPsiClass?
     ) {
-        addAllThrowsTypesTo(parentScope = parentScope, result = result)
+        addAllThrowsTypesTo(parentScope = parentScope, result = result, uncaughtExceptions)
         if (uncaughtExceptions.doesNotContain(kotlinThrowable)) {
-            addKotlinThrowTypeTo(parentScope, result)
+            addKotlinThrowTypeTo(parentScope = parentScope, result = result, kotlinThrowable = kotlinThrowable)
         }
     }
 
     private fun addAllThrowsTypesTo(
         parentScope: KtAnnotated,
-        result: MutableList<LocalQuickFix>
+        result: MutableList<LocalQuickFix>,
+        uncaughtExceptions: List<KtPsiClass>
     ) {
         result += AddThrowsTypesQuickFix(
             toExpression = parentScope,
@@ -47,7 +73,8 @@ class KtThrowExpressionQuickFixSelector(
 
     private fun addKotlinThrowTypeTo(
         parentScope: KtAnnotated,
-        result: MutableList<LocalQuickFix>
+        result: MutableList<LocalQuickFix>,
+        kotlinThrowable: KtPsiClass?
     ) {
         val kotlinThrowable: KtPsiClass = kotlinThrowable ?: return
         result += AddThrowsTypesQuickFix(
@@ -55,5 +82,4 @@ class KtThrowExpressionQuickFixSelector(
             missingThrowsTypes = listOf(kotlinThrowable)
         )
     }
-
 }
