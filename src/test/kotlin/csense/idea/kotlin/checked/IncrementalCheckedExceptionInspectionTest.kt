@@ -17,13 +17,6 @@ class IncrementalCheckedExceptionInspectionTest : KotlinLightCodeInsightFixtureT
     @Test
     fun functionDoesNotCatchException() {
         myFixture.configureByFile("CatchingAndNonCatchingExceptionsFunction.kt")
-        //TODO improve test with actually knowing the type of the wrongly not caught exceptions etc.
-//        myFixture.checkHighlighting()
-//        val x = myFixture.doHighlighting()
-//        val matchingInspector = x.filter {
-//            it.inspectionToolId == "CheckedExceptionsKotlin"
-//        }
-
         myFixture.checkHighlighting(true, false, false, true)
     }
 
@@ -36,7 +29,7 @@ class IncrementalCheckedExceptionInspectionTest : KotlinLightCodeInsightFixtureT
     @Test
     fun useLazy() {
         myFixture.configureByFile("UseLazy.kt")
-        myFixture.checkHighlighting(true, false, false, true)
+        myFixture.checkHighlighting()
     }
 
 

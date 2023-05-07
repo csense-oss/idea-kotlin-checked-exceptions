@@ -25,7 +25,7 @@ import javax.swing.*
 
 
 /**
- * Highlights method calls  that have checked exceptions associated with them.
+ * Highlights method calls that have checked exceptions associated with them.
  */
 class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
 
@@ -114,6 +114,12 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
             .setTooltipText(htmlToolTip)
             .createLineMarkerInfo(leafPsiElement)
     }
+
+    override fun getName(): String {
+        return "CheckedExceptionLineMarkerProvider"
+    }
+
+
 
     companion object {
         val exceptionIcon: Icon by lazy { IconLoader.getIcon("/icons/throws.svg", Companion::class.java) }

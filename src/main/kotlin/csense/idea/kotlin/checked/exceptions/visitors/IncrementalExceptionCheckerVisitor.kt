@@ -62,7 +62,6 @@ class IncrementalExceptionCheckerVisitor(
         val delegateExpression: KtExpression? = property.delegateExpression
         if (delegateExpression != null) {
             onVisitPropertyWithDelegate(property, data)
-//            val delegate TODO?
         }
     }
 
@@ -96,7 +95,10 @@ class IncrementalExceptionCheckerVisitor(
         visitExpression(/* expression = */ customSetter, /* data = */ newState)
     }
 
-    private fun onVisitPropertyWithDelegate(property: KtProperty, data: IncrementalExceptionCheckerState?) {
+    private fun onVisitPropertyWithDelegate(
+        property: KtProperty,
+        data: IncrementalExceptionCheckerState?
+    ) {
 //        val declaredThrows: List<KtPsiClass> =
 //            property.throwsTypesWithSetter().filterRuntimeExceptionsBySettings()
 //
