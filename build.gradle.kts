@@ -55,8 +55,9 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
           <li>Performance should be superb</li>
           <li>Quick fixes should generally work pretty well now</li>
           <li>a lot of things that previously did not work (or only partially worked) now works</li>
-          <li>Highlights simple Throws in kotlin doc</li>
-          <li>should respect imports now</li>
+          <li>Preliminary support for @throws kotlin doc</li>
+          <li>should respect imports now for quickfixes</li>
+          <li>Started on mapping kotlin std lib functions that throws</li>
         </ul>
       """
     )

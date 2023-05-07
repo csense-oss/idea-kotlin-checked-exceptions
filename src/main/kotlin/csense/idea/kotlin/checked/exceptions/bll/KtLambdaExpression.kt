@@ -2,7 +2,7 @@ package csense.idea.kotlin.checked.exceptions.bll
 
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
-import csense.idea.kotlin.checked.exceptions.bll.callthough.*
+import csense.idea.kotlin.checked.exceptions.repo.*
 import org.jetbrains.kotlin.psi.*
 
 fun KtLambdaExpression.computeLambdaCaptureTypes(

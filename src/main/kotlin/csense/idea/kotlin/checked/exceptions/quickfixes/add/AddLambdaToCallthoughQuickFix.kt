@@ -5,7 +5,7 @@ import com.intellij.psi.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.quickfixes.*
 import csense.idea.kotlin.checked.exceptions.bll.*
-import csense.idea.kotlin.checked.exceptions.bll.callthough.*
+import csense.idea.kotlin.checked.exceptions.repo.*
 import org.jetbrains.kotlin.psi.*
 
 class AddLambdaToCallthoughQuickFix(

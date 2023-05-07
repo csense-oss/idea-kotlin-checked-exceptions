@@ -1,4 +1,4 @@
-package csense.idea.kotlin.checked.exceptions.bll.callthough
+package csense.idea.kotlin.checked.exceptions.repo
 
 import csense.idea.base.*
 import csense.idea.base.bll.kotlin.*

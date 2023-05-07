@@ -3,10 +3,9 @@ package csense.idea.kotlin.checked.exceptions.quickfixes.selectors
 import com.intellij.codeInspection.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
-import csense.idea.kotlin.checked.exceptions.bll.callthough.*
-import csense.idea.kotlin.checked.exceptions.bll.ignore.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.add.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.wrap.*
+import csense.idea.kotlin.checked.exceptions.repo.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
 import org.jetbrains.kotlin.psi.*
 

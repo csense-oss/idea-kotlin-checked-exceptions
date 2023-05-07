@@ -15,6 +15,8 @@ import csense.kotlin.extensions.*
 import org.intellij.lang.annotations.*
 import org.jetbrains.kotlin.psi.*
 
+//TODO visit class level properties?
+
 class IncrementalExceptionCheckerVisitor(
     val holder: ProblemsHolder,
     val project: Project
@@ -36,7 +38,6 @@ class IncrementalExceptionCheckerVisitor(
         return super.visitTryExpression(expression, newState)
     }
 
-    //TODO any of theses for class level properties?
     override fun visitProperty(
         property: KtProperty,
         data: IncrementalExceptionCheckerState?
@@ -131,7 +132,7 @@ class IncrementalExceptionCheckerVisitor(
         val currentState: IncrementalExceptionCheckerState = state.newStateByAppending()
         val thrownExceptions: List<KtPsiClass> = expression
             .resolveMainReferenceAsFunction()
-            .throwsTypesForSettingsOrEmpty()
+            .throwsTypesForCallBySettingsOrEmpty()
 
         findIssuesAndReport(
             expression = expression,

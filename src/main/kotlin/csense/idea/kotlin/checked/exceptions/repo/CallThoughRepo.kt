@@ -1,7 +1,8 @@
-package csense.idea.kotlin.checked.exceptions.bll.callthough
+package csense.idea.kotlin.checked.exceptions.repo
 
 import com.intellij.openapi.project.*
 import csense.idea.base.bll.kotlin.*
+import csense.idea.kotlin.checked.exceptions.bll.callthough.*
 import csense.idea.kotlin.checked.exceptions.bll.files.*
 import csense.idea.kotlin.checked.exceptions.builtin.callthough.*
 
