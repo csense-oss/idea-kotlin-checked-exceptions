@@ -9,7 +9,7 @@
     <description><![CDATA[
      A plugin that adds errors / hints / quickfix related to checked exceptions,<br/>
      so that if you are interacting with java & checked exceptions, you can get the same error handling.
-     Suggestions & bug -> go to the github page and post an issue :)
+     Suggestions & bug -> go to the GitHub page and post an issue :)
     ]]></description>
 
     <depends>com.intellij.modules.lang</depends>
@@ -17,12 +17,13 @@
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
         <inspectionToolProvider
                 implementation="csense.idea.kotlin.checked.exceptions.inspections.InspectionsProvider"/>
+
         <codeInsight.lineMarkerProvider
                 language="kotlin"
                 implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.CheckedExceptionLineMarkerProvider"/>
+
         <codeInsight.lineMarkerProvider
                 language="kotlin"
                 implementationClass="csense.idea.kotlin.checked.exceptions.lineMarkers.ThrowsExceptionLineMarkerProvider"/>
@@ -30,17 +31,11 @@
         <applicationConfigurable groupId="tools" displayName="Csense Kotlin Checked Exceptions"
                                  id="csenseKotlinCheckedExceptionsSettingsPage"
                                  instance="csense.idea.kotlin.checked.exceptions.settings.SettingsPage"/>
-
-
-        <annotator language="kotlin"
-                   implementationClass="csense.idea.kotlin.checked.exceptions.annotator.ThrowsAnnotator"/>
-        <annotator language="kotlin"
-                   implementationClass="csense.idea.kotlin.checked.exceptions.annotator.ThrowsFunctionAnnotator"/>
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
+
     </actions>
 
-    <idea-version since-build="192"/>
+    <idea-version since-build="213"/>
 </idea-plugin>

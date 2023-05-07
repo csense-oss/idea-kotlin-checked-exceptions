@@ -1,6 +1,5 @@
 package csense.idea.kotlin.checked.exceptions;
 
-import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import csense.idea.kotlin.checked.exceptions.settings.Settings;
@@ -9,30 +8,15 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.Objects;
 
 public class SettingsPaneUi {
     @NotNull
-    public JCheckBox highlightGutterCheckBox;
-    @NotNull
     public JPanel root;
-    @NotNull
-    public JSpinner maxDepthSpinner;
-    @NotNull
-    private JComboBox<String> nothingSeverity;
-    @NotNull
-    private JCheckBox highlightGutterThrowsFunctionsCheckbox;
 
     @NotNull
-    private JCheckBox shouldHighlightThrowsInsideOfFunctionCheckBox;
+    private JCheckBox ignoreRuntimeExceptionsCheckBox;
 
-    @NotNull
-    private JCheckBox ignoreThrowsCheckbox;
-    @NotNull
-    private JCheckBox callthoughCheckbox;
-    @NotNull
-    private JCheckBox runtimeAsCheckedExceptionCheckBox;
-
+    private boolean didChange = false;
 
     public SettingsPaneUi() {
         AbstractAction didChangeCallback = new AbstractAction() {
@@ -41,62 +25,14 @@ public class SettingsPaneUi {
                 setDidChange(true);
             }
         };
-
-        highlightGutterThrowsFunctionsCheckbox.setSelected(Settings.INSTANCE.getShouldHighlightThrowsExceptions());
-        highlightGutterThrowsFunctionsCheckbox.setAction(didChangeCallback);
-
-        highlightGutterCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightCheckedExceptions());
-        highlightGutterCheckBox.setAction(didChangeCallback);
-
-        maxDepthSpinner.addChangeListener(e -> setDidChange(true));
-        maxDepthSpinner.setModel(new SpinnerNumberModel(Settings.INSTANCE.getMaxDepth(), 1, 100, 1));
-
-        ignoreThrowsCheckbox.setSelected(Settings.INSTANCE.getUseIgnoreFile());
-        ignoreThrowsCheckbox.setAction(didChangeCallback);
-        callthoughCheckbox.setSelected(Settings.INSTANCE.getUseCallThoughFile());
-        callthoughCheckbox.setAction(didChangeCallback);
-
-        runtimeAsCheckedExceptionCheckBox.setSelected(Settings.INSTANCE.getRuntimeAsCheckedException());
-        runtimeAsCheckedExceptionCheckBox.setAction(didChangeCallback);
-
-        shouldHighlightThrowsInsideOfFunctionCheckBox.setSelected(Settings.INSTANCE.getShouldHighlightThrowsInsideOfFunction());
-        shouldHighlightThrowsInsideOfFunctionCheckBox.setAction(didChangeCallback);
-
-        final HighlightSeverity settingsSeverity = Settings.INSTANCE.getThrowsInsideOfFunctionSeverity();
-        for (HighlightSeverity severity : HighlightSeverity.DEFAULT_SEVERITIES) {
-            nothingSeverity.addItem(severity.getName());
-        }
-        nothingSeverity.setSelectedItem(settingsSeverity.getName());
-        nothingSeverity.addItemListener(e -> setDidChange(true));
-
-
+        ignoreRuntimeExceptionsCheckBox.setSelected(Settings.INSTANCE.getIgnoreRuntimeExceptions());
+        ignoreRuntimeExceptionsCheckBox.setAction(didChangeCallback);
     }
 
 
-    private boolean didChange = false;
 
     public void store() {
-        try {
-            maxDepthSpinner.commitEdit();
-        } catch (java.text.ParseException e) {
-            //... so bad.
-        }
-        int maxDepthValue = (Integer) maxDepthSpinner.getValue();
-        Settings.INSTANCE.setShouldHighlightCheckedExceptions(highlightGutterCheckBox.isSelected());
-        Settings.INSTANCE.setMaxDepth(maxDepthValue);
-        Settings.INSTANCE.setShouldHighlightThrowsExceptions(highlightGutterThrowsFunctionsCheckbox.isSelected());
-        Settings.INSTANCE.setUseIgnoreFile(ignoreThrowsCheckbox.isSelected());
-        Settings.INSTANCE.setUseCallThoughFile(callthoughCheckbox.isSelected());
-        Settings.INSTANCE.setRuntimeAsCheckedException(runtimeAsCheckedExceptionCheckBox.isSelected());
-        Settings.INSTANCE.setShouldHighlightThrowsInsideOfFunction(shouldHighlightThrowsInsideOfFunctionCheckBox.isSelected());
-
-        final String value = (String) nothingSeverity.getSelectedItem();
-        for (HighlightSeverity severity : HighlightSeverity.DEFAULT_SEVERITIES) {
-            if (Objects.equals(value, severity.getName())) {
-                Settings.INSTANCE.setThrowsInsideOfFunctionSeverity(severity);
-                break;
-            }
-        }
+        Settings.INSTANCE.setIgnoreRuntimeExceptions(ignoreRuntimeExceptionsCheckBox.isSelected());
         setDidChange(false);
     }
 
@@ -123,9 +59,6 @@ public class SettingsPaneUi {
         final JLabel label2 = new JLabel();
         label2.setText("Highlight\n(via gutter) the checked exceptions locations ?");
         root.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        highlightGutterCheckBox = new JCheckBox();
-        highlightGutterCheckBox.setText("");
-        root.add(highlightGutterCheckBox, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

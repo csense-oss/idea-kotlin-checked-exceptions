@@ -1,16 +1,11 @@
-# Overall plan
+# missing todos
 
-- improve performance (always a top priority)
-
-- handle "by lazy"
-
-```kotlin
-val x: String by lazy {
-    throw Exception()
-}
-
-fun useX() {
-    //should highlight this is where an exception "might" be thrown
-    val newString = x + "test"
-}
-```
+- tell if certain exceptions are NOT thrown but declared.
+- detect when there are overlaps in catch clauses (e.g. throwable followed by more specific type...)
+- handle "*arrayOf(exception::class, exception2::class)" ....
+- come up with something for init that can throw...
+- SAM function(s) might not be working
+- if (ignore, callthough) does not exists?
+- improve documentation parsing / handling
+- improve the "source" target when finding e.g.
+- settings for the colors etc. of the hints.

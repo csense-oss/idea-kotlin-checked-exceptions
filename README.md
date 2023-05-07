@@ -17,7 +17,6 @@ this plugin is there to try to fill this hole.
 Please be aware, this is NOT an encouragement to use exceptions everywhere and generally speaking going against the
 kotlin language design chooses, but to AID in the practical difficulty that arises when interacting with systems that
 have a given expectation that is simply not met, nor informed.
- 
 
 
 

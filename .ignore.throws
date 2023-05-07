@@ -1,1 +1,1 @@
-csense.kotlin.extensions.tryAndLog title
+csense.kotlin.extensions.tryAndLog throwableAction
