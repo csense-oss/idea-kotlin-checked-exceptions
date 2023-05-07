@@ -59,6 +59,7 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
           <li>should respect imports now for quickfixes</li>
           <li>Started on mapping kotlin std lib functions that throws</li>
         </ul>
+        Nb: there are some known issues. However the previous version barely works thus the release of this version is prioritized. 
       """
     )
 }
