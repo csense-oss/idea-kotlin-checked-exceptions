@@ -1,16 +1,16 @@
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.13.3"
+    id("org.jetbrains.intellij") version "1.15.0"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "1.8.21"
+    kotlin("jvm") version "1.9.10"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "8.2.1"
+    id("org.owasp.dependencycheck") version "8.4.0"
 }
 
 val javaVersion = "11"
 
 group = "csense-idea"
-version = "2.0.0"
+version = "2.0.1"
 
 intellij {
     updateSinceUntilBuild.set(false)
@@ -37,9 +37,9 @@ dependencies {
     //https://github.com/csense-oss/idea-kotlin-shared-base
     implementation("csense.idea.base:csense-idea-base:0.1.60")
     //https://github.com/Kotlin/kotlinx.serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     //https://github.com/Kotlin/kotlinx.coroutines
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     //https://github.com/csense-oss/csense-kotlin-test
     testImplementation("csense.kotlin:csense-kotlin-tests:0.0.60")
     //https://github.com/csense-oss/csense-oss-idea-kotlin-shared-test
@@ -50,17 +50,12 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
     changeNotes.set(
         """
         <ul>
-          <li>rewrote most of the code to fix issues</li> 
-          <li>Most features are now working across android studio & / intellij and across various versions</li>
-          <li>Performance should be superb</li>
-          <li>Quick fixes should generally work pretty well now</li>
-          <li>a lot of things that previously did not work (or only partially worked) now works</li>
-          <li>Preliminary support for @throws kotlin doc</li>
-          <li>should respect imports now for quickfixes</li>
-          <li>Removed most of the previous settings</li>
-          <li>Started on mapping kotlin std lib functions that throws</li>
+          <li> Fixed a regression where the main inspection was not enabled by default</li>
+          <li> And in relation made sure that the main inspection default highlight level is warning</li>
+          <li> Fixed main inspection description</li>
+          <li> Bumped 3 party dependencies</li>
         </ul>
-        Nb: there are some known issues. However the previous version barely works thus the release of this version is prioritized. 
+        
       """
     )
 }

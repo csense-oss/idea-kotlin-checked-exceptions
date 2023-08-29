@@ -1,8 +1,8 @@
 package csense.idea.kotlin.checked.exceptions.repo
 
-import csense.idea.base.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
+import csense.idea.base.csense.*
 import csense.idea.kotlin.checked.exceptions.bll.*
 import org.jetbrains.kotlin.psi.*
 

@@ -1,5 +1,6 @@
 package csense.idea.kotlin.checked.exceptions.inspections
 
+import com.intellij.codeHighlighting.*
 import com.intellij.codeInspection.*
 import csense.idea.base.visitors.*
 import csense.idea.kotlin.checked.exceptions.bll.*
@@ -18,6 +19,14 @@ class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
 
     override fun getGroupDisplayName(): String {
         return Constants.groupName
+    }
+
+    override fun getDefaultLevel(): HighlightDisplayLevel {
+        return HighlightDisplayLevel.WARNING
+    }
+
+    override fun isEnabledByDefault(): Boolean {
+        return true
     }
 
     override fun buildVisitor(

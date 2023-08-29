@@ -1,3 +1,9 @@
+# 2.0.1
+- fixed a regression where the main inspection was not enabled by default
+- and in relation made sure that the main inspection default highlight level is warning
+- fixed main inspection description
+- bumped 3 party dependencies
+
 # 2.0.0
 
 - rewrote most of the code to fix issues
