@@ -1,8 +1,9 @@
 # 2.1.0
 
 - Fixed a Stackoverflow exception (see https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/17)
-- Fixed a type hierarchy issue  https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18
+- Fixed issues related to https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/21 and made plugin listen for manual changes to *.throws files
 - Added capability to ignore functions marked as tests (and a setting hereof) (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/19)
+- Added capability to ignore functions marked as deprecated (and a setting hereof) (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/20)
 
 # 2.0.1
 
