@@ -9,7 +9,6 @@ import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.filter.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
 import csense.idea.kotlin.checked.exceptions.bll.*
-import csense.idea.kotlin.checked.exceptions.inspections.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
 import csense.kotlin.extensions.*
 import org.intellij.lang.annotations.*

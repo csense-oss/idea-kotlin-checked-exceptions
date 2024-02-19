@@ -36,6 +36,10 @@
     <actions>
 
     </actions>
-
+    <projectListeners>
+        <listener
+                class="csense.idea.kotlin.checked.exceptions.filelisteners.FileContentListener"
+                topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+    </projectListeners>
     <idea-version since-build="213"/>
 </idea-plugin>

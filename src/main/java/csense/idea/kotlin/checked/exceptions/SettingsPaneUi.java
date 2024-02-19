@@ -8,13 +8,23 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 public class SettingsPaneUi {
+
     @NotNull
     public JPanel root;
 
     @NotNull
     private JCheckBox ignoreRuntimeExceptionsCheckBox;
+
+    @NotNull
+    private JCheckBox ignoreTestExceptionsCheckBox;
+
+    @NotNull
+    private JCheckBox ignoreThrowsInDeprecatedMethods;
 
     private boolean didChange = false;
 
@@ -26,13 +36,18 @@ public class SettingsPaneUi {
             }
         };
         ignoreRuntimeExceptionsCheckBox.setSelected(Settings.INSTANCE.getIgnoreRuntimeExceptions());
+        ignoreTestExceptionsCheckBox.setSelected(Settings.INSTANCE.getIgnoreTestExceptions());
+        ignoreThrowsInDeprecatedMethods.setSelected(Settings.INSTANCE.getIgnoreDeprecated());
+
         ignoreRuntimeExceptionsCheckBox.setAction(didChangeCallback);
+        ignoreTestExceptionsCheckBox.setAction(didChangeCallback);
+        ignoreThrowsInDeprecatedMethods.setAction(didChangeCallback);
     }
-
-
 
     public void store() {
         Settings.INSTANCE.setIgnoreRuntimeExceptions(ignoreRuntimeExceptionsCheckBox.isSelected());
+        Settings.INSTANCE.setIgnoreTestExceptions(ignoreTestExceptionsCheckBox.isSelected());
+        Settings.INSTANCE.setIgnoreDeprecated(ignoreThrowsInDeprecatedMethods.isSelected());
         setDidChange(false);
     }
 

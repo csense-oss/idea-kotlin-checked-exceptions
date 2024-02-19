@@ -76,7 +76,7 @@ object AddThrowsTypeToSelector {
         result: MutableList<LocalQuickFix>,
         kotlinThrowable: KtPsiClass?
     ) {
-        val kotlinThrowable: KtPsiClass = kotlinThrowable ?: return
+        kotlinThrowable ?: return
         result += AddThrowsTypesQuickFix(
             toExpression = parentScope,
             missingThrowsTypes = listOf(kotlinThrowable)

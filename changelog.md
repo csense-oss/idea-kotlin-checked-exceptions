@@ -1,4 +1,11 @@
+# 2.1.0
+
+- Fixed a Stackoverflow exception (see https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/17)
+- Fixed a type hierarchy issue  https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18
+- Added capability to ignore functions marked as tests (and a setting hereof) (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/19)
+
 # 2.0.1
+
 - fixed a regression where the main inspection was not enabled by default
 - and in relation made sure that the main inspection default highlight level is warning
 - fixed main inspection description
