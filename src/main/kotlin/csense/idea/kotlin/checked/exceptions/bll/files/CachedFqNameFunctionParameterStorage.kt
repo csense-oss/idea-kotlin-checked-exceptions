@@ -34,6 +34,11 @@ class CachedFqNameFunctionParameterStorage private constructor(
         }
     } ?: false
 
+    @Throws(Throwable::class)
+    fun reload() {
+        fileCache.reload()
+    }
+
 
     companion object {
 

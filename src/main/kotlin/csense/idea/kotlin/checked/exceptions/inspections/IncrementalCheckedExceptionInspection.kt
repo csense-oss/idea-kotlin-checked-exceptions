@@ -2,8 +2,12 @@ package csense.idea.kotlin.checked.exceptions.inspections
 
 import com.intellij.codeHighlighting.*
 import com.intellij.codeInspection.*
+import com.intellij.psi.*
+import csense.idea.base.bll.kotlin.*
+import csense.idea.base.module.*
 import csense.idea.base.visitors.*
 import csense.idea.kotlin.checked.exceptions.bll.*
+import csense.idea.kotlin.checked.exceptions.settings.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
 import org.jetbrains.kotlin.psi.*
 
@@ -33,6 +37,7 @@ class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
         holder: ProblemsHolder,
         isOnTheFly: Boolean
     ): KtVisitorVoid {
+
         val visitor = IncrementalExceptionCheckerVisitor(
             holder = holder,
             project = holder.project
@@ -44,9 +49,47 @@ class IncrementalCheckedExceptionInspection : LocalInspectionTool() {
             )
         }
 
-        return NamedFunctionOrCustomPropertyCodeVisitor(
+        return SettingsBasedNamedFunctionOrCustomPropertyCodeVisitor(
             onFunctionNamed = callVisitor,
             onPropertyWithInnerCode = callVisitor
         )
+    }
+}
+
+class SettingsBasedNamedFunctionOrCustomPropertyCodeVisitor(
+    onFunctionNamed: (KtNamedFunction) -> Unit,
+    onPropertyWithInnerCode: (KtProperty) -> Unit
+) : NamedFunctionOrCustomPropertyCodeVisitor(
+    onFunctionNamed,
+    onPropertyWithInnerCode
+) {
+    override fun visitNamedFunction(function: KtNamedFunction) {
+        if (shouldIgnoreFile(function.containingFile)) {
+            return
+        }
+        if (shouldIgnoreFunction(function)) {
+            return
+        }
+        super.visitNamedFunction(function)
+    }
+
+    private fun shouldIgnoreFunction(function: KtNamedFunction): Boolean {
+        if (!Settings.ignoreDeprecated) {
+            return false
+        }
+        return function.hasAnnotationBy {
+            it.fqName() == "kotlin.Deprecated"
+        }
+    }
+
+    override fun visitProperty(property: KtProperty) {
+        if (shouldIgnoreFile(property.containingFile)) {
+            return
+        }
+        super.visitProperty(property)
+    }
+
+    private fun shouldIgnoreFile(file: PsiFile): Boolean {
+        return file.isInTestModule() && Settings.ignoreTestExceptions
     }
 }

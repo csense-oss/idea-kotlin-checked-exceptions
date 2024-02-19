@@ -13,7 +13,20 @@ object Settings {
 
     var ignoreRuntimeExceptions: Boolean by BooleanSetting(
         backend = backend,
-        settingsNamePrefix = settingsPrefixed
+        settingsNamePrefix = settingsPrefixed,
+        defaultValue = true
+    )
+
+    var ignoreTestExceptions: Boolean by BooleanSetting(
+        backend = backend,
+        settingsNamePrefix = settingsPrefixed,
+        defaultValue = true
+    )
+
+    var ignoreDeprecated: Boolean by BooleanSetting(
+        backend = backend,
+        settingsNamePrefix = settingsPrefixed,
+        defaultValue = true
     )
 
 }
