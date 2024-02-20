@@ -1,3 +1,6 @@
+# 2.1.1
+- Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18 
+
 # 2.1.0
 
 - Fixed a Stackoverflow exception (see https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/17)

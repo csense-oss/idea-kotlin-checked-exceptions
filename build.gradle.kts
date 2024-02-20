@@ -1,6 +1,6 @@
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.17.1"
+    id("org.jetbrains.intellij") version "1.17.2"
     //https://github.com/JetBrains/kotlin
     kotlin("jvm") version "1.9.22"
     //https://jeremylong.github.io/DependencyCheck/
@@ -10,7 +10,7 @@ plugins {
 val javaVersion = "11"
 
 group = "csense-idea"
-version = "2.1.0"
+version = "2.1.1"
 
 intellij {
     updateSinceUntilBuild.set(false)
@@ -50,10 +50,7 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
     changeNotes.set(
         """
         <ul>
-          <li> Fixed a Stackoverflow exception (see https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/17)</li>
-          <li> Fixed issues related to https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/21 and made plugin listen for manual changes to *.throws files</li>
-          <li> Added capability to ignore functions marked as tests (and a setting hereof) (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/19)</li>
-          <li> Added capability to ignore functions marked as deprecated (and a setting hereof) (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/20)</li>
+          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18 </li>
         </ul>
         
       """
