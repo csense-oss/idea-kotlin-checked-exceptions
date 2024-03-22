@@ -2,7 +2,7 @@ plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij") version "1.17.2"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     //https://jeremylong.github.io/DependencyCheck/
     id("org.owasp.dependencycheck") version "9.0.9"
 }
@@ -35,7 +35,7 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.1.60")
+    implementation("csense.idea.base:csense-idea-base:0.1.62")
     //https://github.com/Kotlin/kotlinx.serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     //https://github.com/Kotlin/kotlinx.coroutines
@@ -50,9 +50,9 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
     changeNotes.set(
         """
         <ul>
-          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18 </li>
+          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18</li>
+          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/25</li>
         </ul>
-        
       """
     )
 }

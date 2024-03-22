@@ -276,6 +276,7 @@ class IncrementalExceptionCheckerVisitor(
     )
 
     companion object {
+        //todo settings?
         const val typeCssColor: String = "#ff6b2b"
     }
 }

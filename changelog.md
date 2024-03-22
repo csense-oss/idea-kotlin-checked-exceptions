@@ -1,5 +1,6 @@
 # 2.1.1
-- Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18 
+- Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18
+- Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/25
 
 # 2.1.0
 

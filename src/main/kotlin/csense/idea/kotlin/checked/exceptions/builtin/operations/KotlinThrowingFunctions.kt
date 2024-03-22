@@ -21,7 +21,7 @@ private fun KtPsiFunction.builtInThrowsTypes(project: Project): List<KtPsiClass>
         ?: return emptyList()
 
     return builtIn.exceptionFqNames.mapNotNull { exceptionFqName: String ->
-        KtPsiClass.resolve(
+        KtPsiClass.resolveByKotlin(
             fqName = exceptionFqName,
             project = project
         )
