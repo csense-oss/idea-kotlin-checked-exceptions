@@ -1,16 +1,16 @@
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.17.1"
+    id("org.jetbrains.intellij") version "1.17.2"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "9.0.9"
+    id("org.owasp.dependencycheck") version "9.0.10"
 }
 
 val javaVersion = "11"
 
 group = "csense-idea"
-version = "2.1.0"
+version = "2.1.1"
 
 intellij {
     updateSinceUntilBuild.set(false)
@@ -35,11 +35,11 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.1.60")
+    implementation("csense.idea.base:csense-idea-base:0.1.62")
     //https://github.com/Kotlin/kotlinx.serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     //https://github.com/Kotlin/kotlinx.coroutines
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
     //https://github.com/csense-oss/csense-kotlin-test
     testImplementation("csense.kotlin:csense-kotlin-tests:0.0.60")
     //https://github.com/csense-oss/csense-oss-idea-kotlin-shared-test
@@ -50,12 +50,9 @@ tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml
     changeNotes.set(
         """
         <ul>
-          <li> Fixed a Stackoverflow exception (see https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/17)</li>
-          <li> Fixed issues related to https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/21 and made plugin listen for manual changes to *.throws files</li>
-          <li> Added capability to ignore functions marked as tests (and a setting hereof) (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/19)</li>
-          <li> Added capability to ignore functions marked as deprecated (and a setting hereof) (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/20)</li>
+          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18</li>
+          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/25</li>
         </ul>
-        
       """
     )
 }

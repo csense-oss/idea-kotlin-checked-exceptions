@@ -151,7 +151,11 @@ class IncrementalExceptionCheckerVisitor(
         val throws: KtPsiClass? = expression.resolveThrownTypeOrNull()
         val throwsList: List<KtPsiClass> = listOfNotNull(throws).filterRuntimeExceptionsBySettings()
 
-        findIssuesAndReport(expression = expression, currentState = currentState, potentialExceptions = throwsList)
+        findIssuesAndReport(
+            expression = expression,
+            currentState = currentState,
+            potentialExceptions = throwsList
+        )
 
         return super.visitThrowExpression(expression, currentState)
     }
@@ -272,6 +276,7 @@ class IncrementalExceptionCheckerVisitor(
     )
 
     companion object {
+        //todo settings?
         const val typeCssColor: String = "#ff6b2b"
     }
 }

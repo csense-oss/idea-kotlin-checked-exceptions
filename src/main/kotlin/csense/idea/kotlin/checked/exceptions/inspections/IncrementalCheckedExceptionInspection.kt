@@ -77,9 +77,7 @@ class SettingsBasedNamedFunctionOrCustomPropertyCodeVisitor(
         if (!Settings.ignoreDeprecated) {
             return false
         }
-        return function.hasAnnotationBy {
-            it.fqName() == "kotlin.Deprecated"
-        }
+        return function.isAnnotatedDeprecated()
     }
 
     override fun visitProperty(property: KtProperty) {
