@@ -262,6 +262,24 @@ class IncrementalExceptionCheckerVisitor(
         }
     }
 
+    override fun visitCallableReferenceExpression(
+        expression: KtCallableReferenceExpression,
+        state: IncrementalExceptionCheckerState?
+    ): Void? {
+        val currentState: IncrementalExceptionCheckerState = state.newStateByAppending()
+
+        val thrownExceptions: List<KtPsiClass> = expression
+            .resolveKtPsiFunctionOrNull()
+            ?.throwsTypesForCallBySettingsOrEmpty() ?: listOf()
+
+        findIssuesAndReport(
+            expression = expression,
+            currentState = currentState,
+            potentialExceptions = thrownExceptions
+        )
+        return super.visitCallableReferenceExpression(expression, state)
+    }
+
     private fun IncrementalExceptionCheckerState?.newStateByAppending(
         newCaptures: List<KtPsiClass> = listOf(),
         newThrows: List<KtPsiClass> = listOf(),
@@ -290,7 +308,7 @@ data class IncrementalExceptionCheckerState(
     val parentScope: KtElement? = null
 ) {
     companion object {
-        val empty = IncrementalExceptionCheckerState(
+        val empty: IncrementalExceptionCheckerState = IncrementalExceptionCheckerState(
             captures = emptyList(),
             throwsTypes = emptyList(),
             containingLambdas = emptyList(),

@@ -5,8 +5,6 @@ import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
-import csense.idea.base.bll.annotator.*
-import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.linemarkers.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
@@ -52,6 +50,10 @@ class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvi
         type: String,
         isRuntimeException: Boolean
     ): RelatedItemLineMarkerInfo<PsiElement> {
+
+        val exceptionIcon: Icon = IconLoader.getIcon("/icons/exception.svg", Companion::class.java)
+
+
         @Language("html")
         val runtimeExceptionText: String = when (isRuntimeException) {
             true -> "(subtype of <i style=\"color:$iconColorTheme\">RuntimeException</i>)"
@@ -69,8 +71,17 @@ class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvi
     }
 
     companion object {
-        val exceptionIcon: Icon = IconLoader.getIcon("/icons/exception.svg", Companion::class.java)
-        const val iconColorTheme = "#EDA200"
+        const val iconColorTheme: String = "#EDA200"
     }
 
+}
+
+fun KtThrowExpression.resolveThrownTypeOrNull(): KtPsiClass? {
+    val thrownExpression: KtExpression = this.thrownExpression ?: return null
+    when(thrownExpression){
+        
+    }
+    return this.thrownExpression?.resolveFirstClassType2()
+        ?: KtPsiClass.getKotlinThrowable(project)
+        ?: KtPsiClass.getJavaThrowable(project)
 }

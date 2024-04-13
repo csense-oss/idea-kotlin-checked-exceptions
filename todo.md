@@ -5,7 +5,6 @@
 - handle "*arrayOf(exception::class, exception2::class)" ....
 - come up with something for init that can throw...
 - SAM function(s) might not be working
-- if (ignore, callthough) does not exists?
 - improve documentation parsing / handling
 - improve the "source" target when finding e.g.
 - settings for the colors etc. of the hints.

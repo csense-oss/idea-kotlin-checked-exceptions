@@ -1,16 +1,16 @@
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.17.2"
+    id("org.jetbrains.intellij") version "1.17.3"
     //https://github.com/JetBrains/kotlin
     kotlin("jvm") version "1.9.23"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "9.0.10"
+    id("org.owasp.dependencycheck") version "9.1.0"
 }
 
 val javaVersion = "11"
 
 group = "csense-idea"
-version = "2.1.1"
+version = "2.1.2"
 
 intellij {
     updateSinceUntilBuild.set(false)
@@ -35,7 +35,7 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.1.62")
+    implementation("csense.idea.base:csense-idea-base:0.1.63")
     //https://github.com/Kotlin/kotlinx.serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     //https://github.com/Kotlin/kotlinx.coroutines
