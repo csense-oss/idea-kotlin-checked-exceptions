@@ -5,6 +5,7 @@ import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
+import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.linemarkers.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
@@ -74,14 +75,4 @@ class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvi
         const val iconColorTheme: String = "#EDA200"
     }
 
-}
-
-fun KtThrowExpression.resolveThrownTypeOrNull(): KtPsiClass? {
-    val thrownExpression: KtExpression = this.thrownExpression ?: return null
-    when(thrownExpression){
-        
-    }
-    return this.thrownExpression?.resolveFirstClassType2()
-        ?: KtPsiClass.getKotlinThrowable(project)
-        ?: KtPsiClass.getJavaThrowable(project)
 }
