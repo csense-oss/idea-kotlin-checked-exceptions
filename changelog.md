@@ -1,3 +1,8 @@
+# 2.1.2
+- Fixes a lot of issues with respect to throw expressions (also causes a thrown exception to be interpreted as Exception https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/26 )
+- QuickFixes (CSense detects Throws annotation only if lambda provides callsInPlace contract https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/27)
+- Method references are now resolved (method references are not marked https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/28)
+
 # 2.1.1
 - Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18
 - Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/25

@@ -49,9 +49,11 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes.set(
         """
+            Fixes
         <ul>
-          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18</li>
-          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/25</li>
+          <li> Fixes a lot of issues with respect to throw expressions (also causes a thrown exception to be interpreted as Exception https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/26 )</li>
+          <li> QuickFixes (CSense detects Throws annotation only if lambda provides callsInPlace contract https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/27) </li>
+          <li> Method references are now resolved (method references are not marked https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/28) </li>
         </ul>
       """
     )
