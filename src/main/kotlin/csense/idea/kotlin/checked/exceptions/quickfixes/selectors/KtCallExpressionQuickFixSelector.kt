@@ -3,10 +3,12 @@ package csense.idea.kotlin.checked.exceptions.quickfixes.selectors
 import com.intellij.codeInspection.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
+import csense.idea.kotlin.checked.exceptions.csense.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.add.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.wrap.*
 import csense.idea.kotlin.checked.exceptions.repo.*
 import csense.idea.kotlin.checked.exceptions.visitors.*
+import csense.kotlin.extensions.*
 import org.jetbrains.kotlin.psi.*
 
 class KtCallExpressionQuickFixSelector(
@@ -30,38 +32,38 @@ class KtCallExpressionQuickFixSelector(
         result: MutableList<LocalQuickFix>
     ) {
         appendQuickFixesForExpression(state, result)
-        if (state.containingLambdas.isNotEmpty()) {
-            appendQuickFixesForContainingLambdas(state, result)
-        } else {
-            AddThrowsTypeToSelector.tryAddThrowsTypesAnnotations(
-                parent = state.parentScope,
-                result = result, uncaughtExceptions = uncaughtExceptions,
-                kotlinThrowable = kotlinThrowable
-            )
+
+        val firstBlockingLambda: LambdaArgumentLookup? = state.containingLambdas.selectLastOrNull { it: KtLambdaExpression ->
+            val lookup: LambdaArgumentLookup = it.toLamdaArgumentLookup() ?: return@selectLastOrNull null
+            val isBlocking: Boolean = !callThoughRepo.isLambdaCallThough(lookup)
+            return@selectLastOrNull isBlocking.map(ifTrue = lookup, ifFalse = null)
         }
+
+        if (firstBlockingLambda != null) {
+            appendQuickFixesForContainingLambdas(result, firstBlockingLambda)
+            return
+        }
+
+        AddThrowsTypeToSelector.tryAddThrowsTypesAnnotations(
+            parent = state.parentScope,
+            result = result, uncaughtExceptions = uncaughtExceptions,
+            kotlinThrowable = kotlinThrowable
+        )
     }
 
     private fun appendQuickFixesForContainingLambdas(
-        state: IncrementalExceptionCheckerState,
-        result: MutableList<LocalQuickFix>
+        result: MutableList<LocalQuickFix>,
+        blockingLambda: LambdaArgumentLookup
     ) {
-        val lambda: LambdaArgumentLookup = getLambdaFromStateOrNull(state) ?: return
-
-        if (!ignoreRepo.isLambdaIgnoreExceptions(lambda)) {
-            result += AddLambdaToIgnoreQuickFix(lambda)
+        if (!ignoreRepo.isLambdaIgnoreExceptions(blockingLambda)) {
+            result += AddLambdaToIgnoreQuickFix(blockingLambda)
         }
-        if (!callThoughRepo.isLambdaCallThough(lambda)) {
-            result += AddLambdaToCallthoughQuickFix(lambda)
+        if(!callThoughRepo.isLambdaCallThough(blockingLambda)) {
+            result += AddLambdaToCallthoughQuickFix(blockingLambda)
         }
     }
 
-    private fun getLambdaFromStateOrNull(
-        state: IncrementalExceptionCheckerState
-    ): LambdaArgumentLookup? {
-        return state.containingLambdas.lastOrNull()?.toLamdaArgumentLookup()
-    }
-
-    private fun appendQuickFixesForExpression(
+        private fun appendQuickFixesForExpression(
         state: IncrementalExceptionCheckerState,
         result: MutableList<LocalQuickFix>
     ) {

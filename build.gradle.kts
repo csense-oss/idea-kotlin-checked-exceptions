@@ -1,16 +1,16 @@
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.17.2"
+    id("org.jetbrains.intellij") version "1.17.3"
     //https://github.com/JetBrains/kotlin
     kotlin("jvm") version "1.9.23"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "9.0.10"
+    id("org.owasp.dependencycheck") version "9.1.0"
 }
 
 val javaVersion = "11"
 
 group = "csense-idea"
-version = "2.1.1"
+version = "2.1.2"
 
 intellij {
     updateSinceUntilBuild.set(false)
@@ -35,7 +35,7 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.1.62")
+    implementation("csense.idea.base:csense-idea-base:0.1.63")
     //https://github.com/Kotlin/kotlinx.serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     //https://github.com/Kotlin/kotlinx.coroutines
@@ -49,9 +49,11 @@ dependencies {
 tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
     changeNotes.set(
         """
+            Fixes
         <ul>
-          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/18</li>
-          <li>Fixed https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/25</li>
+          <li> Fixes a lot of issues with respect to throw expressions (also causes a thrown exception to be interpreted as Exception https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/26 )</li>
+          <li> QuickFixes (CSense detects Throws annotation only if lambda provides callsInPlace contract https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/27) </li>
+          <li> Method references are now resolved (method references are not marked https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/28) </li>
         </ul>
       """
     )
