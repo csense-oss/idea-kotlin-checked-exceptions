@@ -1,6 +1,7 @@
 package csense.idea.kotlin.checked.exceptions.bll.files
 
 import com.intellij.openapi.project.*
+import csense.idea.base.files.*
 import csense.kotlin.extensions.*
 import csense.kotlin.extensions.collections.*
 import java.nio.file.*
