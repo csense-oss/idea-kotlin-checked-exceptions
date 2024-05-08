@@ -1,3 +1,6 @@
+# 2.1.3
+- Fixed a bug in wrap in try catch (copping off code) https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/31
+- 
 # 2.1.2
 - Fixes a lot of issues with respect to throw expressions (also causes a thrown exception to be interpreted as Exception https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/26 )
 - QuickFixes (CSense detects Throws annotation only if lambda provides callsInPlace contract https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/27)

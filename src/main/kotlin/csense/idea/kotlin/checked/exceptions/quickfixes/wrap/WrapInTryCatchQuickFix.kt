@@ -21,9 +21,19 @@ class WrapInTryCatchQuickFix(
         )
     }
 
+    @Throws(com.intellij.util.IncorrectOperationException::class)
     override fun tryUpdate(project: Project, file: PsiFile, element: KtCallExpression): PsiElement {
-        val newElement: KtExpression = createTryCatchWithElement(element, forFile = file)
-        return element.replace(newElement)
+        val top: KtElement = element.resolveToTop()
+        val newElement: KtExpression = createTryCatchWithElement(top, forFile = file)
+        return top.replace(newElement)
+    }
+
+    private fun KtCallExpression.resolveToTop(): KtElement {
+        val parent: PsiElement? = parent
+        if (parent is KtDotQualifiedExpression) {
+            return parent
+        }
+        return this
     }
 
 
@@ -69,4 +79,3 @@ fun KtPsiClass.catchParameterCode(forFile: PsiFile): String {
         """.trimIndent()
     return result
 }
-
