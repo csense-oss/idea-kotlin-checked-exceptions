@@ -31,8 +31,12 @@
         <applicationConfigurable groupId="tools" displayName="Csense Kotlin Checked Exceptions"
                                  id="csenseKotlinCheckedExceptionsSettingsPage"
                                  instance="csense.idea.kotlin.checked.exceptions.settings.SettingsPage"/>
-    </extensions>
 
+
+    </extensions>
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <supportsKotlinPluginMode supportsK2="true" />
+    </extensions>
     <actions>
 
     </actions>

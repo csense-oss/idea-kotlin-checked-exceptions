@@ -1,3 +1,6 @@
+# 2.2.0
+- kotlin 2.0
+
 # 2.1.3
 - Fixed a bug in wrap in try catch (copping off code) https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/31
 - 

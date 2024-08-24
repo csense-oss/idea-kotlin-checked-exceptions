@@ -15,7 +15,7 @@ object AnnotationsRepo {
         return argument
             .parameterToValueExpression
             .parameterValueAnnotations
-            .anyByFqName(rethrowsExceptionFqName)
+            .anyByFqNames(rethrowsExceptionFqNames)
     }
 
 
@@ -28,8 +28,8 @@ object AnnotationsRepo {
     }
 
     private fun LambdaArgumentLookup.getAllCatchAnnotations(): List<KtAnnotationEntry> {
-        return parameterToValueExpression.parameterValueAnnotations.filterByFqName(
-            fqName = catchesExceptionFqName
+        return parameterToValueExpression.parameterValueAnnotations.filterByFqNames(
+            fqNames = catchesExceptionFqName
         )
     }
 
@@ -48,7 +48,23 @@ object AnnotationsRepo {
         )
     }
 
-    const val rethrowsExceptionFqName = "csense.kotlin.annotations.exceptions.RethrowsExceptions"
-    const val catchesExceptionFqName = "csense.kotlin.annotations.exceptions.CatchesExceptions"
+    val rethrowsExceptionFqNames: Set<String> = setOf(
+        "csense.kotlin.annotations.exceptions.RethrowsExceptions",
+        "org.csenseoss.kotlin.annotations.exceptions.RethrowsExceptions"
+    )
+    val catchesExceptionFqName: Set<String> = setOf(
+        "csense.kotlin.annotations.exceptions.CatchesExceptions",
+        "org.csenseoss.kotlin.annotations.exceptions.CatchesExceptions"
+    )
 
+}
+
+//TODO move to base
+fun List<KtAnnotationEntry>.anyByFqNames(fqNames: Set<String>): Boolean = any { it: KtAnnotationEntry ->
+    it.fqName() in fqNames
+}
+
+
+fun List<KtAnnotationEntry>.filterByFqNames(fqNames: Set<String>): List<KtAnnotationEntry> = filter { it: KtAnnotationEntry ->
+    it.fqName() in fqNames
 }
