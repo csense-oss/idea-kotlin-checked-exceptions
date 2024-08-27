@@ -28,3 +28,4 @@ build/
 /out/
 /local.properties
 .intellijPlatform/
+.kotlin/
