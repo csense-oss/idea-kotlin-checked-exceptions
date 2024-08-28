@@ -58,13 +58,3 @@ object AnnotationsRepo {
     )
 
 }
-
-//TODO move to base
-fun List<KtAnnotationEntry>.anyByFqNames(fqNames: Set<String>): Boolean = any { it: KtAnnotationEntry ->
-    it.fqName() in fqNames
-}
-
-
-fun List<KtAnnotationEntry>.filterByFqNames(fqNames: Set<String>): List<KtAnnotationEntry> = filter { it: KtAnnotationEntry ->
-    it.fqName() in fqNames
-}

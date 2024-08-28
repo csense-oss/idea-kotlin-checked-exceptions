@@ -49,7 +49,7 @@ dependencies {
 
 
     intellijPlatform {
-        intellijIdeaCommunity("2024.2") // intellijIdeaCommunity("2022.3")
+        intellijIdeaCommunity("2022.3") // intellijIdeaCommunity("2022.3")
 
         bundledPlugin("org.jetbrains.kotlin")
         pluginVerifier()
@@ -64,8 +64,9 @@ intellijPlatform {
         //language=html
         changeNotes = """
             <ul>
-               <li> k2 mode enabled </li>
-               <li> bumped idea version requirements </li>
+               <li>k2 mode enabled</li>
+               <li>bumped idea version requirements </li>
+               <li>Fixed issues with typealias and type resolution</li>
             </ul>
         """.trimIndent()
         ideaVersion {
