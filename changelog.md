@@ -1,5 +1,8 @@
 # 2.2.0
 - kotlin 2.0
+- k2 mode enabled
+- bumped idea version requirements 
+- Fixed issues with typealias and type resolution
 
 # 2.1.3
 - Fixed a bug in wrap in try catch (copping off code) https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/31
