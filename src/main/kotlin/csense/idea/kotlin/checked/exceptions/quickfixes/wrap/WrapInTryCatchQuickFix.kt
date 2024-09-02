@@ -23,19 +23,23 @@ class WrapInTryCatchQuickFix(
 
     @Throws(com.intellij.util.IncorrectOperationException::class)
     override fun tryUpdate(project: Project, file: PsiFile, element: KtCallExpression): PsiElement {
-        val top: KtElement = element.resolveToTop()
+        val top: KtElement = element.tryResolveTopExpressionInBlock()
         val newElement: KtExpression = createTryCatchWithElement(top, forFile = file)
         return top.replace(newElement)
     }
 
-    private fun KtCallExpression.resolveToTop(): KtElement {
-        val parent: PsiElement? = parent
-        if (parent is KtDotQualifiedExpression) {
-            return parent
+    //TODO walkWhile?
+    private fun KtElement.tryResolveTopExpressionInBlock(): KtElement {
+        var currentElement: KtElement = this
+        while (true) {
+            val parent: PsiElement = currentElement.parent
+            if (parent !is KtElement || parent is KtBlockExpression) {
+                break
+            }
+            currentElement = parent
         }
-        return this
+        return currentElement
     }
-
 
     private fun createTryCatchWithElement(
         element: PsiElement,
