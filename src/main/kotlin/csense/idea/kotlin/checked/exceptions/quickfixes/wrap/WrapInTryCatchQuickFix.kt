@@ -2,6 +2,7 @@ package csense.idea.kotlin.checked.exceptions.quickfixes.wrap
 
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
+import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
@@ -33,7 +34,7 @@ class WrapInTryCatchQuickFix(
         var currentElement: KtElement = this
         while (true) {
             val parent: PsiElement = currentElement.parent
-            if (parent !is KtElement || parent is KtBlockExpression) {
+            if (parent !is KtElement || parent is KtBlockExpression || parent is KtProperty) {
                 break
             }
             currentElement = parent
@@ -43,7 +44,7 @@ class WrapInTryCatchQuickFix(
 
     private fun createTryCatchWithElement(
         element: PsiElement,
-        forFile: PsiFile
+        forFile: PsiFile,
     ): KtExpression {
         val block: KtBlockExpression = factory.createBlock(createCode(element.text, forFile))
         return block.statements.singleOrNull() ?: block
