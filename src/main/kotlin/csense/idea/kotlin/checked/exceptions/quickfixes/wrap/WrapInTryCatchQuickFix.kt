@@ -2,6 +2,7 @@ package csense.idea.kotlin.checked.exceptions.quickfixes.wrap
 
 import com.intellij.openapi.project.*
 import com.intellij.psi.*
+import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.psiWrapper.`class`.*
 import csense.idea.base.bll.psiWrapper.`class`.operations.*
 import csense.idea.kotlin.checked.exceptions.quickfixes.*
@@ -23,23 +24,27 @@ class WrapInTryCatchQuickFix(
 
     @Throws(com.intellij.util.IncorrectOperationException::class)
     override fun tryUpdate(project: Project, file: PsiFile, element: KtCallExpression): PsiElement {
-        val top: KtElement = element.resolveToTop()
+        val top: KtElement = element.tryResolveTopExpressionInBlock()
         val newElement: KtExpression = createTryCatchWithElement(top, forFile = file)
         return top.replace(newElement)
     }
 
-    private fun KtCallExpression.resolveToTop(): KtElement {
-        val parent: PsiElement? = parent
-        if (parent is KtDotQualifiedExpression) {
-            return parent
+    //TODO walkWhile?
+    private fun KtElement.tryResolveTopExpressionInBlock(): KtElement {
+        var currentElement: KtElement = this
+        while (true) {
+            val parent: PsiElement = currentElement.parent
+            if (parent !is KtElement || parent is KtBlockExpression || parent is KtProperty) {
+                break
+            }
+            currentElement = parent
         }
-        return this
+        return currentElement
     }
-
 
     private fun createTryCatchWithElement(
         element: PsiElement,
-        forFile: PsiFile
+        forFile: PsiFile,
     ): KtExpression {
         val block: KtBlockExpression = factory.createBlock(createCode(element.text, forFile))
         return block.statements.singleOrNull() ?: block

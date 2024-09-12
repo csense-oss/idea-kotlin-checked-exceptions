@@ -1,22 +1,24 @@
+import org.jetbrains.intellij.platform.gradle.*
+
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "1.17.3"
+    id("org.jetbrains.intellij.platform") version "2.0.1"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.0.20"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "9.1.0"
+    id("org.owasp.dependencycheck") version "10.0.4"
 }
 
-val javaVersion = "11"
+repositories {
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+val javaVersion = "17"
 
 group = "csense-idea"
-version = "2.1.3"
-
-intellij {
-    updateSinceUntilBuild.set(false)
-    plugins.set(listOf("Kotlin", "java"))
-    version.set("2021.3")
-}
+version = "2.2.0"
 
 
 repositories {
@@ -35,27 +37,44 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.1.65")
+    implementation("csense.idea.base:csense-idea-base:0.1.70")
     //https://github.com/Kotlin/kotlinx.serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     //https://github.com/Kotlin/kotlinx.coroutines
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC.2")
     //https://github.com/csense-oss/csense-kotlin-test
     testImplementation("csense.kotlin:csense-kotlin-tests:0.0.60")
     //https://github.com/csense-oss/csense-oss-idea-kotlin-shared-test
     testImplementation("csense.idea.test:csense-idea-test:0.3.0")
-}
 
-tasks.getByName<org.jetbrains.intellij.tasks.PatchPluginXmlTask>("patchPluginXml") {
-    changeNotes.set(
-        """
-        <ul>
-          <li>Fix for bad wrap in try catch (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/31) </li>
-        </ul>
-      """
-    )
-}
 
+    intellijPlatform {
+        intellijIdeaCommunity("2022.3")
+
+        bundledPlugin("org.jetbrains.kotlin")
+        pluginVerifier()
+        zipSigner()
+        instrumentationTools()
+        testFramework(TestFrameworkType.Platform)
+
+    }
+}
+intellijPlatform {
+    pluginConfiguration {
+        //language=html
+        changeNotes = """
+            <ul>
+               <li>k2 mode enabled</li>
+               <li>bumped idea version requirements </li>
+               <li>Fixed issues with typealias and type resolution</li>
+            </ul>
+        """.trimIndent()
+        ideaVersion {
+            sinceBuild = "223"
+            untilBuild = provider { null }
+        }
+    }
+}
 
 tasks.getByName("check").dependsOn("dependencyCheckAnalyze")
 
@@ -66,22 +85,12 @@ tasks {
         targetCompatibility = javaVersion
     }
 
-    compileKotlin {
-        kotlinOptions.jvmTarget = javaVersion
-    }
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = javaVersion
-    }
-
     test {
         testLogging {
             showExceptions = true
             showStackTraces = true
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
-    }
-    runIde {
-//        ideDir.set(file("/home/kasper/.local/share/JetBrains/Toolbox/apps/AndroidStudio/ch-0/211.7628.21.2111.8139111/"))
     }
 }
 
