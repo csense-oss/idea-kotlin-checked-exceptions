@@ -6,7 +6,7 @@ plugins {
     //https://github.com/JetBrains/kotlin
     kotlin("jvm") version "2.0.20"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "10.0.3"
+    id("org.owasp.dependencycheck") version "10.0.4"
 }
 
 repositories {
@@ -37,7 +37,7 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.1.70-Beta")
+    implementation("csense.idea.base:csense-idea-base:0.1.70")
     //https://github.com/Kotlin/kotlinx.serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     //https://github.com/Kotlin/kotlinx.coroutines
@@ -49,7 +49,7 @@ dependencies {
 
 
     intellijPlatform {
-        intellijIdeaCommunity("2022.3") // intellijIdeaCommunity("2022.3")
+        intellijIdeaCommunity("2022.3")
 
         bundledPlugin("org.jetbrains.kotlin")
         pluginVerifier()
