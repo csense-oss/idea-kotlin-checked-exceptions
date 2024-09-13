@@ -66,7 +66,9 @@ intellijPlatform {
             <ul>
                <li>k2 mode enabled</li>
                <li>bumped idea version requirements </li>
+               <li>Fixed issue(s) with different Idea versions</li>
                <li>Fixed issues with typealias and type resolution</li>
+               <li>Improved wrap in try catch quickfix</li>
             </ul>
         """.trimIndent()
         ideaVersion {
