@@ -2,7 +2,7 @@ import org.jetbrains.intellij.platform.gradle.*
 
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij.platform") version "2.0.1"
+    id("org.jetbrains.intellij.platform") version "2.1.0"
     //https://github.com/JetBrains/kotlin
     kotlin("jvm") version "2.0.20"
     //https://jeremylong.github.io/DependencyCheck/
@@ -18,7 +18,7 @@ repositories {
 val javaVersion = "17"
 
 group = "csense-idea"
-version = "2.2.0"
+version = "2.2.1"
 
 
 repositories {
@@ -64,11 +64,7 @@ intellijPlatform {
         //language=html
         changeNotes = """
             <ul>
-               <li>k2 mode enabled</li>
-               <li>bumped idea version requirements </li>
-               <li>Fixed issue(s) with different Idea versions</li>
-               <li>Fixed issues with typealias and type resolution</li>
-               <li>Improved wrap in try catch quickfix</li>
+               <li></li>
             </ul>
         """.trimIndent()
         ideaVersion {
