@@ -4,7 +4,7 @@ plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij.platform") version "2.1.0"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.0.21"
     //https://jeremylong.github.io/DependencyCheck/
     id("org.owasp.dependencycheck") version "10.0.4"
 }
@@ -37,7 +37,7 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.1.70")
+    implementation("csense.idea.base:csense-idea-base:0.1.71")
     //https://github.com/Kotlin/kotlinx.serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     //https://github.com/Kotlin/kotlinx.coroutines
