@@ -1,3 +1,7 @@
+# 2.2.1
+- ignore process cancellation exception (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/40)
+- fixed some deprecated type resolution(s)
+
 # 2.2.0
 - kotlin 2.0
 - k2 mode enabled

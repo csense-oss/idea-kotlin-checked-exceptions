@@ -2,11 +2,11 @@ import org.jetbrains.intellij.platform.gradle.*
 
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij.platform") version "2.1.0"
+    id("org.jetbrains.intellij.platform") version "2.2.1"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "2.1.0"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "10.0.4"
+    id("org.owasp.dependencycheck") version "12.0.0"
 }
 
 repositories {
@@ -41,7 +41,7 @@ dependencies {
     //https://github.com/Kotlin/kotlinx.serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     //https://github.com/Kotlin/kotlinx.coroutines
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0-RC.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
     //https://github.com/csense-oss/csense-kotlin-test
     testImplementation("csense.kotlin:csense-kotlin-tests:0.0.60")
     //https://github.com/csense-oss/csense-oss-idea-kotlin-shared-test
@@ -64,7 +64,8 @@ intellijPlatform {
         //language=html
         changeNotes = """
             <ul>
-               <li></li>
+               <li>ignore process cancellation exception (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/40)</li>
+               <li>fixed some deprecated type resolution(s)</li>
             </ul>
         """.trimIndent()
         ideaVersion {
