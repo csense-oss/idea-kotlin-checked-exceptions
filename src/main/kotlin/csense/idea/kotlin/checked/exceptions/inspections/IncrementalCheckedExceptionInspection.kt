@@ -88,6 +88,10 @@ class SettingsBasedNamedFunctionOrCustomPropertyCodeVisitor(
     }
 
     private fun shouldIgnoreFile(file: PsiFile): Boolean {
-        return file.isInTestModule() && Settings.ignoreTestExceptions
+        return (file.isInTestModule() && Settings.ignoreTestExceptions) || file.isKtFileStubbed()
     }
+}
+
+fun PsiFile.isKtFileStubbed(): Boolean {
+    return this is KtFile && this.isStubbed()
 }

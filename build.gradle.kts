@@ -1,12 +1,16 @@
 import org.jetbrains.intellij.platform.gradle.*
+import org.jetbrains.intellij.platform.gradle.tasks.*
+import org.jetbrains.kotlin.gradle.dsl.*
 
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij.platform") version "2.2.1"
+    id("org.jetbrains.intellij.platform") version "2.7.0"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version "2.2.0"
+    //https://github.com/Kotlin/kotlinx.serialization
+    kotlin("plugin.serialization") version "2.2.0"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "12.0.0"
+    id("org.owasp.dependencycheck") version "12.1.0"
 }
 
 repositories {
@@ -15,13 +19,16 @@ repositories {
     }
 }
 
-val javaVersion = "17"
+val javaVersion = "21"
 
 group = "csense-idea"
-version = "2.2.1"
+version = "3.0.0"
 
 
 repositories {
+    intellijPlatform {
+        defaultRepositories()
+    }
     mavenCentral()
     mavenLocal()
     maven {
@@ -37,45 +44,50 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.1.71")
+    implementation("csense.idea.base:csense-idea-base:0.2.0")
     //https://github.com/Kotlin/kotlinx.serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     //https://github.com/Kotlin/kotlinx.coroutines
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     //https://github.com/csense-oss/csense-kotlin-test
     testImplementation("csense.kotlin:csense-kotlin-tests:0.0.60")
     //https://github.com/csense-oss/csense-oss-idea-kotlin-shared-test
     testImplementation("csense.idea.test:csense-idea-test:0.3.0")
 
-
     intellijPlatform {
-        intellijIdeaCommunity("2022.3")
-
+        intellijIdeaCommunity("2025.1")
+        bundledPlugin("com.intellij.java")
         bundledPlugin("org.jetbrains.kotlin")
         pluginVerifier()
         zipSigner()
-        instrumentationTools()
         testFramework(TestFrameworkType.Platform)
-
     }
 }
+
 intellijPlatform {
     pluginConfiguration {
         //language=html
         changeNotes = """
             <ul>
-               <li>ignore process cancellation exception (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/40)</li>
-               <li>fixed some deprecated type resolution(s)</li>
+            <li>Updated to fully support K2 mode</li>
+            <li>Bumped to IDEA 243 (2024.3) at minimum due to K2</li>
             </ul>
         """.trimIndent()
         ideaVersion {
-            sinceBuild = "223"
+            sinceBuild = "243"
             untilBuild = provider { null }
+        }
+    }
+
+    pluginVerification {
+        ides {
+            recommended()
         }
     }
 }
 
 tasks.getByName("check").dependsOn("dependencyCheckAnalyze")
+
 
 tasks {
 
@@ -94,10 +106,11 @@ tasks {
 }
 
 kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(javaVersion))
+    compilerOptions {
+        jvmTarget.set(JvmTarget.fromTarget(javaVersion))
     }
 }
+
 
 sourceSets {
     test {
@@ -105,4 +118,9 @@ sourceSets {
             srcDir("testData")
         }
     }
+}
+tasks.named<RunIdeTask>("runIde") {
+//    jvmArgumentProviders += CommandLineArgumentProvider {
+//        listOf("-Didea.kotlin.plugin.use.k2=true")
+//    }
 }

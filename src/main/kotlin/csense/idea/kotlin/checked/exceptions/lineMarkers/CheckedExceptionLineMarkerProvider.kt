@@ -5,7 +5,6 @@ import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
-import csense.idea.base.bll.*
 import csense.idea.base.bll.ast.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.linemarkers.*
@@ -27,13 +26,13 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
     override fun onCollectNavigationMarkers(
         element: LeafPsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
-    ): Unit = tryAndIgnoreProcessCanceledException {
+    ) {
         if (element.elementType.isNotKtIdentifier()) {
-            return@tryAndIgnoreProcessCanceledException
+            return
         }
         tryParentsAsCallExpression(element, result)
         tryParentsAsPropertyNamedExpression(element, result)
-    }.toUnit()
+    }
 
     private fun tryParentsAsPropertyNamedExpression(
         leaf: LeafPsiElement,
@@ -78,6 +77,7 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
         leafPsiElement: LeafPsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
+
         val throwsNonEmpty: List<KtPsiClass> = element.throwsTypesForSettings()
             .nullOnEmpty()
             ?: return
