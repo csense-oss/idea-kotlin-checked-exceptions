@@ -4,6 +4,7 @@ import com.intellij.codeHighlighting.*
 import com.intellij.codeInspection.*
 import com.intellij.psi.*
 import csense.idea.base.bll.kotlin.*
+import csense.idea.base.bll.psi.*
 import csense.idea.base.module.*
 import csense.idea.base.visitors.*
 import csense.idea.kotlin.checked.exceptions.bll.*
@@ -90,8 +91,4 @@ class SettingsBasedNamedFunctionOrCustomPropertyCodeVisitor(
     private fun shouldIgnoreFile(file: PsiFile): Boolean {
         return (file.isInTestModule() && Settings.ignoreTestExceptions) || file.isKtFileStubbed()
     }
-}
-
-fun PsiFile.isKtFileStubbed(): Boolean {
-    return this is KtFile && this.isStubbed()
 }
