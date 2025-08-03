@@ -1,4 +1,8 @@
-# 2.2.1
+# 3.0.0
+- Updated to fully support K2 mode
+- Bumped to IDEA 243 (2024.3) at minimum due to K2
+
+# 2.2.1 (unreleased, included in 3.0.0)
 - ignore process cancellation exception (https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/40)
 - fixed some deprecated type resolution(s)
 
