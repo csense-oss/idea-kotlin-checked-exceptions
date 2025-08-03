@@ -5,6 +5,7 @@ import com.intellij.codeInsight.navigation.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.tree.*
+import csense.idea.base.bll.*
 import csense.idea.base.bll.kotlin.*
 import csense.idea.base.bll.linemarkers.*
 import csense.idea.base.bll.psiWrapper.`class`.*
@@ -27,8 +28,8 @@ class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvi
         typedElement: KtThrowExpression,
         leafPsiElement: LeafPsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
-    ) {
-        val thrownType: KtPsiClass = typedElement.resolveThrownTypeOrNull() ?: return
+    ): Unit = tryAndIgnoreProcessCanceledException {
+        val thrownType: KtPsiClass = typedElement.resolveThrownTypeOrNull() ?: return@tryAndIgnoreProcessCanceledException
         val gutter: RelatedItemLineMarkerInfo<PsiElement> = createGutter(
             forElement = leafPsiElement,
             type = thrownType.getFqNameTypeAliased() ?: "",
@@ -37,7 +38,7 @@ class ThrowsExceptionLineMarkerProvider : AbstractSafeRelatedItemLineMarkerProvi
         if (result.doesNotContain(gutter)) {
             result += gutter
         }
-    }
+    }.toUnit()
 
     private fun MutableCollection<in RelatedItemLineMarkerInfo<*>>.doesNotContain(
         gutter: RelatedItemLineMarkerInfo<*>

@@ -77,6 +77,7 @@ class CheckedExceptionLineMarkerProvider : SafeRelatedItemLineMarkerProvider() {
         leafPsiElement: LeafPsiElement,
         result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
+
         val throwsNonEmpty: List<KtPsiClass> = element.throwsTypesForSettings()
             .nullOnEmpty()
             ?: return

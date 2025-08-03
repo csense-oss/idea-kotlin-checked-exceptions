@@ -1,7 +1,6 @@
 package csense.idea.kotlin.checked.exceptions.bll.callthough
 
 import csense.idea.base.bll.kotlin.*
-import java.util.HashMap
 
 
 object CallthoughInMemory {
