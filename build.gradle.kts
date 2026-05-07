@@ -4,13 +4,13 @@ import org.jetbrains.kotlin.gradle.dsl.*
 
 plugins {
     //https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij.platform") version "2.7.0"
+    id("org.jetbrains.intellij.platform") version "2.16.0"
     //https://github.com/JetBrains/kotlin
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.3.21"
     //https://github.com/Kotlin/kotlinx.serialization
-    kotlin("plugin.serialization") version "2.2.0"
+    kotlin("plugin.serialization") version "2.3.21"
     //https://jeremylong.github.io/DependencyCheck/
-    id("org.owasp.dependencycheck") version "12.1.0"
+    id("org.owasp.dependencycheck") version "12.2.2"
 }
 
 repositories {
@@ -22,7 +22,7 @@ repositories {
 val javaVersion = "21"
 
 group = "csense-idea"
-version = "3.0.0"
+version = "3.0.1"
 
 
 repositories {
@@ -44,9 +44,9 @@ dependencies {
     //https://github.com/csense-oss/csense-kotlin-annotations
     implementation("csense.kotlin:csense-kotlin-annotations-jvm:0.0.63")
     //https://github.com/csense-oss/idea-kotlin-shared-base
-    implementation("csense.idea.base:csense-idea-base:0.2.0")
+    implementation("csense.idea.base:csense-idea-base:0.2.1")
     //https://github.com/Kotlin/kotlinx.serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     //https://github.com/Kotlin/kotlinx.coroutines
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     //https://github.com/csense-oss/csense-kotlin-test
@@ -69,8 +69,7 @@ intellijPlatform {
         //language=html
         changeNotes = """
             <ul>
-            <li>Updated to fully support K2 mode</li>
-            <li>Bumped to IDEA 243 (2024.3) at minimum due to K2</li>
+            <li>Fixed bug with regards runtime exceptions</li>
             </ul>
         """.trimIndent()
         ideaVersion {
@@ -120,7 +119,7 @@ sourceSets {
     }
 }
 tasks.named<RunIdeTask>("runIde") {
-//    jvmArgumentProviders += CommandLineArgumentProvider {
-//        listOf("-Didea.kotlin.plugin.use.k2=true")
-//    }
+    jvmArgumentProviders += CommandLineArgumentProvider {
+        listOf("-Didea.kotlin.plugin.use.k2=true")
+    }
 }
