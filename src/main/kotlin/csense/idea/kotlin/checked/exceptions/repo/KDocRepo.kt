@@ -10,6 +10,7 @@ import csense.idea.base.bll.psiWrapper.function.*
 import csense.idea.base.bll.psiWrapper.function.operations.*
 import csense.idea.base.bll.psiWrapper.imports.*
 import csense.idea.base.bll.psiWrapper.imports.operations.*
+import csense.idea.kotlin.checked.exceptions.bll.*
 import csense.kotlin.extensions.collections.*
 
 object KDocRepo {
@@ -17,13 +18,14 @@ object KDocRepo {
         val docs: KtPsiDoc? = fnc.documentation()
         val throwsAnnotations: List<KtPsiDocElement> =
             docs?.findAnnotations(searchString = throwsAnnotation, ignoreCase = true) ?: return emptyList()
-        return throwsAnnotations.mapNotNull { it: KtPsiDocElement ->
+        val allThrowsAnnotations: List<KtPsiClass> = throwsAnnotations.mapNotNull { it: KtPsiDocElement ->
             resolveClassTypeFromDocumentation(
                 forElement = it,
                 inFile = fnc.containingFile,
                 project = fnc.project
             )
         }
+        return allThrowsAnnotations.filterRuntimeExceptionsBySettings()
     }
 
 

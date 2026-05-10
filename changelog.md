@@ -1,3 +1,7 @@
+# 3.0.1
+- Fixed issue with Kdoc and RuntimeExceptions https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/49
+- Updated dependencies
+
 # 3.0.0
 - Updated to fully support K2 mode
 - Bumped to IDEA 243 (2024.3) at minimum due to K2
