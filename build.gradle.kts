@@ -22,7 +22,7 @@ repositories {
 val javaVersion = "21"
 
 group = "csense-idea"
-version = "3.0.1"
+version = "3.0.2"
 
 
 repositories {
