@@ -1,3 +1,6 @@
+# 3.0.2
+- Fixed issue with new K2 api https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/51
+ 
 # 3.0.1
 - Fixed issue with Kdoc and RuntimeExceptions https://github.com/csense-oss/idea-kotlin-checked-exceptions/issues/49
 - Updated dependencies
