@@ -22,7 +22,7 @@ repositories {
 val javaVersion = "21"
 
 group = "csense-idea"
-version = "3.0.1"
+version = "3.0.2"
 
 
 repositories {
@@ -69,7 +69,7 @@ intellijPlatform {
         //language=html
         changeNotes = """
             <ul>
-            <li>Fixed bug with regards runtime exceptions</li>
+            <li>Fixed bug with new K2 analysis api</li>
             </ul>
         """.trimIndent()
         ideaVersion {
